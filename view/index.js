@@ -23,20 +23,20 @@ var ipcRenderer = require('electron').ipcRenderer;
 ipcRenderer.on('serial', (ev, message) => {
         message += '\n';
 
-  console.log(message);
+        console.log(message);
 
-  logWriter.append(message);
+        logWriter.append(message);
 
-var values = message.split(",");
+        var values = message.split(",");
 
-var clock = values[0] + 0;
-var brightness = values[1] + 0;
-var gyro = values[2] + 0;
+        var clock = values[0] + 0;
+        var brightness = values[1] + 0;
+        var gyro = values[2] + 0;
 
-gaugeChart.setValue(2, values[1]);
-gaugeChart.setValue(3, gyro);
+        gaugeChart.setValue(2, values[1]);
+        gaugeChart.setValue(3, gyro);
 
 
- // areaChart.data.addRows([ [Number(clock), Number(brightness)] ]);
- // areaChart.drawChart();
-});
+        // areaChart.data.addRows([ [Number(clock), Number(brightness)] ]);
+        // areaChart.drawChart();
+        });
