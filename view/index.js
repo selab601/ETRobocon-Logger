@@ -40,7 +40,7 @@ ipcRenderer.on('serial', (ev, message) => {
         gaugeChart.setRightCount(rightCount);
 
         gaugeChart.setValue(2, values[1]);
-        gaugeChart.setValue(3, gyro);
+        gaugeChart.setValue(3, gyro + 50.0);
 
 
         // areaChart.data.addRows([ [Number(clock), Number(brightness)] ]);

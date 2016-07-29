@@ -14,8 +14,8 @@ function drawChart(){
 var GaugeChart = function(){
     this.data = google.visualization.arrayToDataTable([
             ['Label', 'Value'],
-            ['L PWM', 0],
-            ['R PWM', 0],
+            ['L Speed', 0],
+            ['R Speed', 0],
             ['Brightness', 0],
             ['Gyro', 0]
     ]);
@@ -45,12 +45,12 @@ GaugeChart.prototype.setValue = function(number, value){
 }
 
 GaugeChart.prototype.setLeftCount = function(count){
-    this.data.setValue(0, 1, 50 + this.leftCount - count);
+    this.data.setValue(0, 1, count - this.leftCount + 50.0);
     this.leftCount = count;
 }
 
 GaugeChart.prototype.setRightCount = function(count){
-    this.data.setValue(1, 1,  50 + this.rightCount - count);
+    this.data.setValue(1, 1,  count - this.rightCount + 50.0);
     this.rightCount = count;
 }
 // ------ end of Class GaugeChart ----
