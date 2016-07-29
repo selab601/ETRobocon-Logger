@@ -30,6 +30,9 @@ width: 600, height: 160,
     this.element = document.createElement('div');
     document.getElementsByTagName("body").item(0).appendChild(this.element);
     this.chart = new google.visualization.Gauge(this.element);
+
+    this.leftCount = 0;
+    this.rightCount = 0;
 }
 
 GaugeChart.prototype.drawChart = function(){
@@ -39,6 +42,16 @@ GaugeChart.prototype.drawChart = function(){
 GaugeChart.prototype.setValue = function(number, value){
     this.data.setValue(number, 1, value);
     this.drawChart();
+}
+
+GaugeChart.prototype.setLeftCount = function(count){
+    this.data.setValue(0, 1, 50 + this.leftCount - count);
+    this.leftCount = count;
+}
+
+GaugeChart.prototype.setRightCount = function(count){
+    this.data.setValue(1, 1,  50 + this.rightCount - count);
+    this.rightCount = count;
 }
 // ------ end of Class GaugeChart ----
 

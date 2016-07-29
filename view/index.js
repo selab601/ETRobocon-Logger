@@ -33,6 +33,12 @@ ipcRenderer.on('serial', (ev, message) => {
         var brightness = values[1] + 0;
         var gyro = values[2] + 0;
 
+        var leftCount = values[6];
+        var rightCount = values[7];
+
+        gaugeChart.setLeftCount(leftCount);
+        gaugeChart.setRightCount(rightCount);
+
         gaugeChart.setValue(2, values[1]);
         gaugeChart.setValue(3, gyro);
 
