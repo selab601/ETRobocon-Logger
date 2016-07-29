@@ -21,10 +21,10 @@ var GaugeChart = function(){
     ]);
 
     this.options = {
-width: 600, height: 160,
-       redFrom: 90, redTo: 100,
-       yellowFrom:75, yellowTo: 90,
-       minorTicks: 5
+        width: 600, height: 160,
+        redFrom: 90, redTo: 100,
+        yellowFrom:75, yellowTo: 90,
+        minorTicks: 5
     };
 
     this.element = document.createElement('div');
@@ -63,9 +63,9 @@ var AreaChart = function(graphTitle, xName, yName){
     this.data.addColumn('number', yName);
 
     this.options = {
-title: graphTitle,
-       hAxis: {title: xName,  titleTextStyle: {color: '#333'}},
-       vAxis: {title: yName },
+        title: graphTitle,
+        hAxis: {title: xName,  titleTextStyle: {color: '#333'}},
+        vAxis: {title: yName },
     };
 
     this.element = document.createElement('div');
@@ -86,10 +86,10 @@ var ScatterChart = function(graphTitle, xName, yName){
     this.data.addColumn('number', yName);
 
     this.options = {
-title: graphTitle,
-       hAxis: {title: xName },
-       vAxis: {title: yName },
-       legend: 'none'
+        title: graphTitle,
+        hAxis: {title: xName },
+        vAxis: {title: yName },
+        legend: 'none'
     };
     this.element = document.createElement('div');
     document.getElementsByTagName("body").item(0).appendChild(this.element);
