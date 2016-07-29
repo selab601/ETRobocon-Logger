@@ -34,6 +34,13 @@ Electron というものを使用しています．
 $ node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron .
 ```
 
+または、
+``` shell
+$ ./run.sh
+```
+
+で実行できます．
+
 起動手順については，次節を参照して下さい．
 
 ## 使い方
@@ -52,6 +59,10 @@ $ node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron .
 ### 終了手順
 
 特に無いです．しいて言うなら，EV3 か Mac 側のアプリを終了させる
+
+### ログファイル
+
+[ログファイルについて](./log/README.md)
 
 ## TODO
 
