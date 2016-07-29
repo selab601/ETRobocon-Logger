@@ -22,21 +22,25 @@ ET2016 で使用する予定のロガーです．
 $ npm install
 ```
 
+
 ### Electron の起動
 
 Electron というものを使用しています．
 特に本アプリでは，古いバージョンの Electron が必要になります．
 起動のためのバイナリは前項の `package.js` 内に記述されています．
 `npm install` すると，`node_module` というディレクトリが生成され，その下に依存モジュール群がダウンロードされるので，そこからバイナリを起動する必要があります．
+
+引数に`/dev/tty.[Name]SerialPortProfile`を指定してください.
+
 パスは以下のようになります．
 
 ``` shell
-$ node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron .
+$ node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron .  /dev.tty.[Name]SerialPortProfile
 ```
 
 または、
 ``` shell
-$ ./run.sh
+$ ./run.sh /dev.tty.[Name]SerialPortProfile
 ```
 
 で実行できます．
@@ -53,7 +57,7 @@ $ ./run.sh
    - 一瞬失敗しても，待っていれば繋がることがある
 4. EV3 において LoadApp > SD Card > selab と選択し，EV3 側のアプリを起動
 5. EV3 の画面に `connecting ...` と表示されるまで待機
-6. 表示されたら，Mac から本アプリを起動する
+6. 表示されたら，Mac から本アプリを起動する( `./run.sh /dev.tty.[Name]SerialPortProfile`)
 7. 接続に成功すると，EV3 から音がする
 
 ### 終了手順

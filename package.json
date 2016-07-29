@@ -4,6 +4,7 @@
   "main": "main.js",
   "dependencies": {
     "electron-prebuilt": "0.35.3",
-    "serialport": "2.0.2"
+    "serialport": "2.0.2",
+    "date-utils": "1.2.7"
   }
 }
