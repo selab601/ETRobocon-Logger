@@ -33,7 +33,7 @@ app.on('activate', function() {
 // メインウインドウの生成
 function createWindow() {
   mainWindow = new BrowserWindow({width: 1024, height: 600});
-  mainWindow.loadURL(`file://${__dirname}/view/index.html`);
+  mainWindow.loadURL(`file://${__dirname}/src/index.html`);
 
   // ウインドウが閉じられた場合の処理
   mainWindow.on('closed', function() {
@@ -48,8 +48,8 @@ function connectEV3 (mainWindow) {
   // ポートの設定
   // TODO: GUI上からできるようにしたほうが良いかも
 
-    // コマンドライン引数のシリアルポートにつなげる
-    port = new SerialPort.SerialPort(process.argv[2], {
+  // コマンドライン引数のシリアルポートにつなげる
+  var port = new SerialPort.SerialPort(process.argv[2], {
     baudrate: 115200,
     parser: SerialPort.parsers.readline("\n")
   });
