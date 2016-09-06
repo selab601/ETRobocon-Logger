@@ -46,8 +46,10 @@ function createWindow() {
 // EV3 と通信し，情報を取得する
 function connectEV3 (mainWindow) {
   // ポートの設定
-  // TODO: 対象デバイスをハードコーディングしているので，外部から設定できるようにする
-  var port = new SerialPort.SerialPort("/dev/tty.HIYOKO-SerialPortProfile", {
+  // TODO: GUI上からできるようにしたほうが良いかも
+
+    // コマンドライン引数のシリアルポートにつなげる
+    port = new SerialPort.SerialPort(process.argv[2], {
     baudrate: 115200,
     parser: SerialPort.parsers.readline("\n")
   });
