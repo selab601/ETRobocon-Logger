@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <title>ET2016 EV3 Logger</title>
 
+    <style>
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+      }
+
+      .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+      }
+    </style>
+
     <!-- ライブラリのロード -->
     <script>
       window.jQuery = window.$ = require('./js/lib/jquery-3.1.0.min.js');
@@ -13,10 +27,24 @@
     <script>
       var initialized = false;
       var stage;
-      var stage_height = 300;
-      var stage_width = 300;
-      var d3line;
+      var stageHeight = 400;
+      var stageWidth = 700;
+      var padding = 20;
       var points = new Array();
+
+      var xScale = d3.scale.linear()
+                     .range([padding, stageWidth - padding]);
+      var xAxis = d3.svg.axis()
+                    .orient('bottom');
+      var yScale = d3.scale.linear()
+                     .range([stageHeight - padding, padding])
+      var yAxis = d3.svg.axis()
+                    .orient('left');
+      var xShift = 0;
+      var line = d3.svg.line()
+                   .x(function(d,i){return xScale(i+xShift);})
+                   .y(function(d,i){return yScale(d.color.brightness);})
+                   .interpolate("linear");
 
       // DOM の準備ができたら描画する
       $(document).ready(function() {
@@ -24,13 +52,9 @@
         stage = d3
           .select("#d3graph")
           .append("svg")
-          .attr("width", stage_width)
-          .attr("height", stage_height);
-        // ラインを生成するための関数を用意
-        d3line = d3.svg.line()
-          .x(function(d,i){return i;})
-          .y(function(d,i){return d.color.brightness;})
-          .interpolate("linear");
+          .attr('class', 'chart')
+          .attr("width", stageWidth)
+          .attr("height", stageHeight);
 
         initialized = true;
       });
@@ -41,25 +65,57 @@
         var obj = JSON.parse(message);
 
         if (initialized) {
-          points.push(obj);
+          var maxXData = 100;
+          var minXData = 0;
+          var maxYData = 80;
+          var minYData = 0;
 
-          if(points.length > $("#d3graph").width()/10) {
+          // データの更新
+          points.push(obj);
+          if(points.length > maxXData) {
             points.shift();
+            xShift++;
           }
 
-          // 削除する
+          // グラフの再描画
           stage.selectAll("path").remove();
-
-          // 描画する
           stage.append("path")
-               .attr("d", d3line(points))
+               .attr("d", line(points))
                .attr("stroke", "steelblue")
                .attr("fill", "none");
-        }
+
+          // ラベルの再描画
+          stage.selectAll("text").remove();
+          stage.selectAll("text")
+               .data(points)
+               .enter()
+               .append("text")
+               .text(function(d) { return d.color.brightness; })
+               .attr("x", function(d, i) {
+                 return padding + ((stageWidth - padding*2)/100) * i;
+               })
+               .attr("y", function(d) {
+                 return padding + (stageHeight-padding*2) - ((stageHeight-padding*2)/maxYData) * d.color.brightness;
+               })
+               .attr("font-family", "sans-serif")
+               .attr("font-size", "11px")
+               .attr("fill", "black");
+
+          // 軸の再描画
+          stage.selectAll("g").remove();
+          stage.append('g')
+               .attr("class", "axis")
+               .attr("transform", "translate(0," + (stageHeight - padding) + ")")
+               .call(xAxis.scale(xScale.domain([xShift + minXData, xShift + maxXData])));
+          stage.append('g')
+               .attr("class", "axis")
+               .attr("transform", "translate(" + padding + ",0)")
+               .call(yAxis.scale(yScale.domain([minYData, maxYData])));
+        };
       });
     </script>
   </head>
   <body>
-    <div id="d3graph" style="border:1px solid #ccc; margin-bottom:10px"></div>
+    <div id="d3graph"></div>
   </body>
 </html>
