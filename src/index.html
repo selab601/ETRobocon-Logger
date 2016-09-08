@@ -36,6 +36,8 @@
       const graphHeight = stageHeight - padding*2;
       const graphWidth = stageWidth - padding*2;
 
+      // 設定値．受け取る値を変更した場合はここに追加していく
+      // TODO: 最大値，最小値は更新する
       var configMap = {
         "color_brightness": {
           idName: "color_brightness",
@@ -52,33 +54,26 @@
           minYData: -500,
         }
       };
+      var stateMap = {};
 
-      var stateMap = {
-        "color_brightness": {
-          xShift: 0,
-          values: []
-        },
-        "gyro": {
-          xShift: 0,
-          values: []
-        }
-      };
-
-      // DOM の準備ができたら描画する
+      // DOM の準備ができたら初期化処理を行う
       $(document).ready(function() {
-        // SVG要素をDOMに追加
-        d3.select("#d3graph")
-          .append("svg")
-          .attr('class', 'chart')
-          .attr('id', 'color_brightness')
-          .attr("width", stageWidth)
-          .attr("height", stageHeight);
-        d3.select("#d3graph")
-          .append("svg")
-          .attr('class', 'chart')
-          .attr('id', 'gyro')
-          .attr("width", stageWidth)
-          .attr("height", stageHeight);
+        Object.keys(configMap).forEach(function(key) {
+          // stateMapを初期化
+          var value = this[key];
+          stateMap[key] = {
+            xShift: 0,
+            values: []
+          };
+
+          // SVG要素をDOMに追加
+          d3.select("#d3graph")
+            .append("svg")
+            .attr('class', 'chart')
+            .attr('id', configMap[key].idName)
+            .attr("width", stageWidth)
+            .attr("height", stageHeight);
+        }, configMap);
 
         initialized = true;
       });
@@ -89,9 +84,11 @@
         var data = JSON.parse(message);
 
         if (initialized) {
+          // 値の更新
           update("color_brightness", data.color.brightness);
           update("gyro", data.gyro);
 
+          // 描画
           renderGraph("color_brightness" );
           renderGraph("gyro");
         }
@@ -159,6 +156,7 @@
              .attr("fill", "black");
 
         // 軸の再描画
+        // TODO: X軸を時刻にしたい
         stage.selectAll("g").remove();
         stage.append('g')
              .attr("class", "axis")
