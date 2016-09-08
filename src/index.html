@@ -165,9 +165,10 @@
       // @param 最新の値からどの範囲までを描画するか(現在動作しない)
       // @param グラフのY軸の描画範囲として，値の取りうる最大値，最小値を設定
       var renderDynamicGraph = function (key, size, yScope) {
+        var xSize = size == null ? 100 : size;
         var stage = d3.select("svg#"+key);
         // グラフ描画用の設定
-        var maxGraphXData = size == null ? 100 : size;
+        var maxGraphXData = xSize;
         var minGraphXData = 0;
         // 動的にY軸の描画範囲を変更する場合は，上限と下限を大きめ/小さめに設定する
         // こうしないと，minYData == maxYData ( minYData - maxYData == 0 ) となり，後の計算式で0除算を引き起こす
@@ -188,7 +189,7 @@
         // TODO: slice は効率が悪いかも？
         var len = receiveValues[key].history.length;
         var shownValues = receiveValues[key].history.slice(
-          len < 100 ? 0 : len - 100,
+          len < xSize ? 0 : len - xSize,
           len
         );
 
@@ -208,7 +209,7 @@
              .append("text")
              .text(function(d) { return d; })
              .attr("x", function(d, i) {
-               return paddingLeft + ( graphWidth / 100 ) * i;
+               return paddingLeft + ( graphWidth / xSize ) * i;
              })
              .attr("y", function(d) {
                return paddingTop + titleSpace + graphHeight
@@ -228,16 +229,17 @@
 
         // 軸の再描画
         // 対応する範囲の clock の値を抜き出す
-        var historyLength = receiveValues["clock"].history.length
+        var historyLength = receiveValues["clock"].history.length;
         var maxIndex = historyLength - 1;
-        var minIndex = historyLength < 100 ? 0 : maxIndex - 100 - 1;
+        var minIndex = historyLength < xSize ? 0 : maxIndex - xSize - 1;
         var maxAxisXData = receiveValues["clock"].history[maxIndex];
         var minAxisXData = receiveValues["clock"].history[minIndex];
         // 軸の描画がずれるため，画面幅いっぱいまで軸が伸びていない場合の処理を追加しておく
         var xMaxAxisRange =
-          historyLength < 100 ?
-          stageWidth - paddingRight - ((100-historyLength) * (graphWidth/100+1)) :
+          historyLength < xSize ?
+          stageWidth - paddingRight - ((xSize-historyLength) * (graphWidth/(xSize+1))) :
           stageWidth - paddingRight;
+        console.log(xMaxAxisRange);
         var xAxisScale = d3.scale.linear()
                            .range([paddingLeft, xMaxAxisRange])
                            .domain([minAxisXData/1000, maxAxisXData/1000]);
