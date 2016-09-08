@@ -27,6 +27,28 @@
     <script>
       "use strict";
 
+      // ----------------- ログをファイルに保存 ----------------
+      require('date-utils');
+      var LogWriter = function(){
+        this.date = new Date();
+        this.formatted = this.date.toFormat("YYYY_MMDD_HH24MISS");
+        this.fileName = 'log/' + this.formatted + '.json';
+        this.file = require('fs');
+
+        // HTMLにファイル名を表示
+        this.element = document.createElement('div');
+        this.element.innerHTML = '<h2>Log File: ' + this.fileName  + '</h2>';
+        document.getElementsByTagName("body").item(0).appendChild(this.element);
+      }
+
+      LogWriter.prototype.append = function(message){
+        // ファイルに書き込む
+        this.file.appendFile(this.fileName, message ,'utf8' );
+      }
+
+      var logWriter;
+      // --------------------------------------------------------
+
       var initialized = false;
 
       // 各種設定値
@@ -68,6 +90,9 @@
       ipcRenderer.on('serial', (ev, message) => {
         var data = JSON.parse(message);
 
+        // ログの保存
+        logWriter.append(message);
+
         if (initialized) {
           // 値の更新
           Object.keys(receiveValues).forEach(function(key) {
@@ -107,6 +132,8 @@
           .attr('id', "brightness")
           .attr("width", stageWidth)
           .attr("height", stageHeight);
+
+        logWriter = new LogWriter();
 
         initialized = true;
       });
