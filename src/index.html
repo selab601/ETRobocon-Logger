@@ -38,37 +38,25 @@
 
       // 設定値．受け取る値を変更した場合はここに追加していく
       // TODO: 最大値，最小値は更新する
-      var configMap = {
-        "color_brightness": {
-          idName: "color_brightness",
-          maxYData: 80,
-          minYData: 0,
-        },
-        "gyro": {
-          idName: "gyro",
-          maxYData: 500,
-          minYData: -500,
-        }
+      var receiveValues = {
+        "color_brightness": {},
+        "gyro": {}
       };
-      var stateMap = {};
 
       // DOM の準備ができたら初期化処理を行う
       $(document).ready(function() {
-        Object.keys(configMap).forEach(function(key) {
-          // stateMapを初期化
-          var value = this[key];
-          stateMap[key] = {
-            values: []
-          };
+        Object.keys(receiveValues).forEach(function(key) {
+          // 受信した値の履歴を初期化
+          receiveValues[key].history = [];
 
           // SVG要素をDOMに追加
           d3.select("#d3graph")
             .append("svg")
             .attr('class', 'chart')
-            .attr('id', configMap[key].idName)
+            .attr('id', key)
             .attr("width", stageWidth)
             .attr("height", stageHeight);
-        }, configMap);
+        }, receiveValues);
 
         initialized = true;
       });
@@ -84,29 +72,35 @@
           update("gyro", data.gyro);
 
           // 描画
-          renderDynamicGraph("color_brightness" );
+          renderDynamicGraph("color_brightness", null, [0,80]);
           renderDynamicGraph("gyro");
         }
       });
 
       var update = function (key, value) {
         // TODO: データが入り過ぎるとやばそうなのでどうにかする
-        stateMap[key].values.push(value);
+        receiveValues[key].history.push(value);
       }
 
       // リアルタイムにグラフを表示する
       // @param key 描画したい要素のキー
       // @param 最新の値からどの範囲までを描画するか
-      var renderDynamicGraph = function (key, size) {
-        var stage = d3.select("svg#"+configMap[key].idName);
+      // @param グラフのY軸の描画範囲として，値の取りうる最大値，最小値を設定
+      var renderDynamicGraph = function (key, size, yScope) {
+        var stage = d3.select("svg#"+key);
         var maxXData = size == null ? 100 : size;
         var minXData = 0;
+        // 動的にY軸の描画範囲を変更する場合は，上限と下限を大きめ/小さめに設定する
+        // こうしないと，minYData == maxYData ( minYData - maxYData == 0 ) となり，後の計算式で0除算を引き起こす
+        var yMargin = 10;
+        var maxYData = yScope != null ? yScope[1] : Math.max.apply(null, receiveValues[key].history) + yMargin;
+        var minYData = yScope != null ? yScope[0] : Math.min.apply(null, receiveValues[key].history) - yMargin;
         var xScale = d3.scale.linear()
                        .range([padding, stageWidth - padding])
                        .domain([minXData, maxXData]);
         var yScale = d3.scale.linear()
                        .range([stageHeight - padding, padding])
-                       .domain([configMap[key].minYData, configMap[key].maxYData]);
+                       .domain([minYData, maxYData]);
         var xAxis = d3.svg.axis()
                       .scale(xScale)
                       .orient('bottom');
@@ -119,16 +113,16 @@
                      .interpolate("linear");
 
         // TODO: slice は効率が悪いかも？
-        var len = stateMap[key].values.length;
-        var shownValues = stateMap[key].values.slice(
+        var len = receiveValues[key].history.length;
+        var shownValues = receiveValues[key].history.slice(
           len < 100 ? 0 : len - 100,
           len
         );
 
         // グラフの再描画
-        stage.selectAll("path#"+configMap[key].idName).remove();
+        stage.selectAll("path#"+key).remove();
         stage.append("path")
-             .attr("id", configMap[key].idName)
+             .attr("id", key)
              .attr("d", line(shownValues))
              .attr("stroke", "steelblue")
              .attr("fill", "none");
@@ -145,8 +139,8 @@
              })
              .attr("y", function(d) {
                return padding + graphHeight
-                    - ( graphHeight / ( configMap[key].maxYData - configMap[key].minYData ) )
-                    * ( d - configMap[key].minYData );
+                    - ( graphHeight / ( maxYData - minYData ) )
+                    * ( d - minYData );
              })
              .attr("font-family", "sans-serif")
              .attr("font-size", "11px")
