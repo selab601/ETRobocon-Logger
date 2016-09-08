@@ -25,15 +25,16 @@
     </script>
 
     <script>
+      "use strict";
+
       var initialized = false;
 
       // 各種設定値
-      var stageHeight = 400;
-      var stageWidth = 700;
-      var padding = 40;
-      var graphHeight = stageHeight - padding*2;
-      var graphWidth = stageWidth - padding*2;
-      var points = new Array();
+      const stageHeight = 400;
+      const stageWidth = 700;
+      const padding = 40;
+      const graphHeight = stageHeight - padding*2;
+      const graphWidth = stageWidth - padding*2;
 
       var configMap = {
         "color_brightness": {
@@ -82,24 +83,40 @@
         initialized = true;
       });
 
-      var renderGraph = function (dataKey, dataValue) {
-        var stage = d3.select("svg#"+configMap[dataKey].idName);
+      // EV3 から格値を受け取る
+      var ipcRenderer = require('electron').ipcRenderer;
+      ipcRenderer.on('serial', (ev, message) => {
+        var data = JSON.parse(message);
 
+        if (initialized) {
+          update("color_brightness", data.color.brightness);
+          update("gyro", data.gyro);
+
+          renderGraph("color_brightness" );
+          renderGraph("gyro");
+        }
+      });
+
+      var update = function (key, value) {
+        stateMap[key].values.push(value);
+        if(stateMap[key].values.length > configMap[key].maxXData) {
+          // データが入り過ぎるとやばい(かもしれない)のでどうにかする
+          // configMap[key].values.shift();
+          stateMap[key].xShift++;
+        }
+      }
+
+      var renderGraph = function (key) {
+        var stage = d3.select("svg#"+configMap[key].idName);
         var xScale = d3.scale.linear()
                        .range([padding, stageWidth - padding])
-                       .domain([
-                         configMap[dataKey].minXData,
-                         configMap[dataKey].maxXData
-                       ]);
+                       .domain([configMap[key].minXData, configMap[key].maxXData]);
         var xAxis = d3.svg.axis()
                       .scale(xScale)
                       .orient('bottom');
         var yScale = d3.scale.linear()
                        .range([stageHeight - padding, padding])
-                       .domain([
-                         configMap[dataKey].minYData,
-                         configMap[dataKey].maxYData
-                       ]);
+                       .domain([configMap[key].minYData, configMap[key].maxYData]);
         var yAxis = d3.svg.axis()
                       .scale(yScale)
                       .orient('left');
@@ -108,24 +125,16 @@
                      .y(function(d,i){return yScale(d);})
                      .interpolate("linear");
 
-        // データの更新
-        stateMap[dataKey].values.push(dataValue);
-        if(stateMap[dataKey].values.length > configMap[dataKey].maxXData) {
-          // データが入り過ぎるとやばい(かもしれない)のでどうにかする
-          // configMap[dataKey].values.shift();
-          stateMap[dataKey].xShift++;
-        }
-
         // TODO: slice は効率が悪いかも？
-        var shownValues = stateMap[dataKey].values.slice(
-          stateMap[dataKey].xShift,
-          stateMap[dataKey].xShift + 100
+        var shownValues = stateMap[key].values.slice(
+          stateMap[key].xShift,
+          stateMap[key].xShift + 100
         );
 
         // グラフの再描画
-        stage.selectAll("path#"+configMap[dataKey].idName).remove();
+        stage.selectAll("path#"+configMap[key].idName).remove();
         stage.append("path")
-             .attr("id", configMap[dataKey].idName)
+             .attr("id", configMap[key].idName)
              .attr("d", line(shownValues))
              .attr("stroke", "steelblue")
              .attr("fill", "none");
@@ -141,7 +150,9 @@
                return padding + ( graphWidth / 100 ) * i;
              })
              .attr("y", function(d) {
-               return padding + graphHeight - ( graphHeight / ( configMap[dataKey].maxYData - configMap[dataKey].minYData ) ) * ( d - configMap[dataKey].minYData );
+               return padding + graphHeight
+                    - ( graphHeight / ( configMap[key].maxYData - configMap[key].minYData ) )
+                    * ( d - configMap[key].minYData );
              })
              .attr("font-family", "sans-serif")
              .attr("font-size", "11px")
@@ -159,16 +170,6 @@
              .call(yAxis);
       };
 
-      // EV3 から格値を受け取る
-      var ipcRenderer = require('electron').ipcRenderer;
-      ipcRenderer.on('serial', (ev, message) => {
-        var data = JSON.parse(message);
-
-        if (initialized) {
-          renderGraph("color_brightness", data.color.brightness);
-          renderGraph("gyro", data.gyro);
-        }
-      });
     </script>
   </head>
   <body>
