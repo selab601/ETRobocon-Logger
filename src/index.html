@@ -41,15 +41,11 @@
       var configMap = {
         "color_brightness": {
           idName: "color_brightness",
-          maxXData: 100,
-          minXData: 0,
           maxYData: 80,
           minYData: 0,
         },
         "gyro": {
           idName: "gyro",
-          maxXData: 100,
-          minXData: 0,
           maxYData: 500,
           minYData: -500,
         }
@@ -62,7 +58,6 @@
           // stateMapを初期化
           var value = this[key];
           stateMap[key] = {
-            xShift: 0,
             values: []
           };
 
@@ -89,31 +84,32 @@
           update("gyro", data.gyro);
 
           // 描画
-          renderGraph("color_brightness" );
-          renderGraph("gyro");
+          renderDynamicGraph("color_brightness" );
+          renderDynamicGraph("gyro");
         }
       });
 
       var update = function (key, value) {
+        // TODO: データが入り過ぎるとやばそうなのでどうにかする
         stateMap[key].values.push(value);
-        if(stateMap[key].values.length > configMap[key].maxXData) {
-          // データが入り過ぎるとやばい(かもしれない)のでどうにかする
-          // configMap[key].values.shift();
-          stateMap[key].xShift++;
-        }
       }
 
-      var renderGraph = function (key) {
+      // リアルタイムにグラフを表示する
+      // @param key 描画したい要素のキー
+      // @param 最新の値からどの範囲までを描画するか
+      var renderDynamicGraph = function (key, size) {
         var stage = d3.select("svg#"+configMap[key].idName);
+        var maxXData = size == null ? 100 : size;
+        var minXData = 0;
         var xScale = d3.scale.linear()
                        .range([padding, stageWidth - padding])
-                       .domain([configMap[key].minXData, configMap[key].maxXData]);
-        var xAxis = d3.svg.axis()
-                      .scale(xScale)
-                      .orient('bottom');
+                       .domain([minXData, maxXData]);
         var yScale = d3.scale.linear()
                        .range([stageHeight - padding, padding])
                        .domain([configMap[key].minYData, configMap[key].maxYData]);
+        var xAxis = d3.svg.axis()
+                      .scale(xScale)
+                      .orient('bottom');
         var yAxis = d3.svg.axis()
                       .scale(yScale)
                       .orient('left');
@@ -123,9 +119,10 @@
                      .interpolate("linear");
 
         // TODO: slice は効率が悪いかも？
+        var len = stateMap[key].values.length;
         var shownValues = stateMap[key].values.slice(
-          stateMap[key].xShift,
-          stateMap[key].xShift + 100
+          len < 100 ? 0 : len - 100,
+          len
         );
 
         // グラフの再描画
