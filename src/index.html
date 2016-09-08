@@ -30,36 +30,38 @@
       var initialized = false;
 
       // 各種設定値
-      const stageHeight = 400;
-      const stageWidth = 700;
-      const padding = 40;
-      const graphHeight = stageHeight - padding*2;
-      const graphWidth = stageWidth - padding*2;
+      const stageHeight = 500;
+      const stageWidth = 1000;
+      const titleSpace = 20;
+      const paddingLeft = 40;
+      const paddingRight = 10;
+      const paddingTop = 10;
+      const paddingBottom = 40;
+      const graphHeight = stageHeight - (paddingTop+paddingBottom) - titleSpace;
+      const graphWidth = stageWidth - (paddingLeft+paddingRight);
 
       // 設定値．受け取る値を変更した場合はここに追加していく
       // TODO: 最大値，最小値は更新する
       var receiveValues = {
-        "color_brightness": {},
-        "gyro": {}
+        "clock": {},
+        "gyro": {},
+        "touch": {},
+        "sonar": {},
+        "brightness": {},
+        "rgb_r": {},
+        "rgb_g": {},
+        "rgb_b": {},
+        "hsv_h": {},
+        "hsv_s": {},
+        "hsv_v": {},
+        "arm_count": {},
+        "left_count": {},
+        "right_count": {},
+        "length": {},
+        "angle": {},
+        "coordinate_x": {},
+        "coordinate_y": {}
       };
-
-      // DOM の準備ができたら初期化処理を行う
-      $(document).ready(function() {
-        Object.keys(receiveValues).forEach(function(key) {
-          // 受信した値の履歴を初期化
-          receiveValues[key].history = [];
-
-          // SVG要素をDOMに追加
-          d3.select("#d3graph")
-            .append("svg")
-            .attr('class', 'chart')
-            .attr('id', key)
-            .attr("width", stageWidth)
-            .attr("height", stageHeight);
-        }, receiveValues);
-
-        initialized = true;
-      });
 
       // EV3 から格値を受け取る
       var ipcRenderer = require('electron').ipcRenderer;
@@ -68,13 +70,45 @@
 
         if (initialized) {
           // 値の更新
-          update("color_brightness", data.color.brightness);
-          update("gyro", data.gyro);
+          Object.keys(receiveValues).forEach(function(key) {
+            update(key, data[key])
+          }, receiveValues);
 
           // 描画
-          renderDynamicGraph("color_brightness", null, [0,80]);
-          renderDynamicGraph("gyro");
+          // 全てのグラフを描画しようとするとめちゃくちゃ重くなるので注意
+          /*
+          Object.keys(receiveValues).forEach(function(key) {
+            var value = this[key];
+            renderDynamicGraph(key);
+          }, receiveValues);
+          */
+          renderDynamicGraph("brightness");
         }
+      });
+
+      // DOM の準備ができたら初期化処理を行う
+      $(document).ready(function() {
+        Object.keys(receiveValues).forEach(function(key) {
+          // 受信した値の履歴を初期化
+          receiveValues[key].history = [];
+
+          // SVG要素をDOMに追加
+          /*d3.select("#d3graph")
+            .append("svg")
+            .attr('class', 'chart')
+            .attr('id', key)
+            .attr("width", stageWidth)
+             .attr("height", stageHeight);*/
+        }, receiveValues);
+
+        d3.select("#d3graph")
+          .append("svg")
+          .attr('class', 'chart')
+          .attr('id', "brightness")
+          .attr("width", stageWidth)
+          .attr("height", stageHeight);
+
+        initialized = true;
       });
 
       var update = function (key, value) {
@@ -96,10 +130,10 @@
         var maxYData = yScope != null ? yScope[1] : Math.max.apply(null, receiveValues[key].history) + yMargin;
         var minYData = yScope != null ? yScope[0] : Math.min.apply(null, receiveValues[key].history) - yMargin;
         var xScale = d3.scale.linear()
-                       .range([padding, stageWidth - padding])
+                       .range([paddingLeft, stageWidth - paddingRight])
                        .domain([minXData, maxXData]);
         var yScale = d3.scale.linear()
-                       .range([stageHeight - padding, padding])
+                       .range([stageHeight - paddingBottom, paddingTop + titleSpace])
                        .domain([minYData, maxYData]);
         var xAxis = d3.svg.axis()
                       .scale(xScale)
@@ -127,7 +161,7 @@
              .attr("stroke", "steelblue")
              .attr("fill", "none");
 
-        // ラベルの再描画
+        // ラベルとグラフタイトルの再描画
         stage.selectAll("text").remove();
         stage.selectAll("text")
              .data(shownValues)
@@ -135,15 +169,22 @@
              .append("text")
              .text(function(d) { return d; })
              .attr("x", function(d, i) {
-               return padding + ( graphWidth / 100 ) * i;
+               return paddingLeft + ( graphWidth / 100 ) * i;
              })
              .attr("y", function(d) {
-               return padding + graphHeight
+               return paddingTop + titleSpace + graphHeight
                     - ( graphHeight / ( maxYData - minYData ) )
                     * ( d - minYData );
              })
              .attr("font-family", "sans-serif")
              .attr("font-size", "11px")
+             .attr("fill", "black");
+        stage.append("text")
+             .attr("x", paddingLeft)
+             .attr("y", titleSpace)
+             .text(key)
+             .attr("font-family", "sans-serif")
+             .attr("font-size", "16px")
              .attr("fill", "black");
 
         // 軸の再描画
@@ -151,11 +192,11 @@
         stage.selectAll("g").remove();
         stage.append('g')
              .attr("class", "axis")
-             .attr("transform", "translate(0," + ( stageHeight - padding ) + ")")
+             .attr("transform", "translate(0," + ( stageHeight - paddingBottom ) + ")")
              .call(xAxis);
         stage.append('g')
              .attr("class", "axis")
-             .attr("transform", "translate(" + padding + ",0)")
+             .attr("transform", "translate(" + paddingLeft + ",0)")
              .call(yAxis);
       };
 
