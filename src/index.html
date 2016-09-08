@@ -162,29 +162,24 @@
 
       // リアルタイムにグラフを表示する
       // @param key 描画したい要素のキー
-      // @param 最新の値からどの範囲までを描画するか
+      // @param 最新の値からどの範囲までを描画するか(現在動作しない)
       // @param グラフのY軸の描画範囲として，値の取りうる最大値，最小値を設定
       var renderDynamicGraph = function (key, size, yScope) {
         var stage = d3.select("svg#"+key);
-        var maxXData = size == null ? 100 : size;
-        var minXData = 0;
+        // グラフ描画用の設定
+        var maxGraphXData = size == null ? 100 : size;
+        var minGraphXData = 0;
         // 動的にY軸の描画範囲を変更する場合は，上限と下限を大きめ/小さめに設定する
         // こうしないと，minYData == maxYData ( minYData - maxYData == 0 ) となり，後の計算式で0除算を引き起こす
         var yMargin = 10;
-        var maxYData = yScope != null ? yScope[1] : Math.max.apply(null, receiveValues[key].history) + yMargin;
-        var minYData = yScope != null ? yScope[0] : Math.min.apply(null, receiveValues[key].history) - yMargin;
+        var maxGraphYData = yScope != null ? yScope[1] : Math.max.apply(null, receiveValues[key].history) + yMargin;
+        var minGraphYData = yScope != null ? yScope[0] : Math.min.apply(null, receiveValues[key].history) - yMargin;
         var xScale = d3.scale.linear()
                        .range([paddingLeft, stageWidth - paddingRight])
-                       .domain([minXData, maxXData]);
+                       .domain([minGraphXData, maxGraphXData]);
         var yScale = d3.scale.linear()
                        .range([stageHeight - paddingBottom, paddingTop + titleSpace])
-                       .domain([minYData, maxYData]);
-        var xAxis = d3.svg.axis()
-                      .scale(xScale)
-                      .orient('bottom');
-        var yAxis = d3.svg.axis()
-                      .scale(yScale)
-                      .orient('left');
+                       .domain([minGraphYData, maxGraphYData]);
         var line = d3.svg.line()
                      .x(function(d,i){return xScale(i);})
                      .y(function(d,i){return yScale(d);})
@@ -217,8 +212,8 @@
              })
              .attr("y", function(d) {
                return paddingTop + titleSpace + graphHeight
-                    - ( graphHeight / ( maxYData - minYData ) )
-                    * ( d - minYData );
+                    - ( graphHeight / ( maxGraphYData - minGraphYData ) )
+                    * ( d - minGraphYData );
              })
              .attr("font-family", "sans-serif")
              .attr("font-size", "11px")
@@ -232,6 +227,27 @@
              .attr("fill", "black");
 
         // 軸の再描画
+        // 対応する範囲の clock の値を抜き出す
+        var historyLength = receiveValues["clock"].history.length
+        var maxIndex = historyLength - 1;
+        var minIndex = historyLength < 100 ? 0 : maxIndex - 100 - 1;
+        var maxAxisXData = receiveValues["clock"].history[maxIndex];
+        var minAxisXData = receiveValues["clock"].history[minIndex];
+        // 軸の描画がずれるため，画面幅いっぱいまで軸が伸びていない場合の処理を追加しておく
+        var xMaxAxisRange =
+          historyLength < 100 ?
+          stageWidth - paddingRight - ((100-historyLength) * (graphWidth/100+1)) :
+          stageWidth - paddingRight;
+        var xAxisScale = d3.scale.linear()
+                           .range([paddingLeft, xMaxAxisRange])
+                           .domain([minAxisXData/1000, maxAxisXData/1000]);
+        var yAxisScale = yScale;
+        var xAxis = d3.svg.axis()
+                      .scale(xAxisScale)
+                      .orient('bottom');
+        var yAxis = d3.svg.axis()
+                      .scale(yAxisScale)
+                      .orient('left');
         // TODO: X軸を時刻にしたい
         stage.selectAll("g").remove();
         stage.append('g')
