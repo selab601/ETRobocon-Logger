@@ -5,19 +5,20 @@ const LogWriter = require('./logWriter.js');
 const D3GraphRenderer = require('./D3GraphRenderer.js');
 const IO = require('./IO.js');
 
-function Main(D3Object, jQueryObject, valueKeys) {
+function Main(D3Object, jQueryObject) {
   this.d3 = D3Object;
-  this.renderValues = valueKeys;
+  this.$ = jQueryObject;
+  this.renderValues = [];
   this.io = new IO(jQueryObject);
   this.writer = new LogWriter();
   this.renderer = new D3GraphRenderer(this.d3, this.renderValues);
 };
 
 Main.prototype.startRenderingDynamically = function() {
-  // グラフとして見たい値がある場合は以下の配列に追加する
-  var renderValues = ["brightness", "gyro"];
-
   this.io.appendReceiver('ReceiveDataFromBTDevice', (ev, message) => {
+    this.renderValues = checkRenderValues(this.$);
+    console.log(this.renderValues);
+
     var data = JSON.parse(message);
 
     // 外部ファイルにログを出力
@@ -29,6 +30,7 @@ Main.prototype.startRenderingDynamically = function() {
     }.bind(this));
 
     // 描画
+    this.renderer.replacementSVGElement(this.renderValues);
     for (var i=0; i<this.renderValues.length; i++) {
       this.renderer.renderDynamicGraph(this.renderValues[i]);
     }
@@ -37,6 +39,18 @@ Main.prototype.startRenderingDynamically = function() {
 
 Main.prototype.sendToMasterProcess = function (event, message) {
   this.io.send(event, message);
+};
+
+var checkRenderValues = function ($) {
+  var renderValues = [];
+  $('.funkyradio-success>input[type="checkbox"]').each( function(i, item) {
+    if ($(this).prop('checked')) {
+      console.log('checked');
+      renderValues.push($(this).attr("id"));
+    }
+  });
+  console.log(renderValues);
+  return renderValues;
 };
 
 module.exports = Main;

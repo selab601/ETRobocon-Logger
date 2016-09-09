@@ -43,15 +43,6 @@ function D3GraphRenderer (D3Object, keys) {
     this.receiveValues[key].history = [];
   }.bind(this));
 
-  // SVG要素の追加
-  for (var i=0; i<keys.length; i++) {
-    this.d3.select("#d3graph")
-      .append("svg")
-      .attr('class', 'chart')
-      .attr('id', keys[i])
-      .attr("width", SVG_ELEMENT_WIDTH)
-      .attr("height", SVG_ELEMENT_HEIGHT);
-  }
 };
 
 D3GraphRenderer.prototype.getReceiveValues = function () {
@@ -61,6 +52,19 @@ D3GraphRenderer.prototype.getReceiveValues = function () {
 D3GraphRenderer.prototype.update = function (key, value) {
   // TODO: データが入り過ぎるとやばそうなのでどうにかする
   this.receiveValues[key].history.push(value);
+};
+
+D3GraphRenderer.prototype.replacementSVGElement = function (keys) {
+  // SVG要素の追加
+  this.d3.selectAll("#d3graph>svg").remove();
+  for (var i=0; i<keys.length; i++) {
+    this.d3.select("#d3graph")
+      .append("svg")
+      .attr('class', 'chart')
+      .attr('id', keys[i])
+      .attr("width", SVG_ELEMENT_WIDTH)
+      .attr("height", SVG_ELEMENT_HEIGHT);
+  }
 };
 
 // リアルタイムにグラフを表示する
