@@ -85,16 +85,14 @@
           }, receiveValues);
 
           // 描画
-          // 全てのグラフを描画しようとすると重くなるのでコメントアウトしている
-          /*
-          Object.keys(receiveValues).forEach(function(key) {
-            var value = this[key];
-            renderDynamicGraph(key);
-          }, receiveValues);
-          */
-          // 描画したい変数がある場合は以下に追加する
-          // 加えて，SVG要素をDOMに追加する必要がある (下の方見てね)
+          // 全ての変数のグラフを描画しようとすると重くなるので必要に応じて追加すること
+          // renderDynamicGraph の引数を変更するとグラフのレイアウトを調整できる
           renderDynamicGraph("brightness");
+          /*
+          renderDynamicGraph("gyro");
+          ...
+          [以下同様に追加する]
+          */
         }
       });
 
@@ -103,32 +101,26 @@
         Object.keys(receiveValues).forEach(function(key) {
           // 受信した値の履歴を初期化
           receiveValues[key].history = [];
-
-          // SVG要素をDOMに追加
-          // 全要素を描画しようとすると重くなるのでコメントアウトしている
-          /*d3.select("#d3graph")
-            .append("svg")
-            .attr('class', 'chart')
-            .attr('id', key)
-            .attr("width", stageWidth)
-             .attr("height", stageHeight);*/
         }, receiveValues);
 
         // SVG要素の追加
+        // 必要に応じて追加する
+        // 基本的にはコピペでよく，IDだけ変える
         d3.select("#d3graph")
           .append("svg")
           .attr('class', 'chart')
           .attr('id', "brightness") // <- ここの値を変える
           .attr("width", stageWidth)
           .attr("height", stageHeight);
-        // 追加するとSVG要素(グラフを描画するための土台)が追加される
         /*
         d3.select("#d3graph")
           .append("svg")
           .attr('class', 'chart')
-          .attr('id', "")
+          .attr('id', "gyro")
           .attr("width", stageWidth)
           .attr("height", stageHeight);
+        ...
+        [以下同様に追加する]
         */
 
         console.log(writer.getFileName());
