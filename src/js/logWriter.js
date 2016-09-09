@@ -1,25 +1,25 @@
 /*
- * logWriter.js
+ * LogWriter.js
  * ログを外部ファイルに出力するためのモジュール
  */
-var LogWriter = (function () {
-  require('date-utils');
+"use strict";
 
-  var LogWriter = function(){
-    this.date = new Date();
-    this.formatted = this.date.toFormat("YYYY_MMDD_HH24MISS");
-    this.fileName = 'log/' + this.formatted + '.json';
-    this.file = require('fs');
-  };
+require('date-utils');
 
-  LogWriter.prototype.getFileName = function(){
-    return this.fileName;
-  };
+function LogWriter (){
+  this.date = new Date();
+  this.formatted = this.date.toFormat("YYYY_MMDD_HH24MISS");
+  this.fileName = 'log/' + this.formatted + '.json';
+  this.file = require('fs');
+};
 
-  // ファイルに書き込む
-  LogWriter.prototype.append = function(message){
-    this.file.appendFile(this.fileName, message ,'utf8' );
-  };
+LogWriter.prototype.getFileName = function(){
+  return this.fileName;
+};
 
-  return { writer : LogWriter };
-}());
+// ファイルに書き込む
+LogWriter.prototype.append = function(message){
+  this.file.appendFile(this.fileName, message ,'utf8' );
+};
+
+module.exports = LogWriter;

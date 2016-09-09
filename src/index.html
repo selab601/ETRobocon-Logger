@@ -4,236 +4,44 @@
     <meta charset="UTF-8">
     <title>ET2016 EV3 Logger</title>
 
-    <style>
-      .axis path,
-      .axis line {
-        fill: none;
-        stroke: black;
-        shape-rendering: crispEdges;
-      }
+    <!-- スタイルシート -->
+    <link href="css/main.css" rel="stylesheet" type="text/css">
 
-      .axis text {
-        font-family: sans-serif;
-        font-size: 11px;
-      }
-    </style>
-
-    <!-- ライブラリのロード -->
+    <!-- 外部のライブラリのロード -->
     <script>
       window.jQuery = window.$ = require('./js/lib/jquery-3.1.0.min.js');
       var d3 = require('./js/lib/d3.min.js');
     </script>
 
-    <script src="js/logWriter.js"></script>
-
     <script>
-      "use strict";
-
-      var writer = new LogWriter.writer();
-      var initialized = false;
-
-      // 各種設定値
-      const stageHeight = 500;
-      const stageWidth = 1000;
-      const titleSpace = 20;
-      const paddingLeft = 40;
-      const paddingRight = 10;
-      const paddingTop = 10;
-      const paddingBottom = 40;
-      const graphHeight = stageHeight - (paddingTop+paddingBottom) - titleSpace;
-      const graphWidth = stageWidth - (paddingLeft+paddingRight);
-
-      // 受信する値
-      // BTManager.cpp との対応関係をとる必要がある
-      var receiveValues = {
-        "clock": {},
-        "gyro": {},
-        "touch": {},
-        "sonar": {},
-        "brightness": {},
-        "rgb_r": {},
-        "rgb_g": {},
-        "rgb_b": {},
-        "hsv_h": {},
-        "hsv_s": {},
-        "hsv_v": {},
-        "arm_count": {},
-        "left_count": {},
-        "right_count": {},
-        "length": {},
-        "angle": {},
-        "coordinate_x": {},
-        "coordinate_y": {}
-      };
-
-      // EV3 から格値を受け取る
-      // EV3から値を受け取る度に実行される．実行することは以下
-      //  - ログをファイルに書き込む
-      //  - メモリ上に保持している値の履歴を更新する
-      //  - グラフ描画を更新する
       var ipcRenderer = require('electron').ipcRenderer;
-      ipcRenderer.on('serial', (ev, message) => {
-        var data = JSON.parse(message);
 
-        // ログの保存
-        writer.append(message);
+      var LogWriter = require('./js/logWriter.js');
+      var writer = new LogWriter();
 
-        if (initialized) {
+      var D3GraphRenderer = require('./js/D3GraphRenderer.js');
+      var renderer;
+
+      $(document).ready(function() {
+        renderer = new D3GraphRenderer(d3, ["brightness"]);
+
+        ipcRenderer.on('serial', (ev, message) => {
+          var data = JSON.parse(message);
+
+          writer.append(message);
+
           // 値の更新
-          Object.keys(receiveValues).forEach(function(key) {
-            update(key, data[key])
-          }, receiveValues);
+          Object.keys(renderer.getReceiveValues()).forEach(function(key) {
+            renderer.update(key, data[key]);
+          });
 
           // 描画
-          // 全ての変数のグラフを描画しようとすると重くなるので必要に応じて追加すること
-          // renderDynamicGraph の引数を変更するとグラフのレイアウトを調整できる
-          renderDynamicGraph("brightness");
-          /*
-          renderDynamicGraph("gyro");
-          ...
-          [以下同様に追加する]
-          */
-        }
+          var values = ["brightness"]
+          for (var i=0; i<values.length; i++) {
+            renderer.renderDynamicGraph(values[i]);
+          }
+        });
       });
-
-      // DOM の準備ができたら初期化処理を行う
-      $(document).ready(function() {
-        Object.keys(receiveValues).forEach(function(key) {
-          // 受信した値の履歴を初期化
-          receiveValues[key].history = [];
-        }, receiveValues);
-
-        // SVG要素の追加
-        // 必要に応じて追加する
-        // 基本的にはコピペでよく，IDだけ変える
-        d3.select("#d3graph")
-          .append("svg")
-          .attr('class', 'chart')
-          .attr('id', "brightness") // <- ここの値を変える
-          .attr("width", stageWidth)
-          .attr("height", stageHeight);
-        /*
-        d3.select("#d3graph")
-          .append("svg")
-          .attr('class', 'chart')
-          .attr('id', "gyro")
-          .attr("width", stageWidth)
-          .attr("height", stageHeight);
-        ...
-        [以下同様に追加する]
-        */
-
-        console.log(writer.getFileName());
-
-        initialized = true;
-      });
-
-      var update = function (key, value) {
-        // TODO: データが入り過ぎるとやばそうなのでどうにかする
-        receiveValues[key].history.push(value);
-      }
-
-      // リアルタイムにグラフを表示する
-      // @param key 描画したい要素のキー
-      // @param 最新の値からどの範囲までを描画するか(現在動作しない)
-      // @param グラフのY軸の描画範囲として，値の取りうる最大値，最小値を設定
-      var renderDynamicGraph = function (key, size, yScope) {
-        var xSize = size == null ? 100 : size;
-        var stage = d3.select("svg#"+key);
-        // グラフ描画用の設定
-        var maxGraphXData = xSize;
-        var minGraphXData = 0;
-        // 動的にY軸の描画範囲を変更する場合は，上限と下限を大きめ/小さめに設定する
-        // こうしないと，minYData == maxYData ( minYData - maxYData == 0 ) となり，後の計算式で0除算を引き起こす
-        var yMargin = 10;
-        var maxGraphYData = yScope != null ? yScope[1] : Math.max.apply(null, receiveValues[key].history) + yMargin;
-        var minGraphYData = yScope != null ? yScope[0] : Math.min.apply(null, receiveValues[key].history) - yMargin;
-        var xScale = d3.scale.linear()
-                       .range([paddingLeft, stageWidth - paddingRight])
-                       .domain([minGraphXData, maxGraphXData]);
-        var yScale = d3.scale.linear()
-                       .range([stageHeight - paddingBottom, paddingTop + titleSpace])
-                       .domain([minGraphYData, maxGraphYData]);
-        var line = d3.svg.line()
-                     .x(function(d,i){return xScale(i);})
-                     .y(function(d,i){return yScale(d);})
-                     .interpolate("linear");
-
-        // TODO: slice は効率が悪いかも？
-        var len = receiveValues[key].history.length;
-        var shownValues = receiveValues[key].history.slice(
-          len < xSize ? 0 : len - xSize,
-          len
-        );
-
-        // グラフの再描画
-        stage.selectAll("path#"+key).remove();
-        stage.append("path")
-             .attr("id", key)
-             .attr("d", line(shownValues))
-             .attr("stroke", "steelblue")
-             .attr("fill", "none");
-
-        // ラベルとグラフタイトルの再描画
-        stage.selectAll("text").remove();
-        stage.selectAll("text")
-             .data(shownValues)
-             .enter()
-             .append("text")
-             .text(function(d) { return d; })
-             .attr("x", function(d, i) {
-               return paddingLeft + ( graphWidth / xSize ) * i;
-             })
-             .attr("y", function(d) {
-               return paddingTop + titleSpace + graphHeight
-                    - ( graphHeight / ( maxGraphYData - minGraphYData ) )
-                    * ( d - minGraphYData );
-             })
-             .attr("font-family", "sans-serif")
-             .attr("font-size", "11px")
-             .attr("fill", "black");
-        stage.append("text")
-             .attr("x", paddingLeft)
-             .attr("y", titleSpace)
-             .text(key)
-             .attr("font-family", "sans-serif")
-             .attr("font-size", "16px")
-             .attr("fill", "black");
-
-        // 軸の再描画
-        // 対応する範囲の clock の値を抜き出す
-        var historyLength = receiveValues["clock"].history.length;
-        var maxIndex = historyLength - 1;
-        var minIndex = historyLength < xSize ? 0 : maxIndex - xSize - 1;
-        var maxAxisXData = receiveValues["clock"].history[maxIndex];
-        var minAxisXData = receiveValues["clock"].history[minIndex];
-        // 軸の描画がずれるため，画面幅いっぱいまで軸が伸びていない場合の処理を追加しておく
-        var xMaxAxisRange =
-          historyLength < xSize ?
-          stageWidth - paddingRight - ((xSize-historyLength) * (graphWidth/(xSize+1))) :
-          stageWidth - paddingRight;
-        console.log(xMaxAxisRange);
-        var xAxisScale = d3.scale.linear()
-                           .range([paddingLeft, xMaxAxisRange])
-                           .domain([minAxisXData/1000, maxAxisXData/1000]);
-        var yAxisScale = yScale;
-        var xAxis = d3.svg.axis()
-                      .scale(xAxisScale)
-                      .orient('bottom');
-        var yAxis = d3.svg.axis()
-                      .scale(yAxisScale)
-                      .orient('left');
-        // TODO: X軸を時刻にしたい
-        stage.selectAll("g").remove();
-        stage.append('g')
-             .attr("class", "axis")
-             .attr("transform", "translate(0," + ( stageHeight - paddingBottom ) + ")")
-             .call(xAxis);
-        stage.append('g')
-             .attr("class", "axis")
-             .attr("transform", "translate(" + paddingLeft + ",0)")
-             .call(yAxis);
-      };
     </script>
   </head>
   <body>
