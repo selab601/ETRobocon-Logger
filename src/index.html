@@ -27,6 +27,12 @@
                    .text(message.name)));
       });
 
+      ipcRenderer.on('ModalMessage', (ev, message) => {
+        $("#ModalLabel").text(message.title);
+        $("#ModalBody").text(message.body);
+        $('#myModal').modal('show');
+      });
+
       function findBTDevice() {
         ipcRenderer.send('findBTDevice', "Go");
       };
@@ -105,6 +111,7 @@
           <center>
             <button type="button" class="btn btn-default" onclick="findBTDevice()">UPDATE</button>
           </center>
+
         </div>
 
         <!-- center -->
@@ -112,6 +119,31 @@
           <div id="d3graph"></div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" aria-hidden="true">
+      Launch demo modal
+    </button>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="ModalLabel">
+              Modal title
+            </h4>
+          </div>
+          <div class="modal-body" id="ModalBody">
+            ...
+          </div>
+          <div class="modal-footer">
+            <center>
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </center>
+          </div>
+        </div>
       </div>
     </div>
   </body>

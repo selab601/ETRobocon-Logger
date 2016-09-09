@@ -44,9 +44,21 @@ function createWindow() {
   mainWindow.on('closed', function() {
     mainWindow = null;
   });
+
+  // TODO: 以前接続したことのあるBTデバイスをどこかに保存しておく
+
+  // 接続済みのものを renderer プロセスに教える
+  btSerial.listPairedDevices(function(pairedDevices) {
+    pairedDevices.forEach(function(device) {
+      mainWindow.webContents.on('did-finish-load', function () {
+        mainWindow.webContents.send('BTDevice', {name: device.name, address: device.address});
+      });
+    });
+  });
 };
 
 var ipc = require('electron').ipcMain;
+
 ipc.on('findBTDevice', (event, arg) => {
   console.log("Starting find devices...");
 
@@ -54,7 +66,6 @@ ipc.on('findBTDevice', (event, arg) => {
     console.log(name);
     console.log(address);
     mainWindow.webContents.send('BTDevice', {name: name, address: address});
-    btSerial.close();
   });
 
   btSerial.inquire();
@@ -71,17 +82,20 @@ ipc.on('connectBTDevice', (event, arg) => {
         mainWindow.webContents.send('ReceiveDataFromBTDevice', buffer);
       });
     }, function () {
+      event.sender.send('ModalMessage', {
+        title: "Cannot Connect",
+        body: "Please try again"
+      });
       console.log('cannot connect');
     });
 
   }, function() {
+    event.sender.send('ModalMessage', {
+      title: "Connected!",
+      body: "Successfully connected!!"
+    });
     console.log('found nothing');
   });
 });
 
 
-btSerial.listPairedDevices(function(pairedDevices) {
-    pairedDevices.forEach(function(device) {
-        console.log(device);
-    });
-});
