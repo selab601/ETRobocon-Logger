@@ -5,8 +5,8 @@
 "use-strict";
 
 // 各種デフォルト設定値
-const SVG_ELEMENT_HEIGHT = 500;
-const SVG_ELEMENT_WIDTH = 1000;
+const SVG_ELEMENT_HEIGHT = 300;
+const SVG_ELEMENT_WIDTH = 700;
 const TITLE_SPACE_HEIGHT = 20;
 const PADDING_LEFT = 40;
 const PADDING_RIGHT = 10;

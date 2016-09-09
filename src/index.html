@@ -17,59 +17,12 @@
     </script>
 
     <script>
-      var ipcRenderer = require('electron').ipcRenderer;
-
-      ipcRenderer.on('BTDevice', (ev, message) => {
-        $("#bt-device-group")
-          .append($('<li>')
-            .append($("<a/>").attr("href", "#")
-                   .attr("onclick", "connectBTDevice(\""+message.address+"\")")
-                   .text(message.name)));
-      });
-
-      ipcRenderer.on('ModalMessage', (ev, message) => {
-        $("#ModalLabel").text(message.title);
-        $("#ModalBody").text(message.body);
-        $('#myModal').modal('show');
-      });
-
-      function findBTDevice() {
-        ipcRenderer.send('findBTDevice', "Go");
-      };
-
-      function connectBTDevice(address) {
-        ipcRenderer.send('connectBTDevice', address);
-      };
-
-      //////
-      var LogWriter = require('./js/logWriter.js');
-      var writer = new LogWriter();
-
-      var D3GraphRenderer = require('./js/D3GraphRenderer.js');
-      var renderer;
+      var Main = require('./js/main.js');
+      var main;
 
       $(document).ready(function() {
-        // グラフとして見たい値がある場合は以下の配列に追加する
-        var renderValues = ["brightness", "gyro"]
-
-        renderer = new D3GraphRenderer(d3, renderValues);
-
-        ipcRenderer.on('ReceiveDataFromBTDevice', (ev, message) => {
-          var data = JSON.parse(message);
-
-          // 外部ファイルにログを出力
-          writer.append(message);
-
-          // 値の更新
-          Object.keys(renderer.getReceiveValues()).forEach(function(key) {
-            renderer.update(key, data[key]);
-          });
-
-          // 描画
-          for (var i=0; i<renderValues.length; i++) {
-            renderer.renderDynamicGraph(renderValues[i]);
-          }
-        });
+        main = new Main(d3, jQuery, ["brightness"]);
+        main.startRenderingDynamically();
       });
     </script>
   </head>
@@ -79,16 +32,14 @@
       <!-- navbar -->
       <div class="row">
         <nav class="navbar navbar-default navbar-fixed-top">
-
           <div class="navbar-header">
-            <a href="" class="navbar-brand">Home</a>
+            <a href="" class="navbar-brand">ET2016 Logger</a>
           </div>
-
+          <!-- メニュー -->
           <ul class="nav navbar-nav">
             <li class="active"><a href="index.html">RealTime Graph</a></li>
             <li><a href="#">Load JSON file</a></li>
           </ul>
-
         </nav>
       </div>
 
@@ -101,17 +52,14 @@
             <div class="panel-heading">
               Devices
             </div>
-            <!-- 敢えてbodyを作らないことで、メニューを詰める -->
-            <!-- <div class="panel-body"> -->
             <ul class="nav nav-pills nav-stacked" id="bt-device-group">
+              <!-- デバイスが追加されていく -->
             </ul>
-            <!-- </div> -->
           </div>
-
           <center>
-            <button type="button" class="btn btn-default" onclick="findBTDevice()">UPDATE</button>
+            <!-- デバイス追加ボタン -->
+            <button type="button" class="btn btn-default" onclick="main.sendToMasterProcess('findBTDevice','')">UPDATE</button>
           </center>
-
         </div>
 
         <!-- center -->
@@ -122,10 +70,6 @@
       </div>
     </div>
 
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" aria-hidden="true">
-      Launch demo modal
-    </button>
     <!-- Modal -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
