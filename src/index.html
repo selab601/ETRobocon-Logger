@@ -23,11 +23,15 @@
       var renderer;
 
       $(document).ready(function() {
-        renderer = new D3GraphRenderer(d3, ["brightness"]);
+        // グラフとして見たい値がある場合は以下の配列に追加する
+        var renderValues = ["brightness", "gyro"]
+
+        renderer = new D3GraphRenderer(d3, renderValues);
 
         ipcRenderer.on('serial', (ev, message) => {
           var data = JSON.parse(message);
 
+          // 外部ファイルにログを出力
           writer.append(message);
 
           // 値の更新
@@ -36,9 +40,8 @@
           });
 
           // 描画
-          var values = ["brightness"]
-          for (var i=0; i<values.length; i++) {
-            renderer.renderDynamicGraph(values[i]);
+          for (var i=0; i<renderValues.length; i++) {
+            renderer.renderDynamicGraph(renderValues[i]);
           }
         });
       });
