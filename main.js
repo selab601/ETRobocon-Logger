@@ -1,4 +1,4 @@
-'use strinct';
+'use strict';
 
 // main プロセス側の IPC 用モジュール
 const ipcMain = require('electron').ipcMain;
@@ -8,10 +8,14 @@ const SerialPort = require('serialport');
 const app = require('app');
 // ブラウザウインドを生成するためのモジュール
 const BrowserWindow = require('browser-window');
+// Bluetooth デバイスの検索&通信を行うためのモジュール
+var BluetoothSerialPort = require('bluetooth-serial-port');
 
 // メインウインドウをグローバル変数として保持しておく
 // これがないと，JSのGCにウインドウを殺されてしまう
 var mainWindow;
+
+var btSerial = new BluetoothSerialPort.BluetoothSerialPort();
 
 // 起準備動時の処理
 app.on('ready', createWindow);
@@ -20,6 +24,7 @@ app.on('ready', createWindow);
 app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') {
     app.quit();
+    btSerial.close();
   }
 });
 
@@ -39,29 +44,44 @@ function createWindow() {
   mainWindow.on('closed', function() {
     mainWindow = null;
   });
+};
 
-  connectEV3(mainWindow);
-}
+var ipc = require('electron').ipcMain;
+ipc.on('findBTDevice', (event, arg) => {
+  console.log("Starting find devices...");
 
-// EV3 と通信し，情報を取得する
-function connectEV3 (mainWindow) {
-  // ポートの設定
-  // TODO: GUI上からできるようにしたほうが良いかも
-
-  // コマンドライン引数のシリアルポートにつなげる
-  var port = new SerialPort.SerialPort(process.argv[2], {
-    baudrate: 115200,
-    parser: SerialPort.parsers.readline("\n")
+  btSerial.on('found', function(address, name) {
+    console.log(name);
+    console.log(address);
+    mainWindow.webContents.send('BTDevice', {name: name, address: address});
+    btSerial.close();
   });
 
-  // EV3 との通信 & Renderer プロセスへの送信
-  // Renderer プロセスで JavaScript の実行が完了されていな場合，
-  // うまくいかないらしい．これを防ぐために `did-finish-load`
-  // イベントにコールバックを登録している
-  // 参考: http://qiita.com/Misumi_Rize/items/dde76dbf89abee13991c#webcontentssend
-  mainWindow.webContents.on('did-finish-load', function () {
-    port.on('data', function(data) {
-      mainWindow.webContents.send('serial', data);
+  btSerial.inquire();
+});
+
+ipc.on('connectBTDevice', (event, arg) => {
+  console.log("Connecting...");
+  var address = arg;
+  btSerial.findSerialPortChannel(address, function(channel) {
+    btSerial.connect(address, channel, function() {
+      console.log('connected');
+
+      btSerial.on('data', function(buffer) {
+        mainWindow.webContents.send('ReceiveDataFromBTDevice', buffer);
+      });
+    }, function () {
+      console.log('cannot connect');
     });
+
+  }, function() {
+    console.log('found nothing');
   });
-}
+});
+
+
+btSerial.listPairedDevices(function(pairedDevices) {
+    pairedDevices.forEach(function(device) {
+        console.log(device);
+    });
+});

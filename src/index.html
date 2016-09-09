@@ -1,21 +1,41 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>ET2016 EV3 Logger</title>
 
     <!-- スタイルシート -->
+    <link href="css/index.css" rel="stylesheet" type="text/css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="css/main.css" rel="stylesheet" type="text/css">
 
     <!-- 外部のライブラリのロード -->
     <script>
       window.jQuery = window.$ = require('./js/lib/jquery-3.1.0.min.js');
       var d3 = require('./js/lib/d3.min.js');
+      require('bootstrap');
     </script>
 
     <script>
       var ipcRenderer = require('electron').ipcRenderer;
 
+      ipcRenderer.on('BTDevice', (ev, message) => {
+        $("#bt-device-group")
+          .append($('<li>')
+            .append($("<a/>").attr("href", "#")
+                   .attr("onclick", "connectBTDevice(\""+message.address+"\")")
+                   .text(message.name)));
+      });
+
+      function findBTDevice() {
+        ipcRenderer.send('findBTDevice', "Go");
+      };
+
+      function connectBTDevice(address) {
+        ipcRenderer.send('connectBTDevice', address);
+      };
+
+      //////
       var LogWriter = require('./js/logWriter.js');
       var writer = new LogWriter();
 
@@ -28,7 +48,7 @@
 
         renderer = new D3GraphRenderer(d3, renderValues);
 
-        ipcRenderer.on('serial', (ev, message) => {
+        ipcRenderer.on('ReceiveDataFromBTDevice', (ev, message) => {
           var data = JSON.parse(message);
 
           // 外部ファイルにログを出力
@@ -48,6 +68,51 @@
     </script>
   </head>
   <body>
-    <div id="d3graph"></div>
+    <div class="container" style="margin: 0 0 0 0;">
+
+      <!-- navbar -->
+      <div class="row">
+        <nav class="navbar navbar-default navbar-fixed-top">
+
+          <div class="navbar-header">
+            <a href="" class="navbar-brand">Home</a>
+          </div>
+
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="index.html">RealTime Graph</a></li>
+            <li><a href="#">Load JSON file</a></li>
+          </ul>
+
+        </nav>
+      </div>
+
+      <!-- content -->
+      <div class="row" style="padding:60px 0 0 0">
+        <!-- left -->
+        <div class="col-md-3">
+          <!-- パネルで囲む -->
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Devices
+            </div>
+            <!-- 敢えてbodyを作らないことで、メニューを詰める -->
+            <!-- <div class="panel-body"> -->
+            <ul class="nav nav-pills nav-stacked" id="bt-device-group">
+            </ul>
+            <!-- </div> -->
+          </div>
+
+          <center>
+            <button type="button" class="btn btn-default" onclick="findBTDevice()">UPDATE</button>
+          </center>
+        </div>
+
+        <!-- center -->
+        <div class="col-md-9">
+          <div id="d3graph"></div>
+        </div>
+
+      </div>
+    </div>
   </body>
 </html>
