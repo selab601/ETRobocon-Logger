@@ -81,15 +81,26 @@ D3GraphRenderer.prototype.replacementSVGElement = function (keys) {
 // @param グラフのY軸の描画範囲として，値の取りうる最大値，最小値を設定
 D3GraphRenderer.prototype.renderDynamicGraph = function (key, size, yScope) {
   var xSize = size == null ? 100 : size;
+  this.renderGraph(key, [0,xSize], yScope);
+};
+
+D3GraphRenderer.prototype.renderGraph = function (key, xScope, yScope) {
+  // キーに対応するSVG要素の取得
   var stage = this.d3.select("svg#"+key);
-  // グラフ描画用の設定
-  var maxGraphXData = xSize;
+  var xSize = xScope[1] - xScope[0];
+
+  // X軸Y軸の描画最大値，最小値を計算する
+  // X軸は時間だが，指定範囲内のデータの切り出しは後に別にやる
+  // ここではいくつデータを取り出すかだけ指定すれば良いため，最小値0〜最大値maxX-minXをとっている
+  var maxGraphXData = xScope != null ? xSize : this.receiveValues[key].history.length-1;
   var minGraphXData = 0;
   // 動的にY軸の描画範囲を変更する場合は，上限と下限を大きめ/小さめに設定する
   // こうしないと，minYData == maxYData ( minYData - maxYData == 0 ) となり，後の計算式で0除算を引き起こす
   var yMargin = 10;
   var maxGraphYData = yScope != null ? yScope[1] : Math.max.apply(null, this.receiveValues[key].history) + yMargin;
   var minGraphYData = yScope != null ? yScope[0] : Math.min.apply(null, this.receiveValues[key].history) - yMargin;
+
+  // スケールと線分描画のための関数を定義
   var xScale = this.d3.scale.linear()
         .range([PADDING_LEFT, SVG_ELEMENT_WIDTH - PADDING_RIGHT])
         .domain([minGraphXData, maxGraphXData]);
@@ -149,6 +160,7 @@ D3GraphRenderer.prototype.renderDynamicGraph = function (key, size, yScope) {
   var minIndex = historyLength < xSize ? 0 : maxIndex - xSize - 1;
   var maxAxisXData = this.receiveValues["clock"].history[maxIndex];
   var minAxisXData = this.receiveValues["clock"].history[minIndex];
+
   // 軸の描画がずれるため，画面幅いっぱいまで軸が伸びていない場合の処理を追加しておく
   var xMaxAxisRange =
         historyLength < xSize ?
@@ -164,7 +176,8 @@ D3GraphRenderer.prototype.renderDynamicGraph = function (key, size, yScope) {
   var yAxis = this.d3.svg.axis()
         .scale(yAxisScale)
         .orient('left');
-  // TODO: X軸を時刻にしたい
+
+  // 軸を描画
   stage.selectAll("g").remove();
   stage.append('g')
     .attr("class", "axis")
