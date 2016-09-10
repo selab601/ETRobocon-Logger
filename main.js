@@ -95,9 +95,9 @@ ipc.on('findBTDevice', (event, arg) => {
   async.on('done', function() {
     btSerial.close();
 
-    event.sender.send('ModalMessage', {
+    event.sender.send('finishFindingDevice', {
       title: "Finish",
-      body: devices.length + "devices were found"
+      body: devices.length + " devices were found"
     });
 
     for (var i=0; i<devices.length; i++) {
@@ -114,7 +114,8 @@ ipc.on('connectBTDevice', (event, arg) => {
   btSerial.findSerialPortChannel(address, function(channel) {
     btSerial.connect(address, channel, function() {
       console.log('connected');
-      event.sender.send('ModalMessage', {
+
+      event.sender.send('connected', {
         title: "Cnnected!",
         body: "Successfully connected!!"
       });
@@ -124,7 +125,7 @@ ipc.on('connectBTDevice', (event, arg) => {
         file.appendFile(logFilePath, buffer, 'utf8');
       });
     }, function () {
-      event.sender.send('ModalMessage', {
+      event.sender.send('cannotConnected', {
         title: "Cannot Connect",
         body: "Selected device was found, but failed to connect. Please try again"
       });
@@ -132,7 +133,7 @@ ipc.on('connectBTDevice', (event, arg) => {
     });
 
   }, function() {
-    event.sender.send('ModalMessage', {
+    event.sender.send('deviceNotFound', {
       title: "Found nothing",
       body: "Selected device was not found"
     });

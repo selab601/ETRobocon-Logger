@@ -2,34 +2,60 @@
  * IO.js
  * MainProcess, RendererProcess 間の通信関係の関数定義
  */
-function IO ($, dialog) {
+"use-strict";
+
+function IO (view, main) {
   this.ipc = require('electron').ipcRenderer;
-  this.dialog = dialog;
+  this.view = view;
+  this.main = main;
 
   // 受信
+
   this.ipc.on('BTDevice', function (ev, message) {
-    this.dialog.hide();
-    $("#bt-device-group")
-      .append($('<li>')
-              .append($("<a/>").attr("href", "#")
-                      .attr("onclick", "main.sendToMasterProcess('connectBTDevice', \""+message.address+"\", \"Connecting...\")")
-                      .text(message.name)));
+    this.view.addBluetoothDeviceToList(message);
   }.bind(this));
 
-  this.ipc.on('ModalMessage', function (ev, message) {
-    this.dialog.hide();
-    $("#ModalLabel").text(message.title);
-    $("#ModalBody").text(message.body);
-    $('#myModal').modal('show');
+  this.ipc.on('disconnected', function (ev, message) {
+    this.main.updateConnectionState(false);
+    this.view.showModal(message);
+  }.bind(this));
+
+  this.ipc.on('connected', function (ev, message) {
+    this.main.updateConnectionState(true);
+    this.view.showModal(message);
+  }.bind(this));
+
+  this.ipc.on('cannotConnected', function (ev, message) {
+    this.main.updateConnectionState(false);
+    this.view.showModal(message);
+  }.bind(this));
+
+  this.ipc.on('deviceNotFound', function (ev, message) {
+    this.main.updateConnectionState(false);
+    this.view.showModal(message);
+  }.bind(this));
+
+  this.ipc.on('finishFindingDevice', function (ev, message) {
+    this.view.showModal(message);
   }.bind(this));
 }
 
 // 送信
-IO.prototype.send = function (event, message, dialogMsg) {
-  console.log(this.dialog)
-  this.dialog.show(dialogMsg);
-  this.ipc.send(event, message);
+
+IO.prototype.disconnect = function () {
+  this.view.showDialog('Disconnecting...');
+  this.ipc.send('disconnect', '');
 };
+
+IO.prototype.connect = function (address) {
+  this.view.showDialog('Connecting...');
+  this.ipc.send('connectBTDevice', address);
+}
+
+IO.prototype.findDevice = function () {
+  this.view.showDialog('Finding...');
+  this.ipc.send('findBTDevice', '');
+}
 
 IO.prototype.appendReceiver = function (event, func) {
   this.ipc.on(event, (ev,msg) => func(ev, msg));
