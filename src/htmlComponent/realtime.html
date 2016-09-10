@@ -1,12 +1,10 @@
 <!-- left -->
 <div class="col-md-3">
 
-  <div class="panel panel-default">
-    <div class="panel-heading">Log file</div>
-    <center>
-      <input type="text" style="margin: 10px 10px 10px 10px;" name="logFileName" id="logFileName" disabled>
-    </center>
-  </div>
+  <center>
+    <button type="button" style="margin: 10px 10px 10px 10px;" id="disconnect-btn"
+            class="btn btn-danger" onclick="main.io.disconnect()" disabled="true">DISCONNECT</button>
+  </center>
 
   <div class="panel panel-default">
     <div class="panel-heading">
@@ -16,8 +14,7 @@
       <!-- デバイスが追加されていく -->
     </ul>
     <center>
-      <!-- デバイス追加ボタン -->
-      <button type="button" class="btn btn-default" onclick="main.sendToMasterProcess('findBTDevice', '', 'Finding...')">UPDATE</button>
+      <button type="button" class="btn btn-default" style="margin: 10px 10px 10px 10px;" onclick="main.io.findDevice();">UPDATE</button>
     </center>
   </div>
 

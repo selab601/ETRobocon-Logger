@@ -3,20 +3,26 @@
  */
 const D3GraphRenderer = require('./D3GraphRenderer.js');
 const IO = require('./IO.js');
+const View = require('./View.js');
 
 function Main(D3Object, jQueryObject, dialog) {
-  this.d3 = D3Object;
-  this.$ = jQueryObject;
-  this.renderValues = [];
-  this.io = new IO(jQueryObject, dialog);
-  this.renderer = new D3GraphRenderer(this.d3, this.renderValues);
-  this.loadedComponent = '';
-};
+  this.view = new View(D3Object, jQueryObject, dialog);
 
-Main.prototype.startRenderingDynamically = function() {
+  this.io = new IO(this.view, this);
+  this.renderer = new D3GraphRenderer(D3Object);
+
+  // アプリケーションの状態を保持する
+  this.stateMap = {
+    connected : false,
+    content : "",
+    renderValues : []
+  };
+
+  // コンテンツを描画する
+  this.transition('realtime');
+
   this.io.appendReceiver('ReceiveDataFromBTDevice', (ev, message) => {
-    this.renderValues = checkRenderValues(this.$);
-    console.log(this.renderValues);
+    this.stateMap.renderValues = this.view.checkRenderValues();
 
     var data = JSON.parse(message);
 
@@ -26,33 +32,32 @@ Main.prototype.startRenderingDynamically = function() {
     }.bind(this));
 
     // 描画
-    this.renderer.replacementSVGElement(this.renderValues);
-    for (var i=0; i<this.renderValues.length; i++) {
-      this.renderer.renderDynamicGraph(this.renderValues[i]);
+    this.renderer.replacementSVGElement(this.stateMap.renderValues);
+    for (var i=0; i<this.stateMap.renderValues.length; i++) {
+      this.renderer.renderDynamicGraph(this.stateMap.renderValues[i]);
     }
   });
 };
 
-Main.prototype.sendToMasterProcess = function (event, message, dialogMsg) {
-  this.io.send(event, message, dialogMsg);
-};
+Main.prototype.updateConnectionState = function (state) {
+  this.stateMap.connected = state;
+  if (state == true) {
+    this.view.enableDisconnectButton();
+  } else {
+    this.view.disableDisconnecButton();
+    this.renderer.initialize();
+  }
+}
 
-Main.prototype.loadHTML = function (component) {
-  if (this.loadedComponent != component) {
-    this.$('#content').load('./htmlComponent/' + component + '.html');
+Main.prototype.transition = function (component) {
+  if (this.stateMap.content != component) {
+    this.view.transitionContent(component);
   }
 };
 
-var checkRenderValues = function ($) {
-  var renderValues = [];
-  $('.funkyradio-success>input[type="checkbox"]').each( function(i, item) {
-    if ($(this).prop('checked')) {
-      console.log('checked');
-      renderValues.push($(this).attr("id"));
-    }
-  });
-  console.log(renderValues);
-  return renderValues;
-};
+Main.prototype.io = function () {
+  return this.io;
+}();
 
 module.exports = Main;
+

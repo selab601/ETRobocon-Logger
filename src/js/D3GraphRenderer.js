@@ -15,7 +15,7 @@ const PADDING_BOTTOM = 40;
 const GRAPH_HEIGHT = SVG_ELEMENT_HEIGHT - (PADDING_TOP+PADDING_BOTTOM) - TITLE_SPACE_HEIGHT;
 const GRAPH_WIDTH = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
 
-function D3GraphRenderer (D3Object, keys) {
+function D3GraphRenderer (D3Object) {
   this.d3 = D3Object;
   this.receiveValues = {
     "clock": {},
@@ -42,8 +42,16 @@ function D3GraphRenderer (D3Object, keys) {
     // 受信した値の履歴を初期化
     this.receiveValues[key].history = [];
   }.bind(this));
-
 };
+
+D3GraphRenderer.prototype.initialize = function () {
+  Object.keys(this.receiveValues).forEach(function(key) {
+    this.receiveValues[key] = {};
+    this.receiveValues[key].history = [];
+  }.bind(this));
+
+  this.d3.selectAll("#d3graph>svg").remove();
+}
 
 D3GraphRenderer.prototype.getReceiveValues = function () {
   return this.receiveValues;

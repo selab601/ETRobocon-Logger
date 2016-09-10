@@ -140,3 +140,12 @@ ipc.on('connectBTDevice', (event, arg) => {
     console.log('found nothing');
   });
 });
+
+ipc.on('disconnect', (event, arg) => {
+  console.log("Disconnected");
+  btSerial.close();
+  event.sender.send('disconnected', {
+    title: "Disconnected",
+    body: "This connection's data was saved in " + logFileName + "."
+  });
+});

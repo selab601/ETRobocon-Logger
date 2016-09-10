@@ -20,12 +20,7 @@
     <script>
       var Main = require('./js/main.js');
       var main;
-
-      $(document).ready(function() {
-        main = new Main(d3, jQuery, waitingDialog);
-        main.startRenderingDynamically();
-        main.loadHTML('realtime');
-      });
+      $(document).ready(function() { main = new Main(d3, jQuery, waitingDialog); });
     </script>
   </head>
   <body>
@@ -39,8 +34,8 @@
           </div>
           <!-- メニュー -->
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#" onclick="main.loadHTML('realtime');">RealTime Graph</a></li>
-            <li><a href="#">Load JSON file</a></li>
+            <li><a href="#" onclick="main.transition('realtime');">RealTime Graph</a></li>
+            <li><a href="#" onclick="main.transition('loadJson');">Load JSON file</a></li>
           </ul>
         </nav>
       </div>
