@@ -2,8 +2,6 @@
 
 // main プロセス側の IPC 用モジュール
 const ipcMain = require('electron').ipcMain;
-// シリアル通信用モジュール
-const SerialPort = require('serialport');
 // アプリケーションのライフサイクル管理のためのモジュール
 const app = require('app');
 // ブラウザウインドを生成するためのモジュール
