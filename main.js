@@ -9,6 +9,8 @@ const BrowserWindow = require('browser-window');
 // Bluetooth デバイスの検索&通信を行うためのモジュール
 var BluetoothSerialPort = require('bluetooth-serial-port');
 var EventEmitter = require('events').EventEmitter;
+// ログファイルで日付を使用するためのモジュール
+require('date-utils');
 
 function asyncFunc() {
   var ev = new EventEmitter;
@@ -23,9 +25,14 @@ function asyncFunc() {
 var mainWindow;
 
 var btSerial = new BluetoothSerialPort.BluetoothSerialPort();
+var file = require('fs');
+var logFilePath;
 
 // 起準備動時の処理
-app.on('ready', createWindow);
+app.on('ready', function () {
+  createWindow();
+  initLogWriter();
+});
 
 // 終了時の処理
 app.on('window-all-closed', function() {
@@ -63,6 +70,12 @@ function createWindow() {
     });
   });
 };
+
+function initLogWriter() {
+  var date = new Date();
+  var formatted = date.toFormat("YYYY_MMDD_HH24MISS");
+  logFilePath = app.getAppPath() + '/log/' + formatted + '.json';
+}
 
 var ipc = require('electron').ipcMain;
 
@@ -106,6 +119,7 @@ ipc.on('connectBTDevice', (event, arg) => {
 
       btSerial.on('data', function(buffer) {
         mainWindow.webContents.send('ReceiveDataFromBTDevice', buffer);
+        file.appendFile(logFilePath, buffer, 'utf8');
       });
     }, function () {
       event.sender.send('ModalMessage', {

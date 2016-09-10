@@ -1,7 +1,6 @@
 /*
  * main.js
  */
-const LogWriter = require('./logWriter.js');
 const D3GraphRenderer = require('./D3GraphRenderer.js');
 const IO = require('./IO.js');
 
@@ -10,7 +9,6 @@ function Main(D3Object, jQueryObject, dialog) {
   this.$ = jQueryObject;
   this.renderValues = [];
   this.io = new IO(jQueryObject, dialog);
-  this.writer = new LogWriter();
   this.renderer = new D3GraphRenderer(this.d3, this.renderValues);
 };
 
@@ -20,9 +18,6 @@ Main.prototype.startRenderingDynamically = function() {
     console.log(this.renderValues);
 
     var data = JSON.parse(message);
-
-    // 外部ファイルにログを出力
-    this.writer.append(message);
 
     // 値の更新
     Object.keys(this.renderer.getReceiveValues()).forEach(function(key) {
