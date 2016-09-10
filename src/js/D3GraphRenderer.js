@@ -53,6 +53,12 @@ D3GraphRenderer.prototype.initialize = function () {
   this.d3.selectAll("#d3graph>svg").remove();
 }
 
+D3GraphRenderer.prototype.setReceiveValue = function (obj) {
+  Object.keys(obj).forEach(function(key) {
+    this.receiveValues[key].history.push(obj[key]);
+  }.bind(this));
+}
+
 D3GraphRenderer.prototype.getReceiveValues = function () {
   return this.receiveValues;
 };
@@ -87,12 +93,12 @@ D3GraphRenderer.prototype.renderDynamicGraph = function (key, size, yScope) {
 D3GraphRenderer.prototype.renderGraph = function (key, xScope, yScope) {
   // キーに対応するSVG要素の取得
   var stage = this.d3.select("svg#"+key);
-  var xSize = xScope[1] - xScope[0];
 
   // X軸Y軸の描画最大値，最小値を計算する
   // X軸は時間だが，指定範囲内のデータの切り出しは後に別にやる
   // ここではいくつデータを取り出すかだけ指定すれば良いため，最小値0〜最大値maxX-minXをとっている
-  var maxGraphXData = xScope != null ? xSize : this.receiveValues[key].history.length-1;
+  var xSize = xScope != null ? xScope[1] - xScope[0] + 1 : this.receiveValues[key].history.length;
+  var maxGraphXData = xSize;
   var minGraphXData = 0;
   // 動的にY軸の描画範囲を変更する場合は，上限と下限を大きめ/小さめに設定する
   // こうしないと，minYData == maxYData ( minYData - maxYData == 0 ) となり，後の計算式で0除算を引き起こす
@@ -188,5 +194,26 @@ D3GraphRenderer.prototype.renderGraph = function (key, xScope, yScope) {
     .attr("transform", "translate(" + PADDING_LEFT + ",0)")
     .call(yAxis);
 };
+
+D3GraphRenderer.prototype.parseLogFile = function (logFileName) {
+  var remote = require('remote'),
+      fs = require('fs'),
+      logFilePath = remote.require('app').getAppPath()+'/log/'+logFileName;
+  var values = new Array();
+
+  var contents = fs.readFileSync(logFilePath);
+  var lines = contents
+        .toString()
+        .split('\n');
+
+  for (var i=0; i<lines.length; i++) {
+    values.push(lines[i]);
+  }
+
+  // 最後に余分な改行があるので削除
+  values.pop();
+
+  return values;
+}
 
 module.exports = D3GraphRenderer;

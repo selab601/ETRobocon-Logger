@@ -39,6 +39,21 @@ function Main(D3Object, jQueryObject, dialog) {
   });
 };
 
+Main.prototype.renderGraph = function (logFileName) {
+  this.stateMap.renderValues = this.view.checkRenderValues();
+
+  var values = this.renderer.parseLogFile(logFileName);
+  for (var i=0; i<Object.keys(values).length; i++) {
+    var obj = JSON.parse(values[i]);
+    this.renderer.setReceiveValue(obj);
+  }
+
+  this.renderer.replacementSVGElement(this.stateMap.renderValues);
+  for (var i=0; i<this.stateMap.renderValues.length; i++) {
+    this.renderer.renderGraph(this.stateMap.renderValues[i]);
+  }
+}
+
 Main.prototype.updateConnectionState = function (state) {
   this.stateMap.connected = state;
   if (state == true) {

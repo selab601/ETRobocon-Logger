@@ -71,9 +71,10 @@ View.prototype.initLoadJsonView = function () {
       if (path.extname(files[i]) === ".json") {
         this.$("#log-file-group")
           .append(this.$('<li>')
-            .append(this.$("<a/>")
-              .attr("href", "#")
-              .text(files[i])));
+                  .append(this.$("<a/>")
+                          .attr("href", "#")
+                          .attr("onclick", "main.renderGraph(\""+files[i]+"\")")
+                          .text(files[i])));
       }
     }
   }.bind(this));
