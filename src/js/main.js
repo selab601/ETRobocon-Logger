@@ -10,6 +10,7 @@ function Main(D3Object, jQueryObject, dialog) {
   this.renderValues = [];
   this.io = new IO(jQueryObject, dialog);
   this.renderer = new D3GraphRenderer(this.d3, this.renderValues);
+  this.loadedComponent = '';
 };
 
 Main.prototype.startRenderingDynamically = function() {
@@ -34,6 +35,12 @@ Main.prototype.startRenderingDynamically = function() {
 
 Main.prototype.sendToMasterProcess = function (event, message, dialogMsg) {
   this.io.send(event, message, dialogMsg);
+};
+
+Main.prototype.loadHTML = function (component) {
+  if (this.loadedComponent != component) {
+    this.$('#content').load('./htmlComponent/' + component + '.html');
+  }
 };
 
 var checkRenderValues = function ($) {
