@@ -27,6 +27,7 @@ var mainWindow;
 var btSerial = new BluetoothSerialPort.BluetoothSerialPort();
 var file = require('fs');
 var logFilePath;
+var logFileName;
 
 // 起準備動時の処理
 app.on('ready', function () {
@@ -74,7 +75,8 @@ function createWindow() {
 function initLogWriter() {
   var date = new Date();
   var formatted = date.toFormat("YYYY_MMDD_HH24MISS");
-  logFilePath = app.getAppPath() + '/log/' + formatted + '.json';
+  logFileName = formatted + '.json';
+  logFilePath = app.getAppPath() + '/log/' + logFileName;
 }
 
 var ipc = require('electron').ipcMain;
