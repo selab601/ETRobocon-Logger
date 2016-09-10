@@ -5,11 +5,11 @@ const LogWriter = require('./logWriter.js');
 const D3GraphRenderer = require('./D3GraphRenderer.js');
 const IO = require('./IO.js');
 
-function Main(D3Object, jQueryObject) {
+function Main(D3Object, jQueryObject, dialog) {
   this.d3 = D3Object;
   this.$ = jQueryObject;
   this.renderValues = [];
-  this.io = new IO(jQueryObject);
+  this.io = new IO(jQueryObject, dialog);
   this.writer = new LogWriter();
   this.renderer = new D3GraphRenderer(this.d3, this.renderValues);
 };
@@ -37,8 +37,8 @@ Main.prototype.startRenderingDynamically = function() {
   });
 };
 
-Main.prototype.sendToMasterProcess = function (event, message) {
-  this.io.send(event, message);
+Main.prototype.sendToMasterProcess = function (event, message, dialogMsg) {
+  this.io.send(event, message, dialogMsg);
 };
 
 var checkRenderValues = function ($) {

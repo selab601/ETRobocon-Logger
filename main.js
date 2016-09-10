@@ -10,6 +10,15 @@ const app = require('app');
 const BrowserWindow = require('browser-window');
 // Bluetooth デバイスの検索&通信を行うためのモジュール
 var BluetoothSerialPort = require('bluetooth-serial-port');
+var EventEmitter = require('events').EventEmitter;
+
+function asyncFunc() {
+  var ev = new EventEmitter;
+  setTimeout(function () {
+    ev.emit('done');
+  }, 5000);
+  return ev;
+};
 
 // メインウインドウをグローバル変数として保持しておく
 // これがないと，JSのGCにウインドウを殺されてしまう
@@ -61,11 +70,26 @@ var ipc = require('electron').ipcMain;
 
 ipc.on('findBTDevice', (event, arg) => {
   console.log("Starting find devices...");
+  var devices = [];
 
   btSerial.on('found', function(address, name) {
     console.log(name);
     console.log(address);
-    mainWindow.webContents.send('BTDevice', {name: name, address: address});
+    devices.push({name: name, address: address});
+  });
+
+  var async = asyncFunc();
+  async.on('done', function() {
+    btSerial.close();
+
+    event.sender.send('ModalMessage', {
+      title: "Finish",
+      body: devices.length + "devices were found"
+    });
+
+    for (var i=0; i<devices.length; i++) {
+      mainWindow.webContents.send('BTDevice', devices[i]);
+    }
   });
 
   btSerial.inquire();
@@ -77,6 +101,10 @@ ipc.on('connectBTDevice', (event, arg) => {
   btSerial.findSerialPortChannel(address, function(channel) {
     btSerial.connect(address, channel, function() {
       console.log('connected');
+      event.sender.send('ModalMessage', {
+        title: "Cnnected!",
+        body: "Successfully connected!!"
+      });
 
       btSerial.on('data', function(buffer) {
         mainWindow.webContents.send('ReceiveDataFromBTDevice', buffer);
@@ -84,18 +112,16 @@ ipc.on('connectBTDevice', (event, arg) => {
     }, function () {
       event.sender.send('ModalMessage', {
         title: "Cannot Connect",
-        body: "Please try again"
+        body: "Selected device was found, but failed to connect. Please try again"
       });
       console.log('cannot connect');
     });
 
   }, function() {
     event.sender.send('ModalMessage', {
-      title: "Connected!",
-      body: "Successfully connected!!"
+      title: "Found nothing",
+      body: "Selected device was not found"
     });
     console.log('found nothing');
   });
 });
-
-

@@ -16,12 +16,13 @@
       require('bootstrap');
     </script>
 
+    <script src="./js/WaitingDialog.js"></script>
     <script>
       var Main = require('./js/main.js');
       var main;
 
       $(document).ready(function() {
-        main = new Main(d3, jQuery);
+        main = new Main(d3, jQuery, waitingDialog);
         main.startRenderingDynamically();
       });
     </script>
@@ -57,7 +58,7 @@
             </ul>
             <center>
               <!-- デバイス追加ボタン -->
-              <button type="button" class="btn btn-default" onclick="main.sendToMasterProcess('findBTDevice','')">UPDATE</button>
+              <button type="button" class="btn btn-default" onclick="main.sendToMasterProcess('findBTDevice', '', 'Finding...')">UPDATE</button>
             </center>
           </div>
 
