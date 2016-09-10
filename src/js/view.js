@@ -29,8 +29,10 @@ View.prototype.addBluetoothDeviceToList = function (info) {
         .text(info.name)));
 }
 
-View.prototype.transitionContent = function (component) {
-  this.$('#content').load('./htmlComponent/' + component + '.html');
+View.prototype.transitionContent = function (component, callback) {
+  this.$('#content').load('./htmlComponent/' + component + '.html', function () {
+    callback();
+  });
 }
 
 // real time
@@ -54,5 +56,28 @@ View.prototype.checkRenderValues = function () {
 
   return renderValues;
 }
+
+View.prototype.initLoadJsonView = function () {
+  // ログファイル群の初期化
+  var remote = require('remote');
+  var fs = require('fs');
+  var path = require('path');
+  fs.readdir(remote.require('app').getAppPath()+'/log/', function(err, files) {
+    if (err) {
+      throw err;
+    }
+
+    for (var i=0; i<files.length; i++) {
+      if (path.extname(files[i]) === ".json") {
+        this.$("#log-file-group")
+          .append(this.$('<li>')
+            .append(this.$("<a/>")
+              .attr("href", "#")
+              .text(files[i])));
+      }
+    }
+  }.bind(this));
+}
+
 
 module.exports = View;

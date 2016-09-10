@@ -1,37 +1,8 @@
-<script>
-  var remote = require('remote');
-  var fs = require('fs');
-  var path = require('path');
-
-  fs.readdir(remote.require('app').getAppPath()+'/log/', function(err, files) {
-    if (err) {
-      throw err;
-    }
-
-    for (var i=0; i<files.length; i++) {
-      if (path.extname(files[i]) === ".json") {
-        $("#bt-device-group")
-          .append($('<li>')
-            .append($("<a/>")
-              .attr("href", "#")
-              .text(files[i])));
-      }
-    }
-  });
-</script>
-
-
 <div class="col-md-3">
 
   <div class="panel panel-default">
     <div class="panel-heading">Log files</div>
-    <ul class="nav nav-pills nav-stacked" id="bt-device-group">
-    </ul>
-  </div>
-
-  <div class="panel panel-default">
-    <div class="panel-heading">Log files</div>
-    <ul class="nav nav-pills nav-stacked" id="bt-device-group">
+    <ul class="nav nav-pills nav-stacked" id="log-file-group">
     </ul>
   </div>
 

@@ -50,8 +50,16 @@ Main.prototype.updateConnectionState = function (state) {
 }
 
 Main.prototype.transition = function (component) {
+  var callback = function(){};
+  // 専用の view をロード
+  switch (component) {
+  case "loadJson":
+    callback = this.view.initLoadJsonView;
+  }
+
+  // HTML コンポーネントのロード
   if (this.stateMap.content != component) {
-    this.view.transitionContent(component);
+    this.view.transitionContent(component, callback);
   }
 };
 
