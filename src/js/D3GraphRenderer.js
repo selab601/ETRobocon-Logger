@@ -55,7 +55,14 @@ D3GraphRenderer.prototype.update = function (key, xValue, yValue) {
 D3GraphRenderer.prototype.renderAll = function (keys, xScope, yScope) {
   this.removeAllGraph();
   for (var i=0; i<keys.length; i++) {
-    this.receiveValues[keys[i]].render(xScope, yScope);
+    this.receiveValues[keys[i]].updateScale(xScope, yScope);
+    this.receiveValues[keys[i]].render();
+  }
+};
+
+D3GraphRenderer.prototype.addBrush = function (keys) {
+  for (var i=0; i<keys.length; i++) {
+    this.receiveValues[keys[i]].addBlush();
   }
 };
 

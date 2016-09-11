@@ -29,11 +29,11 @@ function Main(D3Object, jQueryObject, dialog) {
     // 値の更新
     var list = this.renderer.getReceiveValuesList();
     for (var i=0; i<list.length; i++) {
-      this.renderer.update(list[i], data[list[i]], data["clock"]);
+      this.renderer.update(list[i], data["clock"], data[list[i]]);
     }
 
     // 描画
-    this.renderer.renderAll(this.stateMap.renderValues, [0, 100]);
+    this.renderer.renderAll(this.stateMap.renderValues, [data["clock"]-1000*10, data["clock"]]);
   });
 };
 
@@ -50,11 +50,12 @@ Main.prototype.renderGraph = function () {
   for (var i=0; i<Object.keys(values).length; i++) {
     var obj = JSON.parse(values[i]);
     Object.keys(obj).forEach(function(key) {
-      this.renderer.update(key, obj[key], obj["clock"]);
+      this.renderer.update(key, obj["clock"], obj[key]);
     }.bind(this));
   }
 
   this.renderer.renderAll(this.stateMap.renderValues);
+  this.renderer.addBrush(this.stateMap.renderValues);
 }
 
 Main.prototype.updateConnectionState = function (state) {

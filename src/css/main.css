@@ -1,3 +1,7 @@
+/* brush 領域をリサイズするカーソルが出るのがうざいので display none にする */
+g.brush>.resize {
+    display: none;
+}
 .axis path,
 .axis line {
     fill: none;

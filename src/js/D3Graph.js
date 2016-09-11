@@ -31,6 +31,23 @@ function D3Graph(key, D3Object) {
   this.labelRenaderIntarval = 5;
 
   this.d3 = D3Object;
+
+  this.xScale = this.d3.scale.linear()
+    .range([this.paddingLeft, this.svgElementWidth -this. paddingRight]);
+  this.yScale = this.d3.scale.linear()
+    .range([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight]);
+
+  this.line = this.d3.svg.line();
+
+  this.xAxis = this.d3.svg.axis()
+    .orient('bottom');
+  this.yAxis = this.d3.svg.axis()
+    .orient('left');
+
+  // brush オブジェクト生成
+  // グラフの一部を選択するのに必要
+  this.brush = this.d3.svg.brush() //brushオブジェクト作成
+    .on("brushend", this.brushed.bind(this));
 };
 
 D3Graph.prototype.appendData = function (xData, yData) {
@@ -59,7 +76,33 @@ D3Graph.prototype.remove = function () {
   this.d3.select("#d3graph>svg#"+this.key).remove();
 };
 
-D3Graph.prototype.render = function (xScope, yScope) {
+D3Graph.prototype.updateScale = function (xScope, yScope) {
+  // ----- path ----- //
+
+  // 描画範囲の設定
+  var minGraphXData = xScope != null ? xScope[0] : (this.xValues[0]);
+  var maxGraphXData = xScope != null ? xScope[1] : (this.xValues[this.xValues.length-1]);
+  // 動的にY軸の描画範囲を変更する場合は，上限と下限を大きめ/小さめに設定する
+  // こうしないと，minYData == maxYData ( minYData - maxYData == 0 ) となり，後の計算式で0除算を引き起こす
+  var yMargin = 10;
+  var minGraphYData = yScope != null ? yScope[0] : Math.min.apply(null, this.yValues) - yMargin;
+  var maxGraphYData = yScope != null ? yScope[1] : Math.max.apply(null, this.yValues) + yMargin;
+
+  // スケールと線分描画のための関数を定義
+  this.xScale.domain([minGraphXData, maxGraphXData]);
+  this.yScale.domain([minGraphYData, maxGraphYData]);
+  this.line
+    .x(function(d,i){return this.xScale(this.xValues[i]);}.bind(this))
+    .y(function(d,i){return this.yScale(d);}.bind(this))
+    .interpolate("linear");
+
+  this.brush.x(this.xScale).y(this.yScale);
+
+  this.xAxis.scale(this.xScale);
+  this.yAxis.scale(this.yScale);
+};
+
+D3Graph.prototype.render = function () {
   // SVG 要素追加
   if (this.d3.select("#d3graph>svg#" + this.key).empty()) {
     this.d3.select("#d3graph")
@@ -69,79 +112,19 @@ D3Graph.prototype.render = function (xScope, yScope) {
       .attr("width", this.svgElementWidth)
       .attr("height", this.svgElementHeight);
   }
-
-  // キーに対応するSVG要素の取得
-  var stage = this.d3.select("svg#"+this.key);
-
-  // X軸Y軸の描画最大値，最小値を計算する
-  // X軸は時間だが，指定範囲内のデータの切り出しは後に別にやる
-  // ここではいくつデータを取り出すかだけ指定すれば良いため，最小値0〜最大値maxX-minXをとっている
-  var xSize = xScope != null ? xScope[1] - xScope[0] + 1 : this.xValues.length;
-  var maxGraphXData = xSize;
-  var minGraphXData = 0;
-  // 動的にY軸の描画範囲を変更する場合は，上限と下限を大きめ/小さめに設定する
-  // こうしないと，minYData == maxYData ( minYData - maxYData == 0 ) となり，後の計算式で0除算を引き起こす
-  var yMargin = 10;
-  var maxGraphYData = yScope != null ? yScope[1] : Math.max.apply(null, this.xValues) + yMargin;
-  var minGraphYData = yScope != null ? yScope[0] : Math.min.apply(null, this.xValues) - yMargin;
-
-  // スケールと線分描画のための関数を定義
-  var xScale = this.d3.scale.linear()
-        .range([this.paddingLeft, this.svgElementWidth -this. paddingRight])
-        .domain([minGraphXData, maxGraphXData]);
-  var yScale = this.d3.scale.linear()
-        .range([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight])
-        .domain([minGraphYData, maxGraphYData]);
-  var line = this.d3.svg.line()
-        .x(function(d,i){return xScale(i);})
-        .y(function(d,i){return yScale(d);})
-        .interpolate("linear");
-
-  // TODO: slice は効率が悪いかも？
-  var len = this.xValues.length;
-  var shownValues = this.xValues.slice(
-    len < xSize ? 0 : len - xSize,
-    len
-  );
+  var svg = this.d3.select("svg#"+this.key);
 
   // グラフの再描画
-  stage.selectAll("path#"+this.key).remove();
-  stage.append("path")
+  svg.selectAll("path#"+this.key).remove();
+  svg.append("path")
     .attr("id", this.key)
-    .attr("d", line(shownValues))
+    .attr("d", this.line(this.yValues))
     .attr("stroke", "steelblue")
     .attr("fill", "none");
 
-  // ラベルとグラフタイトルの再描画
-  stage.selectAll("text").remove();
-  stage.selectAll("text")
-    .data(shownValues)
-    .enter()
-    .append("text")
-    .text(function(d) { return d; })
-    .attr("x", function(d, i) {
-      return this.paddingLeft + ( this.graphWidth / xSize ) * i;
-    }.bind(this))
-    .attr("y", function(d) {
-      return this.paddingTop + this.titleSpaceHeight + this.graphHeight
-        - ( this.graphHeight / ( maxGraphYData - minGraphYData ) )
-        * ( d - minGraphYData );
-    }.bind(this))
-    .attr('opacity', function(d, i) {
-      if (i == 0) {
-        return 1;
-      }
-      // 直前の値との差分から，ラベルを表示するかしないか決める
-      if (shownValues[i] - shownValues[i-1] < this.labelRenaderIntarval) {
-        return 0;
-      } else {
-        return 1;
-      }
-    }.bind(this))
-    .attr("font-family", "sans-serif")
-    .attr("font-size", "11px")
-    .attr("fill", "black");
-  stage.append("text")
+  // グラフタイトルの再描画
+  svg.selectAll("text").remove();
+  svg.append("text")
     .attr("x", this.paddingLeft)
     .attr("y", this.titleSpaceHeight)
     .text(this.key)
@@ -149,40 +132,59 @@ D3Graph.prototype.render = function (xScope, yScope) {
     .attr("font-size", "16px")
     .attr("fill", "black");
 
-  // 軸の再描画
-  // 対応する範囲の clock の値を抜き出す
-  var historyLength = this.yValues.length;
-  var maxIndex = historyLength - 1;
-  var minIndex = historyLength < xSize ? 0 : maxIndex - xSize - 1;
-  var maxAxisXData = this.yValues[maxIndex];
-  var minAxisXData = this.yValues[minIndex];
-
-  // 軸の描画がずれるため，画面幅いっぱいまで軸が伸びていない場合の処理を追加しておく
-  var xMaxAxisRange =
-        historyLength < xSize ?
-        this.svgElementWidth - this.paddingRight - ((xSize-historyLength) * (this.graphWidth/(xSize+1))) :
-        this.svgElementWidth - this.paddingRight;
-  var xAxisScale = this.d3.scale.linear()
-        .range([this.paddingLeft, xMaxAxisRange])
-        .domain([minAxisXData/1000, maxAxisXData/1000]);
-  var yAxisScale = yScale;
-  var xAxis = this.d3.svg.axis()
-        .scale(xAxisScale)
-        .orient('bottom');
-  var yAxis = this.d3.svg.axis()
-        .scale(yAxisScale)
-        .orient('left');
-
-  // 軸を描画
-  stage.selectAll("g").remove();
-  stage.append('g')
+  // 軸の描画
+  svg.selectAll("g").remove();
+  svg.append('g')
     .attr("class", "axis")
     .attr("transform", "translate(0," + ( this.svgElementHeight - this.paddingBottom ) + ")")
-    .call(xAxis);
-  stage.append('g')
+    .call(this.xAxis);
+  svg.append('g')
     .attr("class", "axis")
     .attr("transform", "translate(" + this.paddingLeft + ",0)")
-    .call(yAxis);
+    .call(this.yAxis);
+};
+
+/*
+ * brushは透明なrectをグループ上設置しマウスイベントを取得する。
+ * 設置したrect上ではドラッグで範囲選択が可能
+ * 範囲が選択されている状態でbrush.extent()メソッドを実行するとその範囲のデータ値を返す
+ */
+D3Graph.prototype.addBlush = function () {
+  var stage = this.d3.select("svg#"+this.key);
+
+  stage.append("g")
+    .attr("class", "brush")
+    .call(this.brush)
+    .selectAll("rect")
+    .attr("y", -6)
+    .attr("height", this.graphHeight + 7)
+    .style({
+      "fill": "#69f",
+      "fill-opacity": "0.3"
+    });
+};
+
+D3Graph.prototype.brushed = function () {
+  var stage = this.d3.select("svg#"+this.key).select(".extent");
+  var width = stage.attr('width');
+  var height = stage.attr('height');
+
+  var xStart = this.brush.extent()[0][0];
+  var xEnd = this.brush.extent()[1][0];
+  var yStart = this.brush.extent()[0][1];
+  var yEnd = this.brush.extent()[1][1];
+
+  if (width == 0 && height == 0) {
+    this.updateScale();
+  } else {
+    this.updateScale([xStart, xEnd], [yStart, yEnd]);
+  }
+
+  this.render();
+  this.addBlush();
+
+  this.d3.select('svg#'+this.key).select('.extent')
+    .attr({width: 0, height: 0, x: 0, y: 0});
 };
 
 module.exports = D3Graph;
