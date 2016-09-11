@@ -144,9 +144,15 @@ ipc.on('connectBTDevice', (event, arg) => {
 ipc.on('disconnect', (event, arg) => {
   console.log("Disconnected");
   btSerial.close();
+  btSerial = new BluetoothSerialPort.BluetoothSerialPort();
   event.sender.send('disconnected', {
     title: "Disconnected",
     body: "This connection's data was saved in " + logFileName + "."
   });
-  updateLogFileName();
+
+  // 受信が続いていると新しくファイルを作ってしまうので，切断後ちょっとしてからファイル名を更新する
+  var async = asyncFunc();
+  async.on('done', function() {
+    updateLogFileName();
+  });
 });
