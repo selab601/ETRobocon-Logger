@@ -27,31 +27,32 @@ function Main(D3Object, jQueryObject, dialog) {
     var data = JSON.parse(message);
 
     // 値の更新
-    Object.keys(this.renderer.getReceiveValues()).forEach(function(key) {
-      this.renderer.update(key, data[key]);
-    }.bind(this));
+    var list = this.renderer.getReceiveValuesList();
+    for (var i=0; i<list.length; i++) {
+      this.renderer.update(key, data[key], data["clock"]);
+    }
 
     // 描画
-    this.renderer.replacementSVGElement(this.stateMap.renderValues);
-    for (var i=0; i<this.stateMap.renderValues.length; i++) {
-      this.renderer.renderDynamicGraph(this.stateMap.renderValues[i]);
-    }
+    this.renderer.renderAll(this.stateMap.renderValues, [0, 100]);
   });
 };
 
 Main.prototype.renderGraph = function (logFileName) {
   this.stateMap.renderValues = this.view.checkRenderValues();
+  console.log(this.stateMap.renderValues);
 
-  var values = this.renderer.parseLogFile(logFileName);
+  // グラフの状態を初期化
+  this.renderer.initialize();
+
+  var values = parseLogFile(logFileName);
   for (var i=0; i<Object.keys(values).length; i++) {
     var obj = JSON.parse(values[i]);
-    this.renderer.setReceiveValue(obj);
+    Object.keys(obj).forEach(function(key) {
+      this.renderer.update(key, obj[key], obj["clock"]);
+    }.bind(this));
   }
 
-  this.renderer.replacementSVGElement(this.stateMap.renderValues);
-  for (var i=0; i<this.stateMap.renderValues.length; i++) {
-    this.renderer.renderGraph(this.stateMap.renderValues[i]);
-  }
+  this.renderer.renderAll(this.stateMap.renderValues);
 }
 
 Main.prototype.updateConnectionState = function (state) {
@@ -81,6 +82,27 @@ Main.prototype.transition = function (component) {
 Main.prototype.io = function () {
   return this.io;
 }();
+
+var parseLogFile = function (logFileName) {
+  var remote = require('remote'),
+      fs = require('fs'),
+      logFilePath = remote.require('app').getAppPath()+'/log/'+logFileName;
+  var values = new Array();
+
+  var contents = fs.readFileSync(logFilePath);
+  var lines = contents
+        .toString()
+        .split('\n');
+
+  for (var i=0; i<lines.length; i++) {
+    values.push(lines[i]);
+  }
+
+  // 最後に余分な改行があるので削除
+  values.pop();
+
+  return values;
+};
 
 module.exports = Main;
 
