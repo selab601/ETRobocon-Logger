@@ -32,7 +32,7 @@ var logFileName;
 // 起準備動時の処理
 app.on('ready', function () {
   createWindow();
-  initLogWriter();
+  updateLogFileName();
 });
 
 // 終了時の処理
@@ -72,7 +72,7 @@ function createWindow() {
   });
 };
 
-function initLogWriter() {
+function updateLogFileName() {
   var date = new Date();
   var formatted = date.toFormat("YYYY_MMDD_HH24MISS");
   logFileName = formatted + '.json';
@@ -148,4 +148,5 @@ ipc.on('disconnect', (event, arg) => {
     title: "Disconnected",
     body: "This connection's data was saved in " + logFileName + "."
   });
+  updateLogFileName();
 });
