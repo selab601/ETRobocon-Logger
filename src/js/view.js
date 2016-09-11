@@ -57,6 +57,10 @@ View.prototype.checkRenderValues = function () {
   return renderValues;
 }
 
+View.prototype.checkSelectedLogFileName = function () {
+  return this.$('.funkyradio-primary>input[type="radio"]:checked').val();
+};
+
 View.prototype.initLoadJsonView = function () {
   // ログファイル群の初期化
   var remote = require('remote');
@@ -75,7 +79,8 @@ View.prototype.initLoadJsonView = function () {
                   .append(this.$("<input/>")
                           .attr("type", "radio")
                           .attr("name", "radio")
-                          .attr("onclick", "main.renderGraph(\""+files[i]+"\")")
+                          .attr("value", files[i])
+                          .attr("onclick", "main.renderGraph()")
                           .attr("id", files[i]))
                   .append(this.$("<label>")
                           .attr("for", files[i])
@@ -83,6 +88,9 @@ View.prototype.initLoadJsonView = function () {
       }
     }
   }.bind(this));
+
+  // onclick追加
+  this.$(".render-value").attr("onclick", "main.renderGraph()");
 };
 
 module.exports = View;

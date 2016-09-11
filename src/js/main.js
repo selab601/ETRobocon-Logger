@@ -37,9 +37,11 @@ function Main(D3Object, jQueryObject, dialog) {
   });
 };
 
-Main.prototype.renderGraph = function (logFileName) {
+Main.prototype.renderGraph = function () {
+  var logFileName = this.view.checkSelectedLogFileName();
+  if (logFileName == null) { return; }
   this.stateMap.renderValues = this.view.checkRenderValues();
-  console.log(this.stateMap.renderValues);
+  if (this.stateMap.renderValues.length == 0) { return; }
 
   // グラフの状態を初期化
   this.renderer.initialize();
