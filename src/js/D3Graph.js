@@ -28,6 +28,7 @@ function D3Graph(key, D3Object) {
   this.key = key;
   this.xValues = [];
   this.yValues = [];
+  this.labelRenaderIntarval = 5;
 
   this.d3 = D3Object;
 };
@@ -125,6 +126,17 @@ D3Graph.prototype.render = function (xScope, yScope) {
       return this.paddingTop + this.titleSpaceHeight + this.graphHeight
         - ( this.graphHeight / ( maxGraphYData - minGraphYData ) )
         * ( d - minGraphYData );
+    }.bind(this))
+    .attr('opacity', function(d, i) {
+      if (i == 0) {
+        return 1;
+      }
+      // 直前の値との差分から，ラベルを表示するかしないか決める
+      if (shownValues[i] - shownValues[i-1] < this.labelRenaderIntarval) {
+        return 0;
+      } else {
+        return 1;
+      }
     }.bind(this))
     .attr("font-family", "sans-serif")
     .attr("font-size", "11px")
