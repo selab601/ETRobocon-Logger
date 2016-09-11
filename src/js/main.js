@@ -29,7 +29,7 @@ function Main(D3Object, jQueryObject, dialog) {
     // 値の更新
     var list = this.renderer.getReceiveValuesList();
     for (var i=0; i<list.length; i++) {
-      this.renderer.update(key, data[key], data["clock"]);
+      this.renderer.update(list[i], data[list[i]], data["clock"]);
     }
 
     // 描画
