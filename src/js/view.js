@@ -70,15 +70,19 @@ View.prototype.initLoadJsonView = function () {
     for (var i=0; i<files.length; i++) {
       if (path.extname(files[i]) === ".json") {
         this.$("#log-file-group")
-          .append(this.$('<li>')
-                  .append(this.$("<a/>")
-                          .attr("href", "#")
+          .append(this.$('<div>')
+                  .attr("class", "funkyradio-primary")
+                  .append(this.$("<input/>")
+                          .attr("type", "radio")
+                          .attr("name", "radio")
                           .attr("onclick", "main.renderGraph(\""+files[i]+"\")")
+                          .attr("id", files[i]))
+                  .append(this.$("<label>")
+                          .attr("for", files[i])
                           .text(files[i])));
       }
     }
   }.bind(this));
-}
-
+};
 
 module.exports = View;

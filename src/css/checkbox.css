@@ -6,10 +6,11 @@
 }
 
 .funkyradio label {
-  width: 80%;
+  width: 95%;
   border-radius: 3px;
   border: 1px solid #D1D3D4;
   font-weight: normal;
+  font-size: small;
 }
 
 .funkyradio input[type="radio"]:empty,
@@ -23,7 +24,7 @@
   line-height: 2.5em;
   text-indent: 3.25em;
   margin-top: 0.5em;
-  margin-left: 1.5em;
+  margin-left: 0.4em;
   cursor: pointer;
   -webkit-user-select: none;
      -moz-user-select: none;
