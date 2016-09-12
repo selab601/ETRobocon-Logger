@@ -1,13 +1,13 @@
 /*
  * main.js
  */
-const D3GraphRenderer = require('./D3GraphRenderer.js');
-const IO = require('./IO.js');
-const ApplicationModel = require('./ApplicationModel.js');
+const D3GraphRenderer = require('./model/D3GraphRenderer.js');
+const IO = require('./model/IO.js');
+const ApplicationModel = require('./model/ApplicationModel.js');
 
-const BaseView = require('./BaseView.js');
-const RealTimeView = require('./RealTimeView.js');
-const LoadJsonView = require('./LoadJsonView.js');
+const BaseView = require('./view/BaseView.js');
+const RealTimeView = require('./view/RealTimeView.js');
+const LoadJsonView = require('./view/LoadJsonView.js');
 
 function Main(D3Object, jQueryObject, dialog) {
   this.$ = jQueryObject;

@@ -9,7 +9,7 @@ function LoadJsonView (model, jQueryObject, dialog) {
   this.model.setRenderValueKinds([]);
   this.model.setShownContent("loadJson");
 
-  this.$('#content').load('./htmlComponent/loadJson.html', function () {
+  this.$('#content').load('./js/view/component/loadJson.html', function () {
     // ログファイル群の初期化
     var remote = require('remote');
     var fs = require('fs');
