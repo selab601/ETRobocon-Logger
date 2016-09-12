@@ -40,6 +40,10 @@ ApplicationModel.prototype.getHistory = function (key) {
   return this.history[key];
 };
 
+ApplicationModel.prototype.appendHistory = function (key, value) {
+  this.history[key].push(value);
+};
+
 ApplicationModel.prototype.addConnectedDevices = function (device) {
   // アドレスが同じ場合は保持しない
   for (var i=0; i<this.connectedDevices.length; i++) {
@@ -52,10 +56,6 @@ ApplicationModel.prototype.addConnectedDevices = function (device) {
 
 ApplicationModel.prototype.getConnectedDevices = function () {
   return this.connectedDevices;
-}
-
-ApplicationModel.prototype.appendHistory = function (key, value) {
-  this.history[key].push(value);
 };
 
 ApplicationModel.prototype.setRenderValueKinds = function (kinds) {
