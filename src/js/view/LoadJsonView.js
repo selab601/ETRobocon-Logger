@@ -19,7 +19,7 @@ function LoadJsonView (model, jQueryObject, dialog) {
         throw err;
       }
 
-      for (var i=0; i<files.length; i++) {
+      for (var i=files.length-1; i>=0; i--) {
         if (path.extname(files[i]) === ".json") {
           this.$("#log-file-group")
             .append(this.$('<div>')
