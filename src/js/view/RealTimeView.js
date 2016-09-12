@@ -9,11 +9,13 @@ function RealTimeView (model, jQueryObject, dialog) {
   this.model.setRenderValueKinds([]);
   this.model.setShownContent("realtime");
 
-  this.$('#content').load('./js/view/component/realtime.html', function () {
+  this.$('div#content-sidebar').load('./js/view/component/realtime-sidebar.html', function () {
     this.dialog.hide();
     this.updateBluetoothDeviceList(this.model.getConnectedDevices());
     this.$("input.render-value").attr('onclick', "main.updateRenderValueKinds()");
   }.bind(this));
+
+  this.$('div#content-center').load('./js/view/component/realtime-center.html');
 };
 
 RealTimeView.prototype.updateBluetoothDeviceList = function () {

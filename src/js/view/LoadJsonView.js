@@ -9,7 +9,8 @@ function LoadJsonView (model, jQueryObject, dialog) {
   this.model.setRenderValueKinds([]);
   this.model.setShownContent("loadJson");
 
-  this.$('#content').load('./js/view/component/loadJson.html', function () {
+  // サイドバー描画
+  this.$('div#content-sidebar').load('./js/view/component/loadJson-sidebar.html', function () {
     // ログファイル群の初期化
     var remote = require('remote');
     var fs = require('fs');
@@ -38,6 +39,9 @@ function LoadJsonView (model, jQueryObject, dialog) {
     }.bind(this));
     this.$("input.render-value").attr("onclick", "main.updateRenderValueKinds();main.renderGraph();");
   }.bind(this));
+
+  // センターコンテンツ描画
+  this.$('div#content-center').load('./js/view/component/loadJson-center.html');
 };
 
 LoadJsonView.prototype.checkSelectedLogFileName = function () {
