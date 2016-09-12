@@ -12,7 +12,7 @@ function IO (view, main) {
   // 受信
 
   this.ipc.on('BTDevice', function (ev, message) {
-    this.view.addBluetoothDeviceToList(message);
+    this.main.addDevices(message);
   }.bind(this));
 
   this.ipc.on('disconnected', function (ev, message) {

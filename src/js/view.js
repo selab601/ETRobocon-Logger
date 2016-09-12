@@ -20,6 +20,12 @@ View.prototype.showDialog = function (msg) {
   this.dialog.show(msg);
 }
 
+View.prototype.addBluetoothDevicesToList = function (infos) {
+  for (var i=0; i<infos.length; i++) {
+    this.addBluetoothDeviceToList(infos[i]);
+  }
+};
+
 View.prototype.addBluetoothDeviceToList = function (info) {
   this.dialog.hide();
   $("#bt-device-group").append(
@@ -30,10 +36,24 @@ View.prototype.addBluetoothDeviceToList = function (info) {
         .text(info.name)));
 }
 
-View.prototype.transitionContent = function (component, callback) {
+View.prototype.addBluetoothDeviceCallback = function (arg) {
+  arg[0].hide();
+  var $ = arg[1];
+  var info = arg[2];
+  for (var i=0; i<info.length; i++) {
+  $("#bt-device-group").append(
+    $('<li>').append(
+      $("<a/>")
+        .attr("href", "#")
+        .attr("onclick", "main.io.connect(\""+info[i].address+"\");")
+        .text(info[i].name)));
+  }
+}
+
+View.prototype.transitionContent = function (component, callback, args) {
   this.$('#content').load('./htmlComponent/' + component + '.html', function () {
-    callback();
-  });
+    callback(args);
+  }.bind(args));
 }
 
 // real time

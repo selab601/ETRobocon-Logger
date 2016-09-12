@@ -6,6 +6,8 @@ const IO = require('./IO.js');
 const View = require('./View.js');
 
 function Main(D3Object, jQueryObject, dialog) {
+  this.$ = jQueryObject;
+  this.dialog = dialog;
   this.view = new View(D3Object, jQueryObject, dialog);
 
   this.io = new IO(this.view, this);
@@ -14,8 +16,9 @@ function Main(D3Object, jQueryObject, dialog) {
   // アプリケーションの状態を保持する
   this.stateMap = {
     connected : false,
-    content : "",
-    renderValues : []
+    content : "realtime",
+    renderValues : [],
+    devices: []
   };
 
   // コンテンツを描画する
@@ -70,18 +73,36 @@ Main.prototype.updateConnectionState = function (state) {
   }
 };
 
+Main.prototype.addDevices = function (devices) {
+  for (var i=0; i<this.stateMap.devices.length; i++) {
+    if (devices.address == this.stateMap.devices[i].address) {
+      return;
+    }
+  }
+  this.stateMap.devices.push(devices);
+  if (this.stateMap.content == 'realtime') {
+      this.transition('realtime');
+  }
+};
+
 Main.prototype.transition = function (component) {
   var callback = function(){};
+  var args;
   // 専用の view をロード
   switch (component) {
+  case "realtime":
+    if (this.stateMap.devices.length > 0) {
+      callback = this.view.addBluetoothDeviceCallback;
+        args = [this.dialog, this.$, this.stateMap.devices];
+    }
+    break;
   case "loadJson":
     callback = this.view.initLoadJsonView;
+    break;
   }
 
   // HTML コンポーネントのロード
-  if (this.stateMap.content != component) {
-    this.view.transitionContent(component, callback);
-  }
+  this.view.transitionContent(component, callback, args);
 };
 
 Main.prototype.io = function () {
