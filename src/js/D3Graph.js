@@ -50,16 +50,25 @@ function D3Graph(key, D3Object) {
     .on("brushend", this.brushed.bind(this));
 };
 
+/*
+ * 描画データを追加する
+ */
 D3Graph.prototype.appendData = function (xData, yData) {
   this.xValues.push(xData);
   this.yValues.push(yData);
 };
 
+/*
+ * 保持している描画データをリセットする
+ */
 D3Graph.prototype.clearData = function () {
   this.xValues = [];
   this.yValues = [];
 };
 
+/*
+ * グラフのスタイル(各箇所の大きさ)をデフォルト設定にリセットする
+ */
 D3Graph.prototype.resetStyle = function () {
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
   this.svgElementWidth = SVG_ELEMENT_WIDTH;
@@ -72,18 +81,20 @@ D3Graph.prototype.resetStyle = function () {
   this.graphWidth = GRAPH_WIDTH;
 };
 
+/*
+ * グラフを削除する
+ */
 D3Graph.prototype.remove = function () {
   this.d3.select("#d3graph>svg#"+this.key).remove();
 };
 
+/*
+ * グラフのスケールを設定する
+ */
 D3Graph.prototype.updateScale = function (xScope, yScope) {
-  // ----- path ----- //
-
   // 描画範囲の設定
   var minGraphXData = xScope != null ? xScope[0] : (this.xValues[0]);
   var maxGraphXData = xScope != null ? xScope[1] : (this.xValues[this.xValues.length-1]);
-  // 動的にY軸の描画範囲を変更する場合は，上限と下限を大きめ/小さめに設定する
-  // こうしないと，minYData == maxYData ( minYData - maxYData == 0 ) となり，後の計算式で0除算を引き起こす
   var yMargin = 10;
   var minGraphYData = yScope != null ? yScope[0] : Math.min.apply(null, this.yValues) - yMargin;
   var maxGraphYData = yScope != null ? yScope[1] : Math.max.apply(null, this.yValues) + yMargin;
@@ -96,12 +107,19 @@ D3Graph.prototype.updateScale = function (xScope, yScope) {
     .y(function(d,i){return this.yScale(d);}.bind(this))
     .interpolate("linear");
 
-  this.brush.x(this.xScale).y(this.yScale);
+  // brushオブジェクトにスケールを設定
+  this.brush
+    .x(this.xScale)
+    .y(this.yScale);
 
+  // 軸にスケールを設定
   this.xAxis.scale(this.xScale);
   this.yAxis.scale(this.yScale);
 };
 
+/*
+ * 現在のスケール設定に従ってグラフを描画する
+ */
 D3Graph.prototype.render = function () {
   // SVG 要素追加
   if (this.d3.select("#d3graph>svg#" + this.key).empty()) {
@@ -145,6 +163,7 @@ D3Graph.prototype.render = function () {
 };
 
 /*
+ * brushオブジェクトを追加する
  * brushは透明なrectをグループ上設置しマウスイベントを取得する。
  * 設置したrect上ではドラッグで範囲選択が可能
  * 範囲が選択されている状態でbrush.extent()メソッドを実行するとその範囲のデータ値を返す
@@ -164,17 +183,18 @@ D3Graph.prototype.addBlush = function () {
     });
 };
 
+/*
+ * brushオブジェクト用のコールバック関数
+ * グラフ上で矩形選択した直後に呼び出される
+ */
 D3Graph.prototype.brushed = function () {
-  var stage = this.d3.select("svg#"+this.key).select(".extent");
-  var width = stage.attr('width');
-  var height = stage.attr('height');
-
   var xStart = this.brush.extent()[0][0];
   var xEnd = this.brush.extent()[1][0];
   var yStart = this.brush.extent()[0][1];
   var yEnd = this.brush.extent()[1][1];
 
-  if (width == 0 && height == 0) {
+  if (xStart == xEnd && yStart == yEnd) {
+    // デフォルトに戻す
     this.updateScale();
   } else {
     this.updateScale([xStart, xEnd], [yStart, yEnd]);
@@ -183,6 +203,7 @@ D3Graph.prototype.brushed = function () {
   this.render();
   this.addBlush();
 
+  // brushオブジェクト上の矩形を消す
   this.d3.select('svg#'+this.key).select('.extent')
     .attr({width: 0, height: 0, x: 0, y: 0});
 };
