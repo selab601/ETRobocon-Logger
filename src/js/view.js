@@ -6,6 +6,7 @@ function View(D3Object, jQueryObject, dialog) {
   this.d3 = D3Object;
   this.$ = jQueryObject;
   this.dialog = dialog;
+
 }
 
 View.prototype.showModal = function (info) {
@@ -56,6 +57,18 @@ View.prototype.checkRenderValues = function () {
 
   return renderValues;
 }
+
+View.prototype.disableMenu = function () {
+  this.$("a.menu-link").each(function (i,v){
+      $(this).addClass("disabled");
+  });
+};
+
+View.prototype.enableMenu = function () {
+  this.$("a.menu-link").each(function (i,v){
+      $(this).removeClass("disabled");
+  });
+};
 
 View.prototype.checkSelectedLogFileName = function () {
   return this.$('.funkyradio-primary>input[type="radio"]:checked').val();

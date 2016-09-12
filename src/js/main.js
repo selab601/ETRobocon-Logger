@@ -56,17 +56,19 @@ Main.prototype.renderGraph = function () {
 
   this.renderer.renderAll(this.stateMap.renderValues);
   this.renderer.addBrush(this.stateMap.renderValues);
-}
+};
 
 Main.prototype.updateConnectionState = function (state) {
   this.stateMap.connected = state;
   if (state == true) {
     this.view.enableDisconnectButton();
+    this.view.disableMenu();
   } else {
     this.view.disableDisconnecButton();
     this.renderer.initialize();
+    this.view.enableMenu();
   }
-}
+};
 
 Main.prototype.transition = function (component) {
   var callback = function(){};
