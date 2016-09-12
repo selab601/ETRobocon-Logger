@@ -18,11 +18,28 @@ function Main(D3Object, jQueryObject, dialog) {
   this.contentView = new RealTimeView(this.model, this.$, this.dialog);
 
   this.renderer = new D3GraphRenderer(D3Object);
-  this.io = new IO(this.baseView, this, this.model, this.renderer);
+  this.io = new IO(this.baseView, this, this.model);
 };
 
 Main.prototype.updateRenderValueKinds = function () {
   this.model.setRenderValueKinds(this.baseView.checkRenderValues());
+};
+
+Main.prototype.renderDynamicGraph = function (stringData) {
+  var data = JSON.parse(stringData);
+
+  // 値の更新
+  var kinds = this.renderer.getReceiveValuesList();
+  for (var i=0; i<kinds.length; i++) {
+    this.renderer.update(kinds[i], data["clock"], data[kinds[i]]);
+    this.model.appendHistory(kinds[i], data[kinds[i]]);
+  }
+
+  // 描画
+  this.renderer.renderAll(
+    this.baseView.checkRenderValues(),
+    [data["clock"]-1000*10, data["clock"]]
+  );
 };
 
 Main.prototype.renderGraph = function () {
