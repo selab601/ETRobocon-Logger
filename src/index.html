@@ -6,8 +6,8 @@
 
     <!-- スタイルシート -->
     <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
-    <link href="css/main.css" rel="stylesheet" type="text/css">
     <link href="css/checkbox.css" rel="stylesheet" type="text/css">
+    <link href="css/main.css" rel="stylesheet" type="text/css">
 
     <!-- 外部のライブラリのロード -->
     <script>
@@ -24,29 +24,24 @@
     </script>
   </head>
   <body>
-    <div class="container" style="margin: 0 0 0 0;">
+    <div class="container">
 
-      <!-- navbar -->
-      <div class="row">
-        <nav class="navbar navbar-default navbar-fixed-top">
-          <div class="navbar-header">
-            <a href="" class="navbar-brand disabled">ET2016 Logger</a>
-          </div>
-          <!-- メニュー -->
-          <ul class="nav navbar-nav">
-            <li><a href="#" class="menu-link" onclick="main.transition('realtime');">RealTime Graph</a></li>
-            <li><a href="#" class="menu-link" onclick="main.transition('loadJson');">Load JSON file</a></li>
-          </ul>
-        </nav>
+      <!-- menubar -->
+      <div class="header">
+        <ul>
+          <li id="title">ET2016 Logger</li>
+          <li><a href="#" class="menu-link" onclick="main.transition('realtime');">RealTime Graph</a></li>
+          <li><a href="#" class="menu-link" onclick="main.transition('loadJson');">Load JSON file</a></li>
+        </ul>
       </div>
 
       <!-- content -->
-      <div class="row" style="padding:60px 0 0 0">
-        <!-- left -->
-        <div class="col-md-3" id="content-sidebar">
+      <div class="content">
+        <!-- sidebar -->
+        <div class="content-sidebar">
         </div>
         <!-- center -->
-        <div class="col-md-9" id="content-center">
+        <div class="content-center">
         </div>
       </div>
     </div>

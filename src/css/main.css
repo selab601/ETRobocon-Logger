@@ -1,10 +1,7 @@
+/* graph */
 /* brush 領域をリサイズするカーソルが出るのがうざいので display none にする */
 g.brush>.resize {
     display: none;
-}
-
-body {
-  font: 10px sans-serif;
 }
 
 .axis path,
@@ -70,3 +67,65 @@ a.disabled {
   color: #fff;
   z-index: 2;
 }
+
+/* ------ top level ------- */
+
+.container {
+    padding: 0 0 0 0;
+    margin: 0 0 0 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    height: 50px;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+    background-color: gray;
+    font-size: 20px;
+
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.header ul  {
+    text-align: left;
+    padding: 0 0 0 0;
+    margin: 0 0 0 0;
+}
+
+.header ul li {
+    display: inline;
+    padding: 10px 10px 10px 10px;
+}
+
+.header ul li#title {
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.content {
+    height: 100%;
+  display: flex;
+}
+
+.content-sidebar {
+  height: 100%;
+  width: 250px;
+  position:fixed;
+  overflow: auto;
+}
+
+.content-center {
+  flex: 1;
+  height:100%;
+  margin:0 0 0 250px;
+  padding:0;
+  overflow:auto;
+}
+
+/* ------------------------ */
+
