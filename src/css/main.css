@@ -24,6 +24,10 @@ body {
   stroke-width: 1.5px;
 }
 
+.tick line{
+  opacity: 0.2;
+}
+
 .overlay {
   fill: none;
   pointer-events: all;

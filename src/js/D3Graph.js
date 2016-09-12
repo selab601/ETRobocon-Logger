@@ -33,7 +33,7 @@ function D3Graph(key, D3Object) {
   this.d3 = D3Object;
 
   this.xScale = this.d3.scale.linear()
-    .range([this.paddingLeft, this.svgElementWidth -this. paddingRight]);
+    .range([this.paddingLeft, this.svgElementWidth - this. paddingRight]);
   this.yScale = this.d3.scale.linear()
     .range([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight]);
 
@@ -41,9 +41,16 @@ function D3Graph(key, D3Object) {
   this.bisectXValue = this.d3.bisector(function(d) { return d; }).left,
 
   this.xAxis = this.d3.svg.axis()
-    .orient('bottom');
+    .orient('bottom')
+    .innerTickSize(-this.graphHeight)  // 目盛線の長さ（内側）
+    .outerTickSize(5) // 目盛線の長さ（外側）
+    .tickPadding(10); // 目盛線とテキストの間の長さ
+
   this.yAxis = this.d3.svg.axis()
-    .orient('left');
+    .orient('left')
+    .innerTickSize(-this.graphWidth)  // 目盛線の長さ（内側）
+    .outerTickSize(5) // 目盛線の長さ（外側）
+    .tickPadding(10); // 目盛線とテキストの間の長さ
 
   // brush オブジェクト生成
   // グラフの一部を選択するのに必要
