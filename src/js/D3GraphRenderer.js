@@ -62,7 +62,13 @@ D3GraphRenderer.prototype.renderAll = function (keys, xScope, yScope) {
 
 D3GraphRenderer.prototype.addBrush = function (keys) {
   for (var i=0; i<keys.length; i++) {
-    this.receiveValues[keys[i]].addBlush();
+    this.receiveValues[keys[i]].addBrush();
+  }
+};
+
+D3GraphRenderer.prototype.addFocus = function (keys) {
+  for (var i=0; i<keys.length; i++) {
+    this.receiveValues[keys[i]].addFocus();
   }
 };
 

@@ -40,6 +40,7 @@ Main.prototype.renderDynamicGraph = function (stringData) {
     this.baseView.checkRenderValues(),
     [data["clock"]-1000*10, data["clock"]]
   );
+  this.renderer.addLabel(this.model.getRenderValues());
 };
 
 Main.prototype.renderGraph = function () {
@@ -60,6 +61,7 @@ Main.prototype.renderGraph = function () {
   }
 
   this.renderer.renderAll(this.model.getRenderValues());
+  this.renderer.addFocus(this.model.getRenderValues());
   this.renderer.addBrush(this.model.getRenderValues());
 };
 
