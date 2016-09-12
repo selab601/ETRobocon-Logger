@@ -50,12 +50,12 @@ IO.prototype.disconnect = function () {
 IO.prototype.connect = function (address) {
   this.view.showDialog('Connecting...');
   this.ipc.send('connectBTDevice', address);
-}
+};
 
 IO.prototype.findDevice = function () {
   this.view.showDialog('Finding...');
   this.ipc.send('findBTDevice', '');
-}
+};
 
 IO.prototype.appendReceiver = function (event, func) {
   this.ipc.on(event, (ev,msg) => func(ev, msg));

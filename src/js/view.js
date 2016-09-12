@@ -36,20 +36,6 @@ View.prototype.addBluetoothDeviceToList = function (info) {
         .text(info.name)));
 }
 
-View.prototype.addBluetoothDeviceCallback = function (arg) {
-  arg[0].hide();
-  var $ = arg[1];
-  var info = arg[2];
-  for (var i=0; i<info.length; i++) {
-  $("#bt-device-group").append(
-    $('<li>').append(
-      $("<a/>")
-        .attr("href", "#")
-        .attr("onclick", "main.io.connect(\""+info[i].address+"\");")
-        .text(info[i].name)));
-  }
-}
-
 View.prototype.transitionContent = function (component, callback, args) {
   this.$('#content').load('./htmlComponent/' + component + '.html', function () {
     callback(args);
@@ -60,11 +46,11 @@ View.prototype.transitionContent = function (component, callback, args) {
 
 View.prototype.enableDisconnectButton = function () {
   this.$("#disconnect-btn").prop('disabled', false);
-}
+};
 
 View.prototype.disableDisconnecButton = function () {
   this.$("#disconnect-btn").prop('disabled', true);
-}
+};
 
 View.prototype.checkRenderValues = function () {
   var renderValues = [];
@@ -76,7 +62,7 @@ View.prototype.checkRenderValues = function () {
   });
 
   return renderValues;
-}
+};
 
 View.prototype.disableMenu = function () {
   this.$("a.menu-link").each(function (i,v){
@@ -123,7 +109,24 @@ View.prototype.initLoadJsonView = function () {
   }.bind(this));
 
   // onclick追加
-  this.$(".render-value").attr("onclick", "main.renderGraph()");
+  this.$(".render-value").attr("onclick", "main.updateRenderValueKinds();main.renderGraph();");
+};
+
+View.prototype.initRealTimeGraphView = function (arg) {
+  arg[0].hide();
+  var $ = arg[1];
+  var info = arg[2];
+  for (var i=0; i<info.length; i++) {
+  $("#bt-device-group").append(
+    $('<li>').append(
+      $("<a/>")
+        .attr("href", "#")
+        .attr("onclick", "main.io.connect(\""+info[i].address+"\");")
+        .text(info[i].name)));
+  }
+
+  // onclick を追加
+  $("input.render-value").attr('onclick', "main.updateRenderValueKinds()");
 };
 
 module.exports = View;

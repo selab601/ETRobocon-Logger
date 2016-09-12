@@ -4,47 +4,45 @@
 const D3GraphRenderer = require('./D3GraphRenderer.js');
 const IO = require('./IO.js');
 const View = require('./View.js');
+const ApplicationModel = require('./ApplicationModel.js');
 
 function Main(D3Object, jQueryObject, dialog) {
   this.$ = jQueryObject;
   this.dialog = dialog;
   this.view = new View(D3Object, jQueryObject, dialog);
+  this.model = new ApplicationModel();
 
   this.io = new IO(this.view, this);
   this.renderer = new D3GraphRenderer(D3Object);
 
-  // アプリケーションの状態を保持する
-  this.stateMap = {
-    connected : false,
-    content : "realtime",
-    renderValues : [],
-    devices: []
-  };
-
-  // コンテンツを描画する
+  // 画面遷移
   this.transition('realtime');
 
   this.io.appendReceiver('ReceiveDataFromBTDevice', (ev, message) => {
-    this.stateMap.renderValues = this.view.checkRenderValues();
-
     var data = JSON.parse(message);
 
     // 値の更新
-    var list = this.renderer.getReceiveValuesList();
-    for (var i=0; i<list.length; i++) {
-      this.renderer.update(list[i], data["clock"], data[list[i]]);
+    var kinds = this.renderer.getReceiveValuesList();
+    for (var i=0; i<kinds.length; i++) {
+      this.renderer.update(kinds[i], data["clock"], data[kinds[i]]);
     }
 
     // 描画
-    this.renderer.renderAll(this.stateMap.renderValues, [data["clock"]-1000*10, data["clock"]]);
+    this.renderer.renderAll(
+      this.view.checkRenderValues(),
+      [data["clock"]-1000*10, data["clock"]]
+    );
   });
+};
+
+Main.prototype.updateRenderValueKinds = function () {
+  this.model.setRenderValueKinds(this.view.checkRenderValues());
 };
 
 Main.prototype.renderGraph = function () {
   var logFileName = this.view.checkSelectedLogFileName();
+  console.log(logFileName);
   if (logFileName == null) { return; }
-  this.stateMap.renderValues = this.view.checkRenderValues();
-  if (this.stateMap.renderValues.length == 0) { return; }
 
   // グラフの状態を初期化
   this.renderer.initialize();
@@ -57,13 +55,13 @@ Main.prototype.renderGraph = function () {
     }.bind(this));
   }
 
-  this.renderer.renderAll(this.stateMap.renderValues);
-  this.renderer.addBrush(this.stateMap.renderValues);
+  this.renderer.renderAll(this.model.getRenderValues());
+  this.renderer.addBrush(this.model.getRenderValues());
 };
 
-Main.prototype.updateConnectionState = function (state) {
-  this.stateMap.connected = state;
-  if (state == true) {
+Main.prototype.updateConnectionState = function (connected) {
+  this.model.updateConnectionState(connected);
+  if (connected) {
     this.view.enableDisconnectButton();
     this.view.disableMenu();
   } else {
@@ -74,13 +72,8 @@ Main.prototype.updateConnectionState = function (state) {
 };
 
 Main.prototype.addDevices = function (devices) {
-  for (var i=0; i<this.stateMap.devices.length; i++) {
-    if (devices.address == this.stateMap.devices[i].address) {
-      return;
-    }
-  }
-  this.stateMap.devices.push(devices);
-  if (this.stateMap.content == 'realtime') {
+  this.model.addConnectedDevices(devices);
+  if (this.model.getShownContent() == 'realtime') {
       this.transition('realtime');
   }
 };
@@ -91,9 +84,9 @@ Main.prototype.transition = function (component) {
   // 専用の view をロード
   switch (component) {
   case "realtime":
-    if (this.stateMap.devices.length > 0) {
-      callback = this.view.addBluetoothDeviceCallback;
-        args = [this.dialog, this.$, this.stateMap.devices];
+    if (this.model.getConnectedDevices().length > 0) {
+      callback = this.view.initRealTimeGraphView;
+      args = [this.dialog, this.$, this.model.getConnectedDevices()];
     }
     break;
   case "loadJson":
@@ -102,6 +95,8 @@ Main.prototype.transition = function (component) {
   }
 
   // HTML コンポーネントのロード
+  this.model.setRenderValueKinds([]);
+  this.model.setShownContent(component);
   this.view.transitionContent(component, callback, args);
 };
 
