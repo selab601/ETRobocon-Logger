@@ -1,21 +1,18 @@
-<center>
-  <button type="button" style="margin: 10px 10px 10px 10px;" id="disconnect-btn"
-          class="btn btn-danger" onclick="main.io.disconnect()" disabled="true">DISCONNECT</button>
-</center>
-
-<div class="panel panel-default">
-  <div class="panel-heading">
-    Devices
-  </div>
+<div class="realtime-panel" id="device-list">
+  <div class="panel-heading">Devices</div>
   <ul class="nav nav-pills nav-stacked" id="bt-device-group">
     <!-- デバイスが追加されていく -->
   </ul>
   <center>
     <button type="button" class="btn btn-default" style="margin: 10px 10px 10px 10px;" onclick="main.io.findDevice();">UPDATE</button>
   </center>
+  <center>
+    <button type="button" style="margin: 10px 10px 10px 10px;" id="disconnect-btn"
+            class="btn btn-danger" onclick="main.io.disconnect()" disabled="true">DISCONNECT</button>
+  </center>
 </div>
 
-<div class="panel panel-default">
+<div class="realtime-panel" id="realtime-render-value-kind-list">
   <div class="panel-heading">
     Render Graph
   </div>

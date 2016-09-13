@@ -114,18 +114,55 @@ a.disabled {
 
 .content-sidebar {
   height: 100%;
-  width: 250px;
+  width: 210px;
   position:fixed;
   overflow: auto;
+
+  flex-direction: column;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .content-center {
   flex: 1;
   height:100%;
-  margin:0 0 0 250px;
+  margin:0 0 0 210px;
   padding:0;
   overflow:auto;
 }
 
 /* ------------------------ */
 
+/* ----- realtime ----- */
+
+.realtime-panel {
+  flex: 0 0 50%;
+  overflow: auto;
+}
+
+#device-list {
+  background-color: rgb(255,220,220);
+}
+
+#loadJson-render-value-kind-list {
+  background-color: rgb(220,255,220);
+}
+
+/* -------------------- */
+
+/* ----- loadJson ----- */
+
+.loadJson-panel {
+  flex: 0 0 50%;
+  overflow: auto;
+}
+
+#log-file-list {
+  background-color: rgb(220,220,255);
+}
+
+#realtime-render-value-kind-list {
+  background-color: rgb(220,255,220);
+}
+
+/* -------------------- */
