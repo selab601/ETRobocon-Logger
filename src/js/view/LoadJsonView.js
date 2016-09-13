@@ -15,28 +15,31 @@ function LoadJsonView (model, jQueryObject, dialog) {
     var remote = require('remote');
     var fs = require('fs');
     var path = require('path');
-    fs.readdir(remote.require('app').getAppPath()+'/log/', function(err, files) {
-      if (err) {
-        throw err;
-      }
 
-      for (var i=files.length-1; i>=0; i--) {
-        if (path.extname(files[i]) === ".json") {
-          this.$("#log-file-group")
-            .append(this.$('<div>')
-                    .attr("class", "funkyradio-primary")
-                    .append(this.$("<input/>")
-                            .attr("type", "radio")
-                            .attr("name", "radio")
-                            .attr("value", files[i])
-                            .attr("onclick", "main.renderGraph()")
-                            .attr("id", files[i]))
-                    .append(this.$("<label>")
-                            .attr("for", files[i])
-                            .text(files[i])));
-        }
+    var dir = remote.require('app').getAppPath()+'/log/';
+    var files = fs.readdirSync(dir);
+    files.sort(function(a, b) {
+      return fs.statSync(dir + a).mtime.getTime()
+        - fs.statSync(dir + b).mtime.getTime();
+    });
+
+    for (var i=files.length-1; i>=0; i--) {
+      if (path.extname(files[i]) === ".json") {
+        this.$("#log-file-group")
+          .append(this.$('<div>')
+                  .attr("class", "funkyradio-primary")
+                  .append(this.$("<input/>")
+                          .attr("type", "radio")
+                          .attr("name", "radio")
+                          .attr("value", files[i])
+                          .attr("onclick", "main.renderGraph()")
+                          .attr("id", files[i]))
+                  .append(this.$("<label>")
+                          .attr("for", files[i])
+                          .text(files[i])));
       }
-    }.bind(this));
+    }
+
     this.$("input.render-value").attr("onclick", "main.updateRenderValueKinds();main.renderGraph();");
   }.bind(this));
 
