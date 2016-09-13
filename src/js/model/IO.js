@@ -50,9 +50,9 @@ function IO (view, main) {
 
 // 送信
 
-IO.prototype.disconnect = function () {
+IO.prototype.disconnect = function (name) {
   this.view.showDialog('Disconnecting...');
-  this.ipc.send('disconnect', '');
+  this.ipc.send('disconnect', name);
 };
 
 IO.prototype.connect = function (address) {

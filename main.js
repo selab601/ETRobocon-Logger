@@ -28,6 +28,7 @@ var btSerial = new BluetoothSerialPort.BluetoothSerialPort();
 var file = require('fs');
 var logFilePath;
 var logFileName;
+var didFinishLoaded = false;
 
 // 起準備動時の処理
 app.on('ready', function () {
@@ -79,9 +80,14 @@ function updateLogFileName() {
   logFileName = formatted + '.json';
   logFilePath = app.getAppPath() + '/log/' + logFileName;
 
-  mainWindow.webContents.on('did-finish-load', function () {
+  if (didFinishLoaded == false) {
+    mainWindow.webContents.on('did-finish-load', function () {
+      didFinishLoaded = true;
+      mainWindow.webContents.send('LogFileName', logFileName);
+    });
+  } else {
     mainWindow.webContents.send('LogFileName', logFileName);
-  });
+  }
 }
 
 var ipc = require('electron').ipcMain;
@@ -150,14 +156,18 @@ ipc.on('disconnect', (event, arg) => {
   console.log("Disconnected");
   btSerial.close();
   btSerial = new BluetoothSerialPort.BluetoothSerialPort();
-  event.sender.send('disconnected', {
-    title: "Disconnected",
-    body: "This connection's data was saved in " + logFileName + "."
-  });
 
   // 受信が続いていると新しくファイルを作ってしまうので，切断後ちょっとしてからファイル名を更新する
   var async = asyncFunc();
   async.on('done', function() {
+    // ログファイル名をリネーム
+    var path = app.getAppPath() + '/log/';
+    // TODO: 文字列が空だったりすると失敗するので，エラー処理が必要
+    file.renameSync(path + logFileName, path + arg);
     updateLogFileName();
+    event.sender.send('disconnected', {
+      title: "Disconnected",
+      body: "This connection's data was saved in " + arg + "."
+    });
   });
 });

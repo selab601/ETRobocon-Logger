@@ -37,7 +37,7 @@ Main.prototype.renderDynamicGraph = function (stringData) {
 
   // 描画
   this.renderer.renderAll(
-    this.baseView.checkRenderValues(),
+    this.model.getRenderValues(),
     [data["clock"]-1000*10, data["clock"]]
   );
   this.renderer.addLabel(this.model.getRenderValues());
@@ -89,12 +89,14 @@ Main.prototype.addDevices = function (devices) {
   }
 };
 
-Main.prototype.updateLogFileName = function (name) {
+Main.prototype.updateLogFileName = function (name, reload) {
   this.model.updateLogFileName(name);
+
+  if (reload == false) { return; }
 
   // 再描画
   if (this.model.getShownContent() == 'realtime') {
-      this.contentView.updateBluetoothDeviceList();
+      this.contentView.updateLogFileName();
   }
 };
 
@@ -115,6 +117,11 @@ Main.prototype.transition = function (component) {
 Main.prototype.io = function () {
   return this.io;
 }();
+
+Main.prototype.disconnect = function () {
+  var name = this.contentView.getLogFileName();
+  this.io.disconnect(name);
+};
 
 var parseLogFile = function (logFileName) {
   var remote = require('remote'),

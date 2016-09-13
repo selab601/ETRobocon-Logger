@@ -1,3 +1,11 @@
+<script>
+// TODO: ここにかきたくない
+ $('#logFileName').keyup(function(e) {
+    var name = $("#logFileName").val();
+    main.updateLogFileName(name, false);
+  });
+</script>
+
 <div class="realtime-panel" id="device-list">
   <div class="panel-heading">Devices</div>
   <ul class="nav nav-pills nav-stacked" id="bt-device-group">
@@ -8,7 +16,7 @@
   </center>
   <center>
     <button type="button" style="margin: 10px 10px 10px 10px;" id="disconnect-btn"
-            class="btn btn-danger" onclick="main.io.disconnect()" disabled="true">DISCONNECT</button>
+            class="btn btn-danger" onclick="main.disconnect()" disabled="true">DISCONNECT</button>
   </center>
   <input type="text" id="logFileName" name="logFileName" size="30">
 </div>

@@ -36,6 +36,10 @@ RealTimeView.prototype.updateLogFileName = function () {
   this.$("#logFileName").val(name);
 };
 
+RealTimeView.prototype.getLogFileName = function () {
+  return this.$("#logFileName").val();
+};
+
 RealTimeView.prototype.enableDisconnectButton = function () {
   this.$("#disconnect-btn").prop('disabled', false);
 };
