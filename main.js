@@ -78,6 +78,10 @@ function updateLogFileName() {
   var formatted = date.toFormat("YYYY_MMDD_HH24MISS");
   logFileName = formatted + '.json';
   logFilePath = app.getAppPath() + '/log/' + logFileName;
+
+  mainWindow.webContents.on('did-finish-load', function () {
+    mainWindow.webContents.send('LogFileName', logFileName);
+  });
 }
 
 var ipc = require('electron').ipcMain;

@@ -12,6 +12,7 @@ function RealTimeView (model, jQueryObject, dialog) {
   this.$('div.content-sidebar').load('./js/view/component/realtime-sidebar.html', function () {
     this.dialog.hide();
     this.updateBluetoothDeviceList(this.model.getConnectedDevices());
+    this.updateLogFileName();
     this.$("input.render-value").attr('onclick', "main.updateRenderValueKinds()");
   }.bind(this));
 
@@ -28,6 +29,11 @@ RealTimeView.prototype.updateBluetoothDeviceList = function () {
           .attr("onclick", "main.io.connect(\"" + devices[i].address + "\");")
           .text(devices[i].name)));
   }
+};
+
+RealTimeView.prototype.updateLogFileName = function () {
+  var name = this.model.getLogFileName();
+  this.$("#logFileName").val(name);
 };
 
 RealTimeView.prototype.enableDisconnectButton = function () {

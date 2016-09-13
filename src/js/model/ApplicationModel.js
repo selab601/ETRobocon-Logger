@@ -8,6 +8,7 @@ function ApplicationModel () {
   this.connected = false;
   this.renderValues = [];
   this.connectedDevices = [];
+  this.logFileName = "";
   // 後で消す．現在表示しているページを保持する変数
   this.content = "";
 
@@ -23,6 +24,14 @@ function ApplicationModel () {
     this.history[this.receiveValueKinds[i]] = [];
   }
 };
+
+ApplicationModel.prototype.updateLogFileName = function (name) {
+  this.logFileName = name;
+};
+
+ApplicationModel.prototype.getLogFileName = function () {
+  return this.logFileName;
+}
 
 ApplicationModel.prototype.getShownContent = function () {
   return this.content;

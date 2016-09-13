@@ -89,6 +89,15 @@ Main.prototype.addDevices = function (devices) {
   }
 };
 
+Main.prototype.updateLogFileName = function (name) {
+  this.model.updateLogFileName(name);
+
+  // 再描画
+  if (this.model.getShownContent() == 'realtime') {
+      this.contentView.updateBluetoothDeviceList();
+  }
+};
+
 /*
  * 画面遷移
  */

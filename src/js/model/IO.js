@@ -15,6 +15,10 @@ function IO (view, main) {
     this.main.addDevices(message);
   }.bind(this));
 
+  this.ipc.on('LogFileName', function (ev, message) {
+    this.main.updateLogFileName(message);
+  }.bind(this));
+
   this.ipc.on('disconnected', function (ev, message) {
     this.main.updateConnectionState(false);
     this.view.showModal(message);
