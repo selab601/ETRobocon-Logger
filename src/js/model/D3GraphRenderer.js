@@ -66,6 +66,12 @@ D3GraphRenderer.prototype.addBrush = function (keys) {
   }
 };
 
+D3GraphRenderer.prototype.addLabel = function (keys) {
+  for (var i=0; i<keys.length; i++) {
+    this.receiveValues[keys[i]].addLabel();
+  }
+};
+
 D3GraphRenderer.prototype.addFocus = function (keys) {
   for (var i=0; i<keys.length; i++) {
     this.receiveValues[keys[i]].addFocus();
