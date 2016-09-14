@@ -317,6 +317,7 @@ D3Graph.prototype.addFocus = function (rect) {
     svg.selectAll("rect.focus_overlay").remove();
     rect = svg.append("rect")
       .attr("class", "focus_overlay")
+      .attr('opacity', 0)
       .attr("width", this.svgElementWidth)
       .attr("height", this.svgElementHeight);
   }

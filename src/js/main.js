@@ -29,17 +29,13 @@ Main.prototype.renderDynamicGraph = function (stringData) {
   var data = JSON.parse(stringData);
 
   // 値の更新
-  var kinds = this.model.getReceiveValueKinds();
-  for (var i=0; i<kinds.length; i++) {
-    this.renderer.update(kinds[i], data["clock"], data[kinds[i]]);
-    this.model.appendHistory(kinds[i], data[kinds[i]]);
-  }
+  Object.keys(data).forEach(function(key) {
+    this.model.appendHistory(key, data[key]);
+    this.renderer.update(key, data["clock"], data[key]);
+  }.bind(this));
 
   // 描画
-  this.renderer.renderAll(
-    this.model.getRenderValues(),
-    [data["clock"]-1000*10, data["clock"]]
-  );
+  this.renderer.renderAll([data["clock"]-1000*10, data["clock"]]);
   this.renderer.addLabel();
   this.renderer.addFocus();
 };
