@@ -6,8 +6,9 @@
 
 var D3Graph = require("./D3graph.js");
 
-function D3GraphRenderer (D3Object) {
+function D3GraphRenderer (D3Object, model) {
   this.d3 = D3Object;
+  this.model = model;
   this.receiveValues = {
     "clock": new D3Graph("clock", D3Object),
     "gyro": new D3Graph("gyro", D3Object),
@@ -52,27 +53,30 @@ D3GraphRenderer.prototype.update = function (key, xValue, yValue) {
   this.receiveValues[key].appendData(xValue, yValue);
 };
 
-D3GraphRenderer.prototype.renderAll = function (keys, xScope, yScope) {
-  this.removeAllGraph();
+D3GraphRenderer.prototype.renderAll = function (xScope, yScope) {
+  var keys = this.model.getRenderValues();
   for (var i=0; i<keys.length; i++) {
     this.receiveValues[keys[i]].updateScale(xScope, yScope);
     this.receiveValues[keys[i]].render();
   }
 };
 
-D3GraphRenderer.prototype.addBrush = function (keys) {
+D3GraphRenderer.prototype.addBrush = function () {
+  var keys = this.model.getRenderValues();
   for (var i=0; i<keys.length; i++) {
     this.receiveValues[keys[i]].addBrush();
   }
 };
 
-D3GraphRenderer.prototype.addLabel = function (keys) {
+D3GraphRenderer.prototype.addLabel = function () {
+  var keys = this.model.getRenderValues();
   for (var i=0; i<keys.length; i++) {
     this.receiveValues[keys[i]].addLabel();
   }
 };
 
-D3GraphRenderer.prototype.addFocus = function (keys) {
+D3GraphRenderer.prototype.addFocus = function () {
+  var keys = this.model.getRenderValues();
   for (var i=0; i<keys.length; i++) {
     this.receiveValues[keys[i]].addFocus();
   }

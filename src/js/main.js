@@ -17,7 +17,7 @@ function Main(D3Object, jQueryObject, dialog) {
   this.baseView = new BaseView(D3Object, jQueryObject, dialog);
   this.contentView = new RealTimeView(this.model, this.$, this.dialog);
 
-  this.renderer = new D3GraphRenderer(D3Object);
+  this.renderer = new D3GraphRenderer(D3Object, this.model);
   this.io = new IO(this.baseView, this, this.model);
 };
 
@@ -29,7 +29,7 @@ Main.prototype.renderDynamicGraph = function (stringData) {
   var data = JSON.parse(stringData);
 
   // 値の更新
-  var kinds = this.renderer.getReceiveValuesList();
+  var kinds = this.model.getReceiveValueKinds();
   for (var i=0; i<kinds.length; i++) {
     this.renderer.update(kinds[i], data["clock"], data[kinds[i]]);
     this.model.appendHistory(kinds[i], data[kinds[i]]);
@@ -40,8 +40,8 @@ Main.prototype.renderDynamicGraph = function (stringData) {
     this.model.getRenderValues(),
     [data["clock"]-1000*10, data["clock"]]
   );
-  this.renderer.addLabel(this.model.getRenderValues());
-  this.renderer.addFocus(this.model.getRenderValues());
+  this.renderer.addLabel();
+  this.renderer.addFocus();
 };
 
 Main.prototype.renderGraph = function () {
@@ -61,8 +61,8 @@ Main.prototype.renderGraph = function () {
     }.bind(this));
   }
 
-  this.renderer.renderAll(this.model.getRenderValues());
-  this.renderer.addBrush(this.model.getRenderValues());
+  this.renderer.renderAll();
+  this.renderer.addBrush();
 };
 
 Main.prototype.updateConnectionState = function (connected) {
