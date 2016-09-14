@@ -32,7 +32,7 @@ function LoadJsonView (model, jQueryObject, dialog) {
                           .attr("type", "radio")
                           .attr("name", "radio")
                           .attr("value", files[i])
-                          .attr("onclick", "main.renderGraph()")
+                          .attr("onclick", "main.setLogDataToRenderer()")
                           .attr("id", files[i]))
                   .append(this.$("<label>")
                           .attr("for", files[i])

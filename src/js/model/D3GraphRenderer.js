@@ -54,6 +54,7 @@ D3GraphRenderer.prototype.update = function (key, xValue, yValue) {
 };
 
 D3GraphRenderer.prototype.renderAll = function (xScope, yScope) {
+  this.removeAllGraph();
   var keys = this.model.getRenderValues();
   for (var i=0; i<keys.length; i++) {
     this.receiveValues[keys[i]].updateScale(xScope, yScope);

@@ -44,7 +44,7 @@ Main.prototype.renderDynamicGraph = function (stringData) {
   this.renderer.addFocus();
 };
 
-Main.prototype.renderGraph = function () {
+Main.prototype.setLogDataToRenderer = function () {
   if (this.model.getShownContent() != "loadJson") { return; }
 
   var logFileName = this.contentView.checkSelectedLogFileName();
@@ -60,6 +60,12 @@ Main.prototype.renderGraph = function () {
       this.renderer.update(key, obj["clock"], obj[key]);
     }.bind(this));
   }
+
+  this.renderGraph();
+};
+
+Main.prototype.renderGraph = function () {
+  if (this.model.getShownContent() != "loadJson") { return; }
 
   this.renderer.renderAll();
   this.renderer.addBrush();
