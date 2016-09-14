@@ -68,6 +68,55 @@ a.disabled {
   z-index: 2;
 }
 
+/* ------ button ------- */
+
+.button-area-line {
+  margin: 5px auto;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  -moz-flex-direction: row;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  max-width: 90%;
+}
+
+a.button {
+  color: white;
+  background: rgb(0,100,180);
+  padding: .7em;
+  font-size: .9em;
+  margin: .5em;
+  text-decoration: none;
+  flex-grow: 1;
+  text-align: center;
+}
+
+a.button:hover {
+  color: rgb(220,220,220);
+  background: rgb(0,50,100);
+}
+
+a.danger {
+  background: rgb(255,0,0);
+}
+
+a.danger:hover {
+  color: rgb(180,180,180);
+  background: rgb(180,0,0);
+}
+
+a.danger.disabled {
+  color: rgb(180,180,180);
+  background: rgb(180,0,0);
+}
+
+/* --------------------- */
+
 /* ------ top level ------- */
 
 .container {

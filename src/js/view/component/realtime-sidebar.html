@@ -11,13 +11,12 @@
   <ul class="nav nav-pills nav-stacked" id="bt-device-group">
     <!-- デバイスが追加されていく -->
   </ul>
-  <center>
-    <button type="button" class="btn btn-default" style="margin: 10px 10px 10px 10px;" onclick="main.io.findDevice();">UPDATE</button>
-  </center>
-  <center>
-    <button type="button" style="margin: 10px 10px 10px 10px;" id="disconnect-btn"
-            class="btn btn-danger" onclick="main.disconnect()" disabled="true">DISCONNECT</button>
-  </center>
+
+  <div class="button-area-line">
+    <a href="#" class="button" onclick="main.io.findDevice();">UPDATE</a>
+    <a href="#" class="button danger" id="disconnect-btn" onclick="main.disconnect()">DISCONNECT</a>
+  </div>
+
   <input type="text" id="logFileName" name="logFileName" size="30">
 </div>
 

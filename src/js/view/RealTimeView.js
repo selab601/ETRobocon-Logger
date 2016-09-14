@@ -14,6 +14,7 @@ function RealTimeView (model, jQueryObject, dialog) {
     this.updateBluetoothDeviceList(this.model.getConnectedDevices());
     this.updateLogFileName();
     this.$("input.render-value").attr('onclick', "main.updateRenderValueKinds()");
+    this.disableDisconnecButton();
   }.bind(this));
 
   this.$('div.content-center').load('./js/view/component/realtime-center.html');
@@ -41,11 +42,11 @@ RealTimeView.prototype.getLogFileName = function () {
 };
 
 RealTimeView.prototype.enableDisconnectButton = function () {
-  this.$("#disconnect-btn").prop('disabled', false);
+  this.$("#disconnect-btn").removeClass("disabled");
 };
 
 RealTimeView.prototype.disableDisconnecButton = function () {
-  this.$("#disconnect-btn").prop('disabled', true);
+  this.$("#disconnect-btn").addClass("disabled");
 };
 
 module.exports = RealTimeView;
