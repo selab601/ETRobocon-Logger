@@ -31,7 +31,7 @@ ApplicationModel.prototype.updateLogFileName = function (name) {
 
 ApplicationModel.prototype.getLogFileName = function () {
   return this.logFileName;
-}
+};
 
 ApplicationModel.prototype.getShownContent = function () {
   return this.content;
