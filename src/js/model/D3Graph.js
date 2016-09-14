@@ -207,13 +207,6 @@ D3Graph.prototype.addBrush = function () {
    * 範囲が選択されている状態でbrush.extent()メソッドを実行するとその範囲のデータ値を返す
    */
 
-  var xScale_ = this.xScale;
-  var yScale_ = this.yScale;
-  var xValues_ = this.xValues;
-  var yValues_ = this.yValues;
-  var bisectXValue_ = this.bisectXValue;
-  var d3_ = this.d3;
-
   var brushGroup = svg.append("g")
         .attr("class", "brush")
         .call(this.brush);
@@ -242,16 +235,30 @@ D3Graph.prototype.addBrush = function () {
     }
 
     this.render();
-    this.addBrush();
+    var rect = this.addBrush();
+    this.addFocus(rect);
 
     // brushオブジェクト上の矩形を消す
     this.d3.select('svg#'+this.key).select('.extent')
       .attr({width: 0, height: 0, x: 0, y: 0});
   }
 
+  this.addFocus(rect);
+
   /* --------------------------- */
 
-  /* --------- focus ----------- */
+  return rect;
+};
+
+D3Graph.prototype.addFocus = function (rect) {
+  var svg = this.d3.select("svg#"+this.key);
+
+  if (rect == null) {
+    rect = svg.append("rect")
+      .attr("class", "overlay")
+      .attr("width", this.svgElementWidth)
+      .attr("height", this.svgElementHeight);
+  }
 
   var focus = svg.append("g")
         .attr("class", "focus")
@@ -269,6 +276,13 @@ D3Graph.prototype.addBrush = function () {
     .on("mouseout", function() { focus.style("display", "none"); })
     .on("mousemove", mousemove);
 
+  var xScale_ = this.xScale;
+  var yScale_ = this.yScale;
+  var xValues_ = this.xValues;
+  var yValues_ = this.yValues;
+  var bisectXValue_ = this.bisectXValue;
+  var d3_ = this.d3;
+
   function mousemove() {
     var mouseXPos = xScale_.invert(d3_.mouse(this)[0]),
         leftSideIndex = bisectXValue_(xValues_, mouseXPos, 1),
@@ -278,8 +292,6 @@ D3Graph.prototype.addBrush = function () {
     focus.attr("transform", "translate(" + xScale_(xValues_[index]) + "," + yScale_(yValues_[index]) + ")");
     focus.select("text").text("(" + xValues_[index] + ", " + yValues_[index] + ")");
   }
-
-  /* --------------------------- */
 
 };
 

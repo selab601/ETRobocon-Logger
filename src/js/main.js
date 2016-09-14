@@ -41,6 +41,7 @@ Main.prototype.renderDynamicGraph = function (stringData) {
     [data["clock"]-1000*10, data["clock"]]
   );
   this.renderer.addLabel(this.model.getRenderValues());
+  this.renderer.addFocus(this.model.getRenderValues());
 };
 
 Main.prototype.renderGraph = function () {
