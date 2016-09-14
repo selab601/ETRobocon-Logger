@@ -14,7 +14,7 @@ const PADDING_BOTTOM = 40;
 const GRAPH_HEIGHT = SVG_ELEMENT_HEIGHT - (PADDING_TOP+PADDING_BOTTOM) - TITLE_SPACE_HEIGHT;
 const GRAPH_WIDTH = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
 
-function D3Graph(key, D3Object) {
+function D3Graph(key, D3Object, renderer) {
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
   this.svgElementWidth = SVG_ELEMENT_WIDTH;
   this.titleSpaceHeight = TITLE_SPACE_HEIGHT;
@@ -26,6 +26,7 @@ function D3Graph(key, D3Object) {
   this.graphWidth = GRAPH_WIDTH;
 
   this.key = key;
+  this.renderer = renderer;
   this.xValues = [];
   this.yValues = [];
   this.labelRenaderIntarval = 5;
@@ -74,6 +75,10 @@ D3Graph.prototype.clearData = function () {
   this.yValues = [];
   this.mark = null;
 };
+
+D3Graph.prototype.setMark = function (mark) {
+  this.mark = mark;
+}
 
 /*
  * グラフのスタイル(各箇所の大きさ)をデフォルト設定にリセットする
@@ -175,7 +180,12 @@ D3Graph.prototype.render = function () {
     .call(this.yAxis);
 
   // マークの描画
-  console.log(this.mark);
+  this.renderMark();
+};
+
+D3Graph.prototype.renderMark = function () {
+  var svg = this.d3.select("svg#"+this.key);
+  // マークの描画
   if (this.mark == null) {return;}
   svg.selectAll("path.mark").remove();
   svg.append("path")
@@ -255,6 +265,7 @@ D3Graph.prototype.addBrush = function () {
     }
 
     this.render();
+    this.renderMark();
     var rect = this.addBrush();
     this.addFocus(rect);
     this.addMarkEvent(rect);
@@ -294,12 +305,7 @@ D3Graph.prototype.addMarkEvent = function (rect) {
           rightSideXData = self.xScale[leftSideIndex],
           index = mouseXPos - leftSideXData > rightSideXData - mouseXPos ? leftSideIndex-1 : leftSideIndex;
 
-      self.mark = index;
-
-      self.render();
-      var rect = self.addBrush();
-      self.addFocus(rect);
-      self.addMarkEvent(rect);
+      self.renderer.setMark(index);
     });
 };
 
