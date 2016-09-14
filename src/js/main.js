@@ -61,7 +61,6 @@ Main.prototype.renderGraph = function () {
   }
 
   this.renderer.renderAll(this.model.getRenderValues());
-  this.renderer.addFocus(this.model.getRenderValues());
   this.renderer.addBrush(this.model.getRenderValues());
 };
 

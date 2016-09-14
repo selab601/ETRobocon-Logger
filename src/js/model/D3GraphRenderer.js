@@ -72,10 +72,4 @@ D3GraphRenderer.prototype.addLabel = function (keys) {
   }
 };
 
-D3GraphRenderer.prototype.addFocus = function (keys) {
-  for (var i=0; i<keys.length; i++) {
-    this.receiveValues[keys[i]].addFocus();
-  }
-};
-
 module.exports = D3GraphRenderer;

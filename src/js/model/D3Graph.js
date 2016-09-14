@@ -52,10 +52,7 @@ function D3Graph(key, D3Object) {
     .outerTickSize(5) // 目盛線の長さ（外側）
     .tickPadding(10); // 目盛線とテキストの間の長さ
 
-  // brush オブジェクト生成
-  // グラフの一部を選択するのに必要
-  this.brush = this.d3.svg.brush() //brushオブジェクト作成
-    .on("brushend", this.brushed.bind(this));
+  this.brush = this.d3.svg.brush();
 };
 
 /*
@@ -199,8 +196,63 @@ D3Graph.prototype.addLabel = function () {
     .attr("fill", "black");
 };
 
-D3Graph.prototype.addFocus = function () {
+D3Graph.prototype.addBrush = function () {
   var svg = this.d3.select("svg#"+this.key);
+
+  /* --------- brush ------------ */
+  /*
+   * brushオブジェクトを追加する
+   * brushは透明なrectをグループ上設置しマウスイベントを取得する。
+   * 設置したrect上ではドラッグで範囲選択が可能
+   * 範囲が選択されている状態でbrush.extent()メソッドを実行するとその範囲のデータ値を返す
+   */
+
+  var xScale_ = this.xScale;
+  var yScale_ = this.yScale;
+  var xValues_ = this.xValues;
+  var yValues_ = this.yValues;
+  var bisectXValue_ = this.bisectXValue;
+  var d3_ = this.d3;
+
+  var brushGroup = svg.append("g")
+        .attr("class", "brush")
+        .call(this.brush);
+
+  var rect = brushGroup
+    .selectAll("rect")
+    .attr("height", this.graphHeight)
+    .style({
+      "fill": "#69f",
+      "fill-opacity": "0.3"
+    });
+
+  this.brush.on("brushend", brushed.bind(this));
+
+  function brushed () {
+    var xStart = this.brush.extent()[0][0];
+    var xEnd = this.brush.extent()[1][0];
+    var yStart = this.brush.extent()[0][1];
+    var yEnd = this.brush.extent()[1][1];
+
+    if (xStart == xEnd && yStart == yEnd) {
+      // デフォルトに戻す
+      this.updateScale();
+    } else {
+      this.updateScale([xStart, xEnd], [yStart, yEnd]);
+    }
+
+    this.render();
+    this.addBrush();
+
+    // brushオブジェクト上の矩形を消す
+    this.d3.select('svg#'+this.key).select('.extent')
+      .attr({width: 0, height: 0, x: 0, y: 0});
+  }
+
+  /* --------------------------- */
+
+  /* --------- focus ----------- */
+
   var focus = svg.append("g")
         .attr("class", "focus")
         .style("display", "none");
@@ -212,20 +264,11 @@ D3Graph.prototype.addFocus = function () {
     .attr("x", 9)
     .attr("dy", ".35em");
 
-  svg.append("rect")
-    .attr("class", "overlay")
-    .attr("width", this.svgElementWidth)
-    .attr("height", this.svgElementHeight)
+  rect
     .on("mouseover", function() { focus.style("display", null); })
     .on("mouseout", function() { focus.style("display", "none"); })
     .on("mousemove", mousemove);
 
-  var xScale_ = this.xScale;
-  var yScale_ = this.yScale;
-  var xValues_ = this.xValues;
-  var yValues_ = this.yValues;
-  var bisectXValue_ = this.bisectXValue;
-  var d3_ = this.d3;
   function mousemove() {
     var mouseXPos = xScale_.invert(d3_.mouse(this)[0]),
         leftSideIndex = bisectXValue_(xValues_, mouseXPos, 1),
@@ -235,51 +278,9 @@ D3Graph.prototype.addFocus = function () {
     focus.attr("transform", "translate(" + xScale_(xValues_[index]) + "," + yScale_(yValues_[index]) + ")");
     focus.select("text").text("(" + xValues_[index] + ", " + yValues_[index] + ")");
   }
-};
 
-/*
- * brushオブジェクトを追加する
- * brushは透明なrectをグループ上設置しマウスイベントを取得する。
- * 設置したrect上ではドラッグで範囲選択が可能
- * 範囲が選択されている状態でbrush.extent()メソッドを実行するとその範囲のデータ値を返す
- */
-D3Graph.prototype.addBrush = function () {
-  var svg = this.d3.select("svg#"+this.key);
-  svg.append("g")
-    .attr("class", "brush")
-    .call(this.brush)
-    .selectAll("rect")
-    .attr("height", this.graphHeight)
-    .style({
-      "fill": "#69f",
-      "fill-opacity": "0.3"
-    });
-};
+  /* --------------------------- */
 
-/*
- * brushオブジェクト用のコールバック関数
- * グラフ上で矩形選択した直後に呼び出される
- */
-D3Graph.prototype.brushed = function () {
-  var xStart = this.brush.extent()[0][0];
-  var xEnd = this.brush.extent()[1][0];
-  var yStart = this.brush.extent()[0][1];
-  var yEnd = this.brush.extent()[1][1];
-
-  if (xStart == xEnd && yStart == yEnd) {
-    // デフォルトに戻す
-    this.updateScale();
-  } else {
-    this.updateScale([xStart, xEnd], [yStart, yEnd]);
-  }
-
-  this.render();
-  this.addFocus();
-  this.addBrush();
-
-  // brushオブジェクト上の矩形を消す
-  this.d3.select('svg#'+this.key).select('.extent')
-    .attr({width: 0, height: 0, x: 0, y: 0});
 };
 
 module.exports = D3Graph;
