@@ -84,15 +84,6 @@ $ node_modules/electron-prebuilt/dist/Electron.app/Contents/MacOS/Electron .
 $ ./run.sh /dev.tty.[Name]SerialPortProfile
 ```
 
-1. EV3 の電源をつける
-2. Mac から，システム環境設定 > Bluetooth を選択
-3. 一覧から該当するデバイスを見つけ，ペアリングする
-   - 一瞬失敗しても，待っていれば繋がることがある
-4. EV3 において LoadApp > SD Card > selab と選択し，EV3 側のアプリを起動
-5. EV3 の画面に `connecting ...` と表示されるまで待機
-6. 表示されたら，Mac から本アプリを起動する( `./run.sh /dev.tty.[Name]SerialPortProfile`)
-7. 接続に成功すると，EV3 から音がする
-
 ### ログの参照
 
 Electron は Main プロセスと Renderer プロセスが互いに非同期通信することで動作しています．
