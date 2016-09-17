@@ -1,0 +1,41 @@
+/* graph */
+/* brush 領域をリサイズするカーソルが出るのがうざいので display none にする */
+g.brush>.resize {
+  display: none;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.tick line{
+  opacity: 0.2;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+.axis text {
+  font-family: sans-serif;
+  font-size: 11px;
+}

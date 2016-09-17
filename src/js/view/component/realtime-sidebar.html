@@ -6,27 +6,46 @@
   });
 </script>
 
-<div class="realtime-panel" id="device-list">
+<div id="log-file-name">
 
-  <div class="panel-heading">Devices</div>
-
-  <ul class="nav nav-pills nav-stacked" id="bt-device-group">
-    <!-- デバイスが追加されていく -->
-  </ul>
-
-  <div class="button-area-line">
-    <a href="#" class="button" onclick="main.io.findDevice();">UPDATE</a>
-    <a href="#" class="button danger" id="disconnect-btn" onclick="main.disconnect()">DISCONNECT</a>
+  <div class="sidebar-header">
+    Log file name
   </div>
 
-  <input type="text" id="logFileName" name="logFileName" size="30">
+  <div class="sidebar-content">
+    <center>
+      <input type="text" id="logFileName" name="logFileName" size="30">
+    </center>
+  </div>
+
 </div>
 
-<div class="realtime-panel" id="realtime-render-value-kind-list">
-  <div class="panel-heading">
+<div id="device-list">
+
+  <div class="sidebar-header">
+    Devices
+  </div>
+
+  <div class="sidebar-content">
+    <ul class="nav nav-pills nav-stacked" id="bt-device-group">
+      <!-- デバイスが追加されていく -->
+    </ul>
+
+    <div class="button-area-line">
+      <a href="#" class="button" onclick="main.io.findDevice();">UPDATE</a>
+      <a href="#" class="button danger" id="disconnect-btn" onclick="main.disconnect()">DISCONNECT</a>
+    </div>
+  </div>
+
+</div>
+
+<div id="realtime-render-value-kind-list">
+
+  <div class="sidebar-header">
     Render Graph
   </div>
-  <div class="funkyradio">
+
+  <div class="funkyradio sidebar-content">
     <div class="funkyradio-success">
       <input class="render-value" type="checkbox" name="checkbox" id="gyro" />
       <label for="gyro">ジャイロセンサ値</label>
@@ -96,4 +115,5 @@
       <label for="coordinate_y">自己位置Y座標</label>
     </div>
   </div>
+
 </div>

@@ -1,72 +1,167 @@
-/* graph */
-/* brush 領域をリサイズするカーソルが出るのがうざいので display none にする */
-g.brush>.resize {
-    display: none;
-}
+/*
+ * main.css
+ */
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
+/* ---- 主要素の配置 ---- */
 
-.x.axis path {
-  display: none;
-}
-
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-
-.tick line{
-  opacity: 0.2;
-}
-
-.overlay {
-  fill: none;
-  pointer-events: all;
-}
-
-.focus circle {
-  fill: none;
-  stroke: steelblue;
-}
-
-.axis text {
-    font-family: sans-serif;
-    font-size: 11px;
-}
-
-a.disabled {
-    pointer-events: none;
-}
-
-#loader-bg {
-  display: none;
-  position: fixed;
+html, body {
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
   width: 100%;
   height: 100%;
-  top: 0px;
-  left: 0px;
-  background: #000;
+}
+
+.container {
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.container-header {
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+  background-color: gray;
+  font-size: 20px;
+  position: fixed;
+
+  width: 100%;
+  height: 50px;
+
+  /* ヘッダー内の要素の配置 */
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+
+.container-content {
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+  margin-top: 50px;
+  width: 100%;
+
+  flex: 1;
+
+  display: flex;
+}
+
+.container-content-sidebar {
+  overflow: auto;
+  position: fixed;
+
+  height: 100%;
+  width: 210px;
+
+  display: flex;
+  flex-direction: column;
+
+  background-color: rgb(200,200,200);
+}
+
+.container-content-center {
+  margin:0 0 0 210px;
+  padding:0 0 0 0;
+  overflow:auto;
+  height: 100%;
+  width: 100%;
+
+  flex: 1;
+}
+
+/* ------------------------ */
+
+/* ---- ヘッダー内の配置 ---- */
+
+.container-header ul  {
+  text-align: left;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+}
+
+.container-header ul li {
+  display: inline;
+  padding: 10px 10px 10px 10px;
+}
+
+.container-header ul li#title {
+  padding-left: 15px;
+  font-weight: bold;
+}
+
+/* -------------------------- */
+
+/* ---- サイドバー内の配置 ---- */
+
+/* ----- realtime ----- */
+
+#log-file-name {
+  width: 100%;
+  height: 70px;
+  overflow: auto;
+  background-color: rgb(200,200,200);
+}
+
+#logFileName {
+  width: 200px;
+}
+
+#device-list {
+  width: 100%;
+  flex: 0 0 40%;
+  overflow: auto;
+  background-color: rgb(200,200,200);
+}
+
+#realtime-render-value-kind-list {
+  width: 100%;
+  flex: 0 0 40%;
+  overflow: auto;
+  background-color: rgb(200,200,200);
+}
+
+.sidebar-header {
+  width: 210px;
+  height: 30px;
+  position: fixed;
+  color: rgb(80,80,80);
+  background-color: rgb(150,150,150);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   z-index: 1;
 }
-#loader {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 200px;
-  height: 200px;
-  margin-top: -100px;
-  margin-left: -100px;
-  text-align: center;
-  color: #fff;
-  z-index: 2;
+
+.sidebar-content {
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+  margin-top: 35px;
 }
+
+/* -------------------- */
+
+/* ----- loadJson ----- */
+
+.loadJson-panel {
+  flex: 0 0 45%;
+  overflow: auto;
+}
+
+#log-file-list {
+  background-color: rgb(200,200,200);
+}
+
+#loadJson-render-value-kind-list {
+  background-color: rgb(200,200,200);
+}
+
+/* -------------------- */
+
+/* -------------------------- */
 
 /* ------ button ------- */
 
@@ -85,6 +180,10 @@ a.disabled {
   max-width: 90%;
 }
 
+a.disabled {
+  pointer-events: none;
+}
+
 a.button {
   color: white;
   background: rgb(0,100,180);
@@ -94,6 +193,7 @@ a.button {
   text-decoration: none;
   flex-grow: 1;
   text-align: center;
+  box-shadow: 2px 2px 2px #999;
 }
 
 a.button:hover {
@@ -116,102 +216,3 @@ a.danger.disabled {
 }
 
 /* --------------------- */
-
-/* ------ top level ------- */
-
-.container {
-    padding: 0 0 0 0;
-    margin: 0 0 0 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.header {
-    height: 50px;
-    margin: 0 0 0 0;
-    padding: 0 0 0 0;
-    background-color: gray;
-    font-size: 20px;
-
-    display: flex;
-    justify-content: left;
-    align-items: center;
-}
-
-.header ul  {
-    text-align: left;
-    padding: 0 0 0 0;
-    margin: 0 0 0 0;
-}
-
-.header ul li {
-    display: inline;
-    padding: 10px 10px 10px 10px;
-}
-
-.header ul li#title {
-    padding-left: 15px;
-    font-weight: bold;
-}
-
-.content {
-    height: 100%;
-  display: flex;
-}
-
-.content-sidebar {
-  height: 100%;
-  width: 210px;
-  position:fixed;
-  overflow: auto;
-
-  flex-direction: column;
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.content-center {
-  flex: 1;
-  height:100%;
-  margin:0 0 0 210px;
-  padding:0;
-  overflow:auto;
-}
-
-/* ------------------------ */
-
-/* ----- realtime ----- */
-
-.realtime-panel {
-  flex: 0 0 50%;
-  overflow: auto;
-}
-
-#device-list {
-  background-color: rgb(255,220,220);
-}
-
-#loadJson-render-value-kind-list {
-  background-color: rgb(220,255,220);
-}
-
-/* -------------------- */
-
-/* ----- loadJson ----- */
-
-.loadJson-panel {
-  flex: 0 0 50%;
-  overflow: auto;
-}
-
-#log-file-list {
-  background-color: rgb(220,220,255);
-}
-
-#realtime-render-value-kind-list {
-  background-color: rgb(220,255,220);
-}
-
-/* -------------------- */
