@@ -40,7 +40,7 @@ Electron 製の EV3 用ロガーです．
 ヘッダーの `Load JSON` をクリックするとログ閲覧画面を表示できる．
 以下のような機能を持つ．
 
-![loadJSON](./images/loadJSON.png)
+![loadJSON](./images/loadJson.png)
 
 ## バグフィックスについて
 
