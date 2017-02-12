@@ -22,13 +22,7 @@ var mainWindow,
 // ログファイルで日付を使用するためのモジュール
 require('date-utils');
 
-function asyncFunc() {
-  var ev = new EventEmitter;
-  setTimeout(function () {
-    ev.emit('done');
-  }, 5000);
-  return ev;
-};
+/******** アプリケーションのイベントハンドラ登録 ********/
 
 // 起準備動時の処理
 app.on('ready', function () {
@@ -51,44 +45,10 @@ app.on('activate', function() {
   }
 });
 
-// メインウインドウの生成
-function createWindow() {
-  mainWindow = new BrowserWindow({width: 1024, height: 600});
-  mainWindow.loadURL(`file://${__dirname}/src/index.html`);
+/****** アプリケーションのイベントハンドラ登録終了 ******/
 
-  // ウインドウが閉じられた場合の処理
-  mainWindow.on('closed', function() {
-    mainWindow = null;
-  });
 
-  // TODO: 以前接続したことのあるBTデバイスをどこかに保存しておく
-
-  // 接続済みのものを renderer プロセスに教える
-  btSerial.listPairedDevices(function(pairedDevices) {
-    console.log(pairedDevices);
-    pairedDevices.forEach(function(device) {
-      mainWindow.webContents.on('did-finish-load', function () {
-        mainWindow.webContents.send('BTDevice', {name: device.name, address: device.address});
-      });
-    });
-  });
-};
-
-function updateLogFileName() {
-  var date = new Date();
-  var formatted = date.toFormat("YYYY_MMDD_HH24MISS");
-  logFileName = formatted + '.json';
-  logFilePath = app.getAppPath() + '/log/' + logFileName;
-
-  if (didFinishLoaded == false) {
-    mainWindow.webContents.on('did-finish-load', function () {
-      didFinishLoaded = true;
-      mainWindow.webContents.send('LogFileName', logFileName);
-    });
-  } else {
-    mainWindow.webContents.send('LogFileName', logFileName);
-  }
-}
+/********* プロセス間通信のイベントハンドラ登録 *********/
 
 var ipc = require('electron').ipcMain;
 
@@ -171,3 +131,57 @@ ipc.on('disconnect', (event, arg) => {
     });
   });
 });
+
+/******* プロセス間通信のイベントハンドラ登録終了 *******/
+
+
+/******* 各種関数定義 *******/
+
+function asyncFunc() {
+  var ev = new EventEmitter;
+  setTimeout(function () {
+    ev.emit('done');
+  }, 5000);
+  return ev;
+};
+
+// メインウインドウの生成
+function createWindow() {
+  mainWindow = new BrowserWindow({width: 1024, height: 600});
+  mainWindow.loadURL(`file://${__dirname}/src/index.html`);
+
+  // ウインドウが閉じられた場合の処理
+  mainWindow.on('closed', function() {
+    mainWindow = null;
+  });
+
+  // TODO: 以前接続したことのあるBTデバイスをどこかに保存しておく
+
+  // 接続済みのものを renderer プロセスに教える
+  btSerial.listPairedDevices(function(pairedDevices) {
+    console.log(pairedDevices);
+    pairedDevices.forEach(function(device) {
+      mainWindow.webContents.on('did-finish-load', function () {
+        mainWindow.webContents.send('BTDevice', {name: device.name, address: device.address});
+      });
+    });
+  });
+};
+
+function updateLogFileName() {
+  var date = new Date();
+  var formatted = date.toFormat("YYYY_MMDD_HH24MISS");
+  logFileName = formatted + '.json';
+  logFilePath = app.getAppPath() + '/log/' + logFileName;
+
+  if (didFinishLoaded == false) {
+    mainWindow.webContents.on('did-finish-load', function () {
+      didFinishLoaded = true;
+      mainWindow.webContents.send('LogFileName', logFileName);
+    });
+  } else {
+    mainWindow.webContents.send('LogFileName', logFileName);
+  }
+}
+
+/***** 各種関数定義終了 *****/
