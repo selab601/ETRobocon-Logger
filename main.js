@@ -1,15 +1,24 @@
 'use strict';
 
-// app: ブラウザウインドを生成するためのモジュール
-// BrowserWindow: アプリケーションのライフサイクル管理のためのモジュール
-const {app, BrowserWindow} = require('electron');
-const path = require('path');
-const url = require('url');
-// main プロセス側の IPC 用モジュール
-const ipcMain = require('electron').ipcMain;
-// Bluetooth デバイスの検索&通信を行うためのモジュール
-var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
-var EventEmitter = require('events').EventEmitter;
+      // app: ブラウザウインドを生成するためのモジュール
+      // BrowserWindow: アプリケーションのライフサイクル管理のためのモジュール
+const {app, BrowserWindow} = require('electron'),
+      path = require('path'),
+      url = require('url'),
+      // main プロセス側の IPC 用モジュール
+      ipcMain = require('electron').ipcMain,
+      // Bluetooth デバイスの検索&通信を行うためのモジュール
+      btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort(),
+      EventEmitter = require('events').EventEmitter;
+
+    // メインウインドウをグローバル変数として保持しておく
+    // これがないと，JSのGCにウインドウを殺されてしまう
+var mainWindow,
+    file = require('fs'),
+    logFilePath,
+    logFileName,
+    didFinishLoaded = false;
+
 // ログファイルで日付を使用するためのモジュール
 require('date-utils');
 
@@ -20,15 +29,6 @@ function asyncFunc() {
   }, 5000);
   return ev;
 };
-
-// メインウインドウをグローバル変数として保持しておく
-// これがないと，JSのGCにウインドウを殺されてしまう
-var mainWindow;
-
-var file = require('fs');
-var logFilePath;
-var logFileName;
-var didFinishLoaded = false;
 
 // 起準備動時の処理
 app.on('ready', function () {
