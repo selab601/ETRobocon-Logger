@@ -65,8 +65,8 @@ function createWindow() {
 
   // 接続済みのものを renderer プロセスに教える
   btSerial.listPairedDevices(function(pairedDevices) {
+    console.log(pairedDevices);
     pairedDevices.forEach(function(device) {
-      console.log(device);
       mainWindow.webContents.on('did-finish-load', function () {
         mainWindow.webContents.send('BTDevice', {name: device.name, address: device.address});
       });
