@@ -1,13 +1,14 @@
 'use strict';
 
+// app: ブラウザウインドを生成するためのモジュール
+// BrowserWindow: アプリケーションのライフサイクル管理のためのモジュール
+const {app, BrowserWindow} = require('electron');
+const path = require('path');
+const url = require('url');
 // main プロセス側の IPC 用モジュール
 const ipcMain = require('electron').ipcMain;
-// アプリケーションのライフサイクル管理のためのモジュール
-const app = require('app');
-// ブラウザウインドを生成するためのモジュール
-const BrowserWindow = require('browser-window');
 // Bluetooth デバイスの検索&通信を行うためのモジュール
-var BluetoothSerialPort = require('bluetooth-serial-port');
+var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
 var EventEmitter = require('events').EventEmitter;
 // ログファイルで日付を使用するためのモジュール
 require('date-utils');
@@ -24,7 +25,6 @@ function asyncFunc() {
 // これがないと，JSのGCにウインドウを殺されてしまう
 var mainWindow;
 
-var btSerial = new BluetoothSerialPort.BluetoothSerialPort();
 var file = require('fs');
 var logFilePath;
 var logFileName;

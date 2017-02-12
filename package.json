@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "main": "main.js",
   "dependencies": {
-    "bluetooth-serial-port": "^1.2.6",
+    "bluetooth-serial-port": "2.1.0",
     "bootstrap": "^3.3.7",
     "date-utils": "1.2.7",
-    "electron-prebuilt": "0.35.3"
+    "electron-prebuilt": "1.2.8"
   }
 }
