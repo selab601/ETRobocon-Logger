@@ -52,7 +52,7 @@ app.on('activate', function() {
 
 var ipc = require('electron').ipcMain;
 
-ipc.on('findBTDevice', (event, arg) => {
+ipc.on('updateDevices', (event, arg) => {
   console.log("Starting find devices...");
   var devices = [];
 
@@ -66,27 +66,27 @@ ipc.on('findBTDevice', (event, arg) => {
   async.on('done', function() {
     btSerial.close();
 
-    event.sender.send('finishFindingDevice', {
+    event.sender.send('updateDevicesFailed', {
       title: "Finish",
       body: devices.length + " devices were found"
     });
 
     for (var i=0; i<devices.length; i++) {
-      mainWindow.webContents.send('BTDevice', devices[i]);
+      mainWindow.webContents.send('updateDevicesComplete', devices[i]);
     }
   });
 
   btSerial.inquire();
 });
 
-ipc.on('connectBTDevice', (event, arg) => {
+ipc.on('connectDevice', (event, arg) => {
   console.log("Connecting...");
   var address = arg;
   btSerial.findSerialPortChannel(address, function(channel) {
     btSerial.connect(address, channel, function() {
       console.log('connected');
 
-      event.sender.send('connected', {
+      event.sender.send('connectDeviceComplete', {
         title: "Cnnected!",
         body: "Successfully connected!!"
       });
@@ -95,8 +95,9 @@ ipc.on('connectBTDevice', (event, arg) => {
         mainWindow.webContents.send('ReceiveDataFromBTDevice', buffer);
         file.appendFile(logFilePath, buffer, 'utf8');
       });
+
     }, function () {
-      event.sender.send('cannotConnected', {
+      event.sender.send('connectDeviceFailed', {
         title: "Cannot Connect",
         body: "Selected device was found, but failed to connect. Please try again"
       });
@@ -104,7 +105,7 @@ ipc.on('connectBTDevice', (event, arg) => {
     });
 
   }, function() {
-    event.sender.send('deviceNotFound', {
+    event.sender.send('connectDeviceFailed', {
       title: "Found nothing",
       body: "Selected device was not found"
     });
@@ -112,7 +113,7 @@ ipc.on('connectBTDevice', (event, arg) => {
   });
 });
 
-ipc.on('disconnect', (event, arg) => {
+ipc.on('disconnectDevice', (event, arg) => {
   console.log("Disconnected");
   btSerial.close();
   btSerial = new BluetoothSerialPort.BluetoothSerialPort();
@@ -125,7 +126,7 @@ ipc.on('disconnect', (event, arg) => {
     // TODO: 文字列が空だったりすると失敗するので，エラー処理が必要
     file.renameSync(path + logFileName, path + arg);
     updateLogFileName();
-    event.sender.send('disconnected', {
+    event.sender.send('disconnectDeviceComplete', {
       title: "Disconnected",
       body: "This connection's data was saved in " + arg + "."
     });
@@ -162,7 +163,7 @@ function createWindow() {
     console.log(pairedDevices);
     pairedDevices.forEach(function(device) {
       mainWindow.webContents.on('did-finish-load', function () {
-        mainWindow.webContents.send('BTDevice', {name: device.name, address: device.address});
+        mainWindow.webContents.send('updateDevicesComplete', {name: device.name, address: device.address});
       });
     });
   });

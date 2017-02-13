@@ -4,6 +4,8 @@
  * - 機能モジュールの管理
  */
 
+const DeviceConnector = require('./deviceConnector.js');
+
 function shell() {
   this.configMap = {
     main_html : (function () {
@@ -57,19 +59,26 @@ function shell() {
     $container : undefined
   };
   this.jqueryMap = {};
+
+  this.deviceConnector = new DeviceConnector();
 };
 
 // TODO: private
 shell.prototype.setJqueryMap = function () {
   var $container = this.stateMap.$container;
   this.jqueryMap = {
-    $container : $contaienr
+    $container : $container,
+    $container_content_sidebar : $container.find(".container-content-sidebar")
   };
 };
 
 shell.prototype.initModule = function ( $container ) {
   this.stateMap.$container = $container;
   $container.html( this.configMap.main_html );
+  this.setJqueryMap();
+
+  // 機能モジュールの初期化
+  this.deviceConnector.initModule( this.jqueryMap.$container_content_sidebar );
 };
 
 module.exports = shell;
