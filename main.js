@@ -44,7 +44,6 @@ function createWindow() {
   mainWindow = new BrowserWindow({width: 1024, height: 600});
   mainWindow.loadURL(`file://${__dirname}/src/index.html`);
 
-  console.log(mainWindow);
   dc = new deviceConnector( mainWindow, app.getAppPath() );
 
   // ウインドウが閉じられた場合の処理
