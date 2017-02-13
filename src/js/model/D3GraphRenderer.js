@@ -1,14 +1,14 @@
 /*
  * D3GraphRenderer.js
- * グラフ描画のためのモジュール
+ * 複数のグラフをとりまとめて管理するモジュール
  */
 "use-strict";
 
 var D3Graph = require("./D3graph.js");
 
-function D3GraphRenderer (D3Object, model) {
-  this.d3 = D3Object;
-  this.model = model;
+function D3GraphRenderer ( keymap ) {
+  var D3Object = require('./lib/d3.min.js');
+  this.keymap = keymap;
   this.receiveValues = {
     "clock": new D3Graph("clock", D3Object, this),
     "gyro": new D3Graph("gyro", D3Object, this),
@@ -50,9 +50,8 @@ D3GraphRenderer.prototype.setMark = function (mark) {
     this.receiveValues[key].setMark(mark);
   }.bind(this));
 
-  var keys = this.model.getRenderValues();
-  for (var i=0; i<keys.length; i++) {
-    this.receiveValues[keys[i]].renderMark();
+  for (var i=0; i<this.keymap.length; i++) {
+    this.receiveValues[this.keymap[i]].renderMark();
   }
 };
 
@@ -66,31 +65,27 @@ D3GraphRenderer.prototype.update = function (key, xValue, yValue) {
 
 D3GraphRenderer.prototype.renderAll = function (xScope, yScope) {
   this.removeAllGraph();
-  var keys = this.model.getRenderValues();
-  for (var i=0; i<keys.length; i++) {
-    this.receiveValues[keys[i]].updateScale(xScope, yScope);
-    this.receiveValues[keys[i]].render();
+  for (var i=0; i<this.keymap.length; i++) {
+    this.receiveValues[this.keymap[i]].updateScale(xScope, yScope);
+    this.receiveValues[this.keymap[i]].render();
   }
 };
 
 D3GraphRenderer.prototype.addBrush = function () {
-  var keys = this.model.getRenderValues();
-  for (var i=0; i<keys.length; i++) {
-    this.receiveValues[keys[i]].addBrush();
+  for (var i=0; i<this.keymap.length; i++) {
+    this.receiveValues[this.keymap[i]].addBrush();
   }
 };
 
 D3GraphRenderer.prototype.addLabel = function () {
-  var keys = this.model.getRenderValues();
-  for (var i=0; i<keys.length; i++) {
-    this.receiveValues[keys[i]].addLabel();
+  for (var i=0; i<this.keymap.length; i++) {
+    this.receiveValues[this.keymap[i]].addLabel();
   }
 };
 
 D3GraphRenderer.prototype.addFocus = function () {
-  var keys = this.model.getRenderValues();
-  for (var i=0; i<keys.length; i++) {
-    this.receiveValues[keys[i]].addFocus();
+  for (var i=0; i<this.keymap.length; i++) {
+    this.receiveValues[this.keymap[i]].addFocus();
   }
 };
 

@@ -1,0 +1,130 @@
+/**
+ * グラフ描画機能モジュール
+ */
+
+const D3GraphRenderer = require('./model/D3GraphRenderer.js');
+
+function graph() {
+  this.configMap = {
+    device_list_html : (function () {
+      /*
+        <div id="realtime-render-value-kind-list">
+          <div class="sidebar-header">
+            Render Graph
+          </div>
+          <div class="funkyradio sidebar-content"></div>
+        </div>
+      */}).toString().replace(/(\n)/g, '').split('*')[1],
+    graph_html : '<div id="d3graph"></div>',
+    graph_value_base_html : (function () {
+      /*
+        <div class="funkyradio-success">
+          <input class="render-value" type="checkbox" name="checkbox" />
+          <label></label>
+        </div>
+      */}).toString().replace(/(\n)/g, '').split('*')[1],
+    graph_value_map : [
+      { id : "gyro", label : "ジャイロセンサ値" },
+      { id : "touch", label : "タッチセンサ値" },
+      { id : "sonar", label : "ソナー値" },
+      { id : "brightness", label : "輝度値" },
+      { id : "rgb_r", label : "RGB(R値)" },
+      { id : "rgb_g", label : "RGB(G値)" },
+      { id : "rgb_b", label : "RGB(B値)" },
+      { id : "hsv_h", label : "HSV(H値)" },
+      { id : "hsv_s", label : "HSV(S値)" },
+      { id : "hsv_v", label : "HSV(V値)" },
+      { id : "arm_count", label : "前輪エンコーダ値" },
+      { id : "left_count", label : "左輪エンコーダ値" },
+      { id : "right_count", label : "右輪エンコーダ値" },
+      { id : "length", label : "走行距離" },
+      { id : "angle", label : "車体角度" },
+      { id : "coordinate_x", label : "自己位置X座標" },
+      { id : "coordinate_y", label : "自己位置Y座標" },
+      { id : "clock", label : "時刻" }
+    ]
+  };
+  this.stateMap = {
+    $list_append_target : undefined,
+    $graph_append_target : undefined,
+    history: {},
+    render_value_keymap: []
+  };
+
+  for (var i=0; i<this.configMap.graph_value_map.length; i++) {
+    this.stateMap.history[this.configMap.graph_value_map[i].id] = [];
+  }
+  console.log(this.stateMap.history);
+
+  this.jqueryMap = {};
+  this.ipc = require('electron').ipcRenderer;
+  this.$ = require('./model/lib/jquery-3.1.0.min.js');
+  this.renderer = new D3GraphRenderer( this.stateMap.render_value_keymap );
+};
+
+/** イベントハンドラ **/
+
+graph.prototype.onReceiveDataFromDevice = function ( ev, message ) {
+  var data = JSON.parse(message);
+
+  // 値の更新
+  Object.keys(data).forEach(function(key) {
+    // 受信データに誤りがあるとここで挿入に失敗する
+    this.stateMap.history[key].push(data[key]);
+    this.renderer.update(key, data["clock"], data[key]);
+  }.bind(this));
+
+  // 描画
+  this.renderer.renderAll([data["clock"]-1000*10, data["clock"]]);
+  this.renderer.addLabel();
+  this.renderer.addFocus();
+};
+
+graph.prototype.onUpdateRenderValue = function ( event ) {
+  var index = this.stateMap.render_value_keymap.indexOf( event.data );
+  if ( index >= 0 ) {
+    this.stateMap.render_value_keymap.splice(index,1);
+  } else {
+    this.stateMap.render_value_keymap.push( event.data );
+  }
+};
+
+/*********************/
+
+graph.prototype.initGraphValuesList = function () {
+  this.configMap.graph_value_map.forEach( function (value) {
+    var base_html = this.$(this.configMap.graph_value_base_html);
+    base_html.find('input')
+      .attr('id', value.id)
+      .bind('click', value.id, this.onUpdateRenderValue.bind(this));
+    base_html.find('label')
+      .attr('for', value.id)
+      .text(value.label);
+    this.jqueryMap.$sidebar_content.append(base_html);
+  }.bind(this));
+};
+
+graph.prototype.setJqueryMap = function () {
+  var $graph_append_target = this.stateMap.$graph_append_target;
+  var $list_append_target = this.stateMap.$list_append_target;
+  this.jqueryMap = {
+    $graph_append_target : $graph_append_target,
+    $list_append_target : $list_append_target,
+    $sidebar_content : $list_append_target.find(".sidebar-content.funkyradio")
+  };
+};
+
+graph.prototype.initModule = function ( $list_append_target, $graph_append_target ) {
+  this.stateMap.$list_append_target = $list_append_target;
+  this.stateMap.$graph_append_target = $graph_append_target;
+  $list_append_target.append( this.configMap.device_list_html );
+  $graph_append_target.html( this.configMap.graph_html );
+  this.setJqueryMap();
+  this.initGraphValuesList();
+
+  // イベントハンドラ登録
+
+  this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
+};
+
+module.exports = graph;

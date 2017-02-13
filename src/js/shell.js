@@ -5,6 +5,7 @@
  */
 
 const DeviceConnector = require('./deviceConnector.js');
+const Graph = require('./graph.js');
 
 function shell() {
   this.configMap = {
@@ -61,6 +62,7 @@ function shell() {
   this.jqueryMap = {};
 
   this.deviceConnector = new DeviceConnector();
+  this.graph = new Graph();
 };
 
 // TODO: private
@@ -68,7 +70,8 @@ shell.prototype.setJqueryMap = function () {
   var $container = this.stateMap.$container;
   this.jqueryMap = {
     $container : $container,
-    $container_content_sidebar : $container.find(".container-content-sidebar")
+    $container_content_sidebar : $container.find(".container-content-sidebar"),
+    $container_content_center : $container.find(".container-content-center")
   };
 };
 
@@ -79,6 +82,10 @@ shell.prototype.initModule = function ( $container ) {
 
   // 機能モジュールの初期化
   this.deviceConnector.initModule( this.jqueryMap.$container_content_sidebar );
+  this.graph.initModule(
+    this.jqueryMap.$container_content_sidebar,
+    this.jqueryMap.$container_content_center
+  );
 };
 
 module.exports = shell;

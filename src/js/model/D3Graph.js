@@ -1,5 +1,6 @@
 /*
  * D3Graph.js
+ * グラフ描画のためのモジュール
  */
 "use-strict";
 
@@ -16,19 +17,19 @@ const GRAPH_WIDTH = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
 
 function D3Graph(key, D3Object, renderer) {
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
-  this.svgElementWidth = SVG_ELEMENT_WIDTH;
+  this.svgElementWidth  = SVG_ELEMENT_WIDTH;
   this.titleSpaceHeight = TITLE_SPACE_HEIGHT;
-  this.paddingLeft = PADDING_LEFT;
-  this.paddingRight = PADDING_RIGHT;
-  this.paddingTop = PADDING_TOP;
-  this.paddingBottom = PADDING_BOTTOM;
-  this.graphHeight = GRAPH_HEIGHT;
-  this.graphWidth = GRAPH_WIDTH;
+  this.paddingLeft      = PADDING_LEFT;
+  this.paddingRight     = PADDING_RIGHT;
+  this.paddingTop       = PADDING_TOP;
+  this.paddingBottom    = PADDING_BOTTOM;
+  this.graphHeight      = GRAPH_HEIGHT;
+  this.graphWidth       = GRAPH_WIDTH;
 
-  this.key = key;
+  this.key      = key;
   this.renderer = renderer;
-  this.xValues = [];
-  this.yValues = [];
+  this.xValues   = [];
+  this.yValues   = [];
   this.labelRenaderIntarval = 5;
 
   this.d3 = D3Object;
@@ -38,8 +39,8 @@ function D3Graph(key, D3Object, renderer) {
   this.yScale = this.d3.scale.linear()
     .range([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight]);
 
-  this.line = this.d3.svg.line();
-  this.markLine = this.d3.svg.line();
+  this.line         = this.d3.svg.line();
+  this.markLine     = this.d3.svg.line();
   this.bisectXValue = this.d3.bisector(function(d) { return d; }).left,
 
   this.xAxis = this.d3.svg.axis()
@@ -47,7 +48,6 @@ function D3Graph(key, D3Object, renderer) {
     .innerTickSize(-this.graphHeight)  // 目盛線の長さ（内側）
     .outerTickSize(5) // 目盛線の長さ（外側）
     .tickPadding(10); // 目盛線とテキストの間の長さ
-
   this.yAxis = this.d3.svg.axis()
     .orient('left')
     .innerTickSize(-this.graphWidth)  // 目盛線の長さ（内側）
@@ -55,11 +55,10 @@ function D3Graph(key, D3Object, renderer) {
     .tickPadding(10); // 目盛線とテキストの間の長さ
 
   this.brush = this.d3.svg.brush();
-
   this.mark = null;
 };
 
-/*
+/**
  * 描画データを追加する
  */
 D3Graph.prototype.appendData = function (xData, yData) {
@@ -67,7 +66,7 @@ D3Graph.prototype.appendData = function (xData, yData) {
   this.yValues.push(yData);
 };
 
-/*
+/**
  * 保持している描画データをリセットする
  */
 D3Graph.prototype.clearData = function () {
@@ -80,7 +79,7 @@ D3Graph.prototype.setMark = function (mark) {
   this.mark = mark;
 }
 
-/*
+/**
  * グラフのスタイル(各箇所の大きさ)をデフォルト設定にリセットする
  */
 D3Graph.prototype.resetStyle = function () {
@@ -95,14 +94,14 @@ D3Graph.prototype.resetStyle = function () {
   this.graphWidth = GRAPH_WIDTH;
 };
 
-/*
+/**
  * グラフを削除する
  */
 D3Graph.prototype.remove = function () {
   this.d3.select("#d3graph>svg#"+this.key).remove();
 };
 
-/*
+/**
  * グラフのスケールを設定する
  */
 D3Graph.prototype.updateScale = function (xScope, yScope) {
@@ -135,7 +134,7 @@ D3Graph.prototype.updateScale = function (xScope, yScope) {
   this.yAxis.scale(this.yScale);
 };
 
-/*
+/**
  * 現在のスケール設定に従ってグラフを描画する
  */
 D3Graph.prototype.render = function () {
