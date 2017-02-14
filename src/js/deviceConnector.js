@@ -51,12 +51,17 @@ bluetoothConnector.prototype.onUpdateDevicesFailed = function ( ev, message ) {
 bluetoothConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
   var device = message;
 
-  console.log("found: " + device.name + ", " + device.address);
-
   // リストに追加済みであったなら追加しない
+  var isAlreadyAdded = false;
   this.stateMap.deviceMap.forEach(function (d) {
-    if ( d.address === device.address ) { return; }
+    console.log(d.address + " : " + device.address);
+    if ( d.address === device.address ) {
+      isAlreadyAdded = true;
+      return;
+    }
   });
+  if ( isAlreadyAdded ) { return; }
+
   this.stateMap.deviceMap.push(device);
 
   this.jqueryMap.$bt_device_group.append(
