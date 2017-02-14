@@ -15,7 +15,7 @@ const PADDING_BOTTOM = 40;
 const GRAPH_HEIGHT = SVG_ELEMENT_HEIGHT - (PADDING_TOP+PADDING_BOTTOM) - TITLE_SPACE_HEIGHT;
 const GRAPH_WIDTH = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
 
-function D3Graph(key, D3Object, renderer) {
+function D3Graph(key, renderer) {
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
   this.svgElementWidth  = SVG_ELEMENT_WIDTH;
   this.titleSpaceHeight = TITLE_SPACE_HEIGHT;
@@ -32,7 +32,7 @@ function D3Graph(key, D3Object, renderer) {
   this.yValues   = [];
   this.labelRenaderIntarval = 5;
 
-  this.d3 = D3Object;
+  this.d3 = require('./lib/d3.min.js');
 
   this.xScale = this.d3.scale.linear()
     .range([this.paddingLeft, this.svgElementWidth - this. paddingRight]);

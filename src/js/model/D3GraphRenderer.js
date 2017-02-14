@@ -7,28 +7,15 @@
 var D3Graph = require("./D3graph.js");
 
 function D3GraphRenderer ( keymap ) {
-  var D3Object = require('./lib/d3.min.js');
-  this.keymap = keymap;
-  this.receiveValues = {
-    "clock": new D3Graph("clock", D3Object, this),
-    "gyro": new D3Graph("gyro", D3Object, this),
-    "touch": new D3Graph("touch", D3Object, this),
-    "sonar": new D3Graph("sonar", D3Object, this),
-    "brightness": new D3Graph("brightness", D3Object, this),
-    "rgb_r": new D3Graph("rgb_r", D3Object, this),
-    "rgb_g": new D3Graph("rgb_g", D3Object, this),
-    "rgb_b": new D3Graph("rgb_b", D3Object, this),
-    "hsv_h": new D3Graph("hsv_h", D3Object, this),
-    "hsv_s": new D3Graph("hsv_s", D3Object, this),
-    "hsv_v": new D3Graph("hsv_v", D3Object, this),
-    "arm_count": new D3Graph("arm_count", D3Object, this),
-    "left_count": new D3Graph("left_count", D3Object, this),
-    "right_count": new D3Graph("right_count", D3Object, this),
-    "length": new D3Graph("length", D3Object, this),
-    "angle": new D3Graph("angle", D3Object, this),
-    "coordinate_x": new D3Graph("coordinate_x", D3Object, this),
-    "coordinate_y": new D3Graph("coordinate_y", D3Object, this)
-  };
+  this.keymap = [];
+  keymap.forEach( function ( data ) {
+    this.keymap.push(data.id);
+  }.bind(this));
+
+  this.receiveValues = {};
+  this.keymap.forEach( function ( key ) {
+    this.receiveValues[ key ] = new D3Graph( key, this);
+  }.bind(this));
 };
 
 D3GraphRenderer.prototype.initialize = function () {

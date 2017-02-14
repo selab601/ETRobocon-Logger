@@ -54,12 +54,11 @@ function graph() {
   for (var i=0; i<this.configMap.graph_value_map.length; i++) {
     this.stateMap.history[this.configMap.graph_value_map[i].id] = [];
   }
-  console.log(this.stateMap.history);
 
   this.jqueryMap = {};
   this.ipc = require('electron').ipcRenderer;
   this.$ = require('./model/lib/jquery-3.1.0.min.js');
-  this.renderer = new D3GraphRenderer( this.stateMap.render_value_keymap );
+  this.renderer = new D3GraphRenderer( this.configMap.graph_value_map );
 };
 
 /** イベントハンドラ **/
@@ -70,6 +69,7 @@ graph.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   // 値の更新
   Object.keys(data).forEach(function(key) {
     // 受信データに誤りがあるとここで挿入に失敗する
+    // TODO: 受信データのチェック
     this.stateMap.history[key].push(data[key]);
     this.renderer.update(key, data["clock"], data[key]);
   }.bind(this));
