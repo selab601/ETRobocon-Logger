@@ -8,18 +8,18 @@ function graph() {
   this.configMap = {
     device_list_html : (function () {
       /*
-        <div id="realtime-render-value-kind-list">
-          <div class="sidebar-header">
+        <div id="graph">
+          <div class="graph-header">
             Render Graph
           </div>
-          <div class="funkyradio sidebar-content"></div>
+          <div class="graph-body"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_html : '<div id="d3graph"></div>',
     graph_value_base_html : (function () {
       /*
-        <div class="funkyradio-success">
-          <input class="render-value" type="checkbox" name="checkbox" />
+        <div class="graph-render-value">
+          <input type="checkbox" name="checkbox" />
           <label></label>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
@@ -122,7 +122,7 @@ graph.prototype.initGraphValuesList = function () {
     base_html.find('label')
       .attr('for', value.id)
       .text(value.label);
-    this.jqueryMap.$sidebar_content.append(base_html);
+    this.jqueryMap.$graph_body.append(base_html);
   }.bind(this));
 };
 
@@ -132,7 +132,7 @@ graph.prototype.setJqueryMap = function () {
   this.jqueryMap = {
     $graph_append_target : $graph_append_target,
     $list_append_target : $list_append_target,
-    $sidebar_content : $list_append_target.find(".sidebar-content.funkyradio")
+    $graph_body : $list_append_target.find(".graph-body")
   };
 };
 
