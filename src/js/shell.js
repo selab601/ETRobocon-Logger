@@ -12,49 +12,17 @@ function shell() {
   this.configMap = {
     main_html : (function () {
       /*
-    <div class="container">
-
-      <!-- menubar -->
-      <div class="container-header">
-        <ul>
-          <li id="title">ET2016 Logger</li>
-          <li><a href="#" class="menu-link" onclick="main.transition('realtime');">RealTime Graph</a></li>
-          <li><a href="#" class="menu-link" onclick="main.transition('loadJson');">Load JSON file</a></li>
-        </ul>
-      </div>
-
-      <!-- content -->
-      <div class="container-content">
-        <!-- sidebar -->
-        <div class="container-content-sidebar">
+        <div class="header">
+          <ul>
+            <li id="title">ET2016 Logger</li>
+            <li><a href="#" class="menu-link">RealTime Graph</a></li>
+            <li><a href="#" class="menu-link">Load JSON file</a></li>
+          </ul>
         </div>
-        <!-- center -->
-        <div class="container-content-center">
+        <div class="body">
+          <div class="sidebar"></div>
+          <div class="contents"></div>
         </div>
-      </div>
-
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" id="ModalLabel">
-              Modal title
-            </h4>
-          </div>
-          <div class="modal-body" id="ModalBody">
-            ...
-          </div>
-          <div class="modal-footer">
-            <center>
-              <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            </center>
-          </div>
-        </div>
-      </div>
-    </div>
        */}).toString().replace(/(\n)/g, '').split('*')[1]
   };
   this.stateMap = {
@@ -72,8 +40,8 @@ shell.prototype.setJqueryMap = function () {
   var $container = this.stateMap.$container;
   this.jqueryMap = {
     $container : $container,
-    $container_content_sidebar : $container.find(".container-content-sidebar"),
-    $container_content_center : $container.find(".container-content-center")
+    $sidebar : $container.find(".sidebar"),
+    $contents : $container.find(".contents")
   };
 };
 
@@ -83,14 +51,14 @@ shell.prototype.initModule = function ( $container ) {
   this.setJqueryMap();
 
   // 機能モジュールの初期化
-  this.fileManager.initModule( this.jqueryMap.$container_content_sidebar );
+  this.fileManager.initModule( this.jqueryMap.$sidebar );
   this.deviceConnector.initModule(
-    this.jqueryMap.$container_content_sidebar,
+    this.jqueryMap.$sidebar,
     this.fileManager.getLogFileName.bind(this.fileManager)
   );
   this.graph.initModule(
-    this.jqueryMap.$container_content_sidebar,
-    this.jqueryMap.$container_content_center,
+    this.jqueryMap.$sidebar,
+    this.jqueryMap.$contents,
     this.fileManager.getLogFileData.bind(this.fileManager)
   );
 };

@@ -5,28 +5,24 @@
 /* ---- 主要素の配置 ---- */
 
 html, body {
-  padding: 0 0 0 0;
-  margin: 0 0 0 0;
+  padding: 0;
+  margin: 0;
   width: 100%;
   height: 100%;
 }
 
 .container {
-  padding: 0 0 0 0;
-  margin: 0 0 0 0;
+  padding: 0;
+  margin: 0;
   width: 100%;
   height: 100%;
-
-  display: flex;
-  flex-direction: column;
 }
 
-.container-header {
-  padding: 0 0 0 0;
-  margin: 0 0 0 0;
+.header {
+  padding: 0;
+  margin: 0;
   background-color: gray;
   font-size: 20px;
-  position: fixed;
 
   width: 100%;
   height: 50px;
@@ -37,18 +33,13 @@ html, body {
   align-items: center;
 }
 
-.container-content {
-  padding: 0 0 0 0;
-  margin: 0 0 0 0;
-  margin-top: 50px;
+.body {
+  padding: 0;
+  margin: 0;
   width: 100%;
-
-  flex: 1;
-
-  display: flex;
 }
 
-.container-content-sidebar {
+.sidebar {
   overflow: auto;
   position: fixed;
 
@@ -61,7 +52,7 @@ html, body {
   background-color: rgb(200,200,200);
 }
 
-.container-content-center {
+.contents {
   margin:0 0 0 210px;
   padding:0 0 0 0;
   overflow:auto;
@@ -75,18 +66,18 @@ html, body {
 
 /* ---- ヘッダー内の配置 ---- */
 
-.container-header ul  {
+.header ul  {
   text-align: left;
   padding: 0 0 0 0;
   margin: 0 0 0 0;
 }
 
-.container-header ul li {
+.header ul li {
   display: inline;
   padding: 10px 10px 10px 10px;
 }
 
-.container-header ul li#title {
+.header ul li#title {
   padding-left: 15px;
   font-weight: bold;
 }
