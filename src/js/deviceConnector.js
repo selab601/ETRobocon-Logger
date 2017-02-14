@@ -26,6 +26,7 @@ function deviceConnector () {
     deviceMap: []
   };
   this.jqueryMap = {};
+  this.callback = undefined;
 
   this.ipc = require('electron').ipcRenderer;
   this.$ = require('./model/lib/jquery-3.1.0.min.js');
@@ -75,7 +76,7 @@ deviceConnector.prototype.onConnectDevice = function ( event ) {
 
 deviceConnector.prototype.onConnectDeviceComplete = function ( ev, message ) {
   console.log(message);
-  this.jqueryMap.$update_btn.removeClass('disabled');
+  this.callback();
 };
 
 deviceConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
@@ -94,10 +95,12 @@ deviceConnector.prototype.setJqueryMap = function () {
   };
 };
 
-deviceConnector.prototype.initModule = function ( $append_target ) {
+deviceConnector.prototype.initModule = function ( $append_target, callback ) {
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
   this.setJqueryMap();
+
+  this.callback = callback;
 
   // イベントハンドラの登録
 
@@ -115,6 +118,7 @@ deviceConnector.prototype.removeModule = function () {
     deviceMap: []
   };
   this.jqueryMap = {};
+  this.callback = undefined;
 };
 
 module.exports = deviceConnector;

@@ -33,6 +33,14 @@ function shell() {
   this.graph = new Graph();
 };
 
+/***** イベントハンドラ *****/
+
+shell.prototype.onConnectDevice = function () {
+  this.deviceConnector.removeModule();
+};
+
+/****************************/
+
 // TODO: private
 shell.prototype.setJqueryMap = function () {
   var $container = this.stateMap.$container;
@@ -49,7 +57,7 @@ shell.prototype.initModule = function ( $container ) {
   this.setJqueryMap();
 
   // 機能モジュールの初期化
-  this.deviceConnector.initModule(this.jqueryMap.$body);
+  this.deviceConnector.initModule(this.jqueryMap.$body, this.onConnectDevice.bind(this));
 };
 
 module.exports = shell;
