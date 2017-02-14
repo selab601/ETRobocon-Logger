@@ -2,7 +2,7 @@
  * Bluetooth デバイスとの通信機能モジュール
  */
 
-function bluetoothConnector () {
+function deviceConnector () {
   this.configMap = {
     main_html : (function () {
       /*
@@ -36,19 +36,19 @@ function bluetoothConnector () {
 
 /******* イベントハンドラ *******/
 
-bluetoothConnector.prototype.onUpdateDevices = function () {
+deviceConnector.prototype.onUpdateDevices = function () {
   this.ipc.send('updateDevices', '');
   this.jqueryMap.$update_btn.addClass('disabled');
   this.jqueryMap.$disconnect_btn.addClass('disabled');
 };
 
-bluetoothConnector.prototype.onUpdateDevicesFailed = function ( ev, message ) {
+deviceConnector.prototype.onUpdateDevicesFailed = function ( ev, message ) {
   console.log(message);
   this.jqueryMap.$update_btn.removeClass('disabled');
   this.jqueryMap.$disconnect_btn.removeClass('disabled');
 };
 
-bluetoothConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
+deviceConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
   var device = message;
 
   // リストに追加済みであったなら追加しない
@@ -74,33 +74,33 @@ bluetoothConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) 
   this.jqueryMap.$disconnect_btn.removeClass('disabled');
 };
 
-bluetoothConnector.prototype.onConnectDevice = function ( event ) {
+deviceConnector.prototype.onConnectDevice = function ( event ) {
   this.ipc.send('connectDevice', event.data);
   this.jqueryMap.$update_btn.addClass('disabled');
   this.jqueryMap.$disconnect_btn.addClass('disabled');
 };
 
-bluetoothConnector.prototype.onConnectDeviceComplete = function ( ev, message ) {
+deviceConnector.prototype.onConnectDeviceComplete = function ( ev, message ) {
   console.log(message);
   this.stateMap.isConnected = true;
   this.jqueryMap.$update_btn.removeClass('disabled');
   this.jqueryMap.$disconnect_btn.removeClass('disabled');
 };
 
-bluetoothConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
+deviceConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
   console.log(message);
   this.jqueryMap.$update_btn.removeClass('disabled');
   this.jqueryMap.$disconnect_btn.removeClass('disabled');
 };
 
-bluetoothConnector.prototype.onDisconnectDevice = function () {
+deviceConnector.prototype.onDisconnectDevice = function () {
   if ( this.stateMap.isConnected == false ) { return; }
   this.ipc.send('disconnectDevice', this.getLogFileName());
   this.jqueryMap.$update_btn.addClass('disabled');
   this.jqueryMap.$disconnect_btn.addClass('disabled');
 };
 
-bluetoothConnector.prototype.onDisconnectDeviceComplete = function ( ev, message ) {
+deviceConnector.prototype.onDisconnectDeviceComplete = function ( ev, message ) {
   console.log(message);
   this.stateMap.isConnected = false;
   this.jqueryMap.$update_btn.removeClass('disabled');
@@ -109,7 +109,7 @@ bluetoothConnector.prototype.onDisconnectDeviceComplete = function ( ev, message
 
 /********************************/
 
-bluetoothConnector.prototype.setJqueryMap = function () {
+deviceConnector.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target: $append_target,
@@ -119,7 +119,7 @@ bluetoothConnector.prototype.setJqueryMap = function () {
   };
 };
 
-bluetoothConnector.prototype.initModule = function ( $append_target, getLogFileName ) {
+deviceConnector.prototype.initModule = function ( $append_target, getLogFileName ) {
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
   this.setJqueryMap();
@@ -138,4 +138,4 @@ bluetoothConnector.prototype.initModule = function ( $append_target, getLogFileN
   this.ipc.on('disconnectDeviceComplete', this.onDisconnectDeviceComplete.bind(this));
 };
 
-module.exports = bluetoothConnector;
+module.exports = deviceConnector;
