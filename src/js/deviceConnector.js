@@ -38,10 +38,14 @@ function bluetoothConnector () {
 
 bluetoothConnector.prototype.onUpdateDevices = function () {
   this.ipc.send('updateDevices', '');
+  this.jqueryMap.$update_btn.addClass('disabled');
+  this.jqueryMap.$disconnect_btn.addClass('disabled');
 };
 
 bluetoothConnector.prototype.onUpdateDevicesFailed = function ( ev, message ) {
   console.log(message);
+  this.jqueryMap.$update_btn.removeClass('disabled');
+  this.jqueryMap.$disconnect_btn.removeClass('disabled');
 };
 
 bluetoothConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
@@ -61,30 +65,41 @@ bluetoothConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) 
         .attr("href", "#")
         .text(device.name)
         .bind( 'click', device.address, this.onConnectDevice.bind(this) )));
+  this.jqueryMap.$update_btn.removeClass('disabled');
+  this.jqueryMap.$disconnect_btn.removeClass('disabled');
 };
 
 bluetoothConnector.prototype.onConnectDevice = function ( event ) {
-  console.log(event.data);
   this.ipc.send('connectDevice', event.data);
+  this.jqueryMap.$update_btn.addClass('disabled');
+  this.jqueryMap.$disconnect_btn.addClass('disabled');
 };
 
 bluetoothConnector.prototype.onConnectDeviceComplete = function ( ev, message ) {
   console.log(message);
   this.stateMap.isConnected = true;
+  this.jqueryMap.$update_btn.removeClass('disabled');
+  this.jqueryMap.$disconnect_btn.removeClass('disabled');
 };
 
 bluetoothConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
   console.log(message);
+  this.jqueryMap.$update_btn.removeClass('disabled');
+  this.jqueryMap.$disconnect_btn.removeClass('disabled');
 };
 
 bluetoothConnector.prototype.onDisconnectDevice = function () {
   if ( this.stateMap.isConnected == false ) { return; }
   this.ipc.send('disconnectDevice', this.getLogFileName());
+  this.jqueryMap.$update_btn.addClass('disabled');
+  this.jqueryMap.$disconnect_btn.addClass('disabled');
 };
 
 bluetoothConnector.prototype.onDisconnectDeviceComplete = function ( ev, message ) {
   console.log(message);
   this.stateMap.isConnected = false;
+  this.jqueryMap.$update_btn.removeClass('disabled');
+  this.jqueryMap.$disconnect_btn.removeClass('disabled');
 };
 
 /********************************/
