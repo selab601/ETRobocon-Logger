@@ -41,7 +41,11 @@ app.on('activate', function() {
 /******* 各種関数定義 *******/
 // メインウインドウの生成
 function createWindow() {
-  mainWindow = new BrowserWindow({width: 1024, height: 600});
+  mainWindow = new BrowserWindow({
+    width: 1024,
+    height: 600,
+    frame: false
+  });
   mainWindow.loadURL(`file://${__dirname}/src/index.html`);
 
   fileManager = new FileManager( mainWindow, app.getAppPath() );
