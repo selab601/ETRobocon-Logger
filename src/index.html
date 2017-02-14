@@ -5,7 +5,6 @@
     <title>ET Robocon Logger</title>
 
     <!-- スタイルシート -->
-    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="css/checkbox.css" rel="stylesheet" type="text/css">
     <link href="css/D3Graph.css" rel="stylesheet" type="text/css">
     <link href="css/main.css" rel="stylesheet" type="text/css">
@@ -13,15 +12,8 @@
     <link href="css/fileManager.css" rel="stylesheet" type="text/css">
     <link href="css/graph.css" rel="stylesheet" type="text/css">
 
-    <!-- 外部のライブラリのロード -->
     <script>
       window.jQuery = window.$ = require('./js/model/lib/jquery-3.1.0.min.js');
-      var d3 = require('./js/model/lib/d3.min.js');
-      require('bootstrap');
-    </script>
-    <script src="./js/model/lib/WaitingDialog.js"></script>
-
-    <script>
       var shell = require('./js/shell.js');
       var logger;
       $(document).ready(function() {
