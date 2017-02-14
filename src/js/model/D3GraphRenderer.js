@@ -6,74 +6,73 @@
 
 var D3Graph = require("./D3graph.js");
 
-function D3GraphRenderer ( keymap ) {
-  this.keymap = [];
-  keymap.forEach( function ( data ) {
-    this.keymap.push(data.id);
-  }.bind(this));
+function D3GraphRenderer ( all_keymap, render_value_keymap ) {
+  this.all_keymap = all_keymap;
+  this.render_value_keymap = render_value_keymap;
 
-  this.receiveValues = {};
-  this.keymap.forEach( function ( key ) {
-    this.receiveValues[ key ] = new D3Graph( key, this);
+  this.graphMap = {};
+  this.all_keymap.forEach( function ( key ) {
+    this.graphMap[ key ] = new D3Graph( key, this );
   }.bind(this));
 };
 
 D3GraphRenderer.prototype.initialize = function () {
-  Object.keys(this.receiveValues).forEach(function(key) {
-    this.receiveValues[key].clearData();
-    this.receiveValues[key].resetStyle();
+  Object.keys(this.graphMap).forEach(function(key) {
+    this.graphMap[key].clearData();
+    this.graphMap[key].resetStyle();
   }.bind(this));
   this.removeAllGraph();
 };
 
 D3GraphRenderer.prototype.removeAllGraph = function () {
-  Object.keys(this.receiveValues).forEach(function(key) {
-    this.receiveValues[key].remove();
+  Object.keys(this.graphMap).forEach(function(key) {
+    this.graphMap[key].remove();
   }.bind(this));
 };
 
 D3GraphRenderer.prototype.setMark = function (mark) {
-  Object.keys(this.receiveValues).forEach(function(key) {
-    this.receiveValues[key].setMark(mark);
+  Object.keys(this.graphMap).forEach(function(key) {
+    this.graphMap[key].setMark(mark);
   }.bind(this));
 
-  for (var i=0; i<this.keymap.length; i++) {
-    this.receiveValues[this.keymap[i]].renderMark();
+  for (var i=0; i<this.render_value_keymap.length; i++) {
+    this.graphMap[this.render_value_keymap[i]].renderMark();
   }
 };
 
 D3GraphRenderer.prototype.getReceiveValuesList = function () {
-  return Object.keys(this.receiveValues);
+  return Object.keys(this.graphMap);
 };
 
 D3GraphRenderer.prototype.update = function (key, xValue, yValue) {
-  this.receiveValues[key].appendData(xValue, yValue);
+  this.graphMap[key].appendData(xValue, yValue);
 };
 
 D3GraphRenderer.prototype.renderAll = function (xScope, yScope) {
   this.removeAllGraph();
-  for (var i=0; i<this.keymap.length; i++) {
-    this.receiveValues[this.keymap[i]].updateScale(xScope, yScope);
-    this.receiveValues[this.keymap[i]].render();
-  }
+
+  this.render_value_keymap.forEach( function ( key ) {
+    this.graphMap[key].updateScale(xScope, yScope);
+    this.graphMap[key].render();
+  }.bind(this));
 };
 
 D3GraphRenderer.prototype.addBrush = function () {
-  for (var i=0; i<this.keymap.length; i++) {
-    this.receiveValues[this.keymap[i]].addBrush();
-  }
+  this.all_keymap.forEach( function ( key ) {
+    this.graphMap[key].addBrush();
+  }.bind(this));
 };
 
 D3GraphRenderer.prototype.addLabel = function () {
-  for (var i=0; i<this.keymap.length; i++) {
-    this.receiveValues[this.keymap[i]].addLabel();
-  }
+  this.all_keymap.forEach( function ( key ) {
+    this.graphMap[key].addLabel();
+  }.bind(this));
 };
 
 D3GraphRenderer.prototype.addFocus = function () {
-  for (var i=0; i<this.keymap.length; i++) {
-    this.receiveValues[this.keymap[i]].addFocus();
-  }
+  this.all_keymap.forEach( function ( key ) {
+    this.graphMap[key].addFocus();
+  }.bind(this));
 };
 
 module.exports = D3GraphRenderer;
