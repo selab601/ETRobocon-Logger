@@ -6,15 +6,15 @@ function deviceConnector () {
   this.configMap = {
     main_html : (function () {
       /*
-        <div id="device-connector">
-          <div class="device-connector-header">
-            Devices
-          </div>
-          <div class="device-connector-body">
-            <ul id="device-connector-device-group">
-              <!-- デバイスが追加されていく -->
-            </ul>
-            <div class="device-connector-button-area">
+        <div id="device-connector-wrapper">
+          <div id="device-connector">
+            <div class="device-connector-header">Devices</div>
+            <div class="device-connector-body">
+              <ul id="device-connector-device-group">
+                <!-- デバイスが追加されていく -->
+              </ul>
+            </div>
+            <div class="device-connector-footer">
               <div class="device-connector-button" id="update-btn">UPDATE</div>
             </div>
           </div>
@@ -106,6 +106,15 @@ deviceConnector.prototype.initModule = function ( $append_target ) {
   this.ipc.on('updateDevicesFailed', this.onUpdateDevicesFailed.bind(this));
   this.ipc.on('connectDeviceComplete', this.onConnectDeviceComplete.bind(this));
   this.ipc.on('connectDeviceFailed', this.onConnectDeviceFailed.bind(this));
+};
+
+deviceConnector.prototype.removeModule = function () {
+  this.stateMap.$append_target.find("#device-connector").remove();
+  this.stateMap = {
+    $append_target : undefined,
+    deviceMap: []
+  };
+  this.jqueryMap = {};
 };
 
 module.exports = deviceConnector;

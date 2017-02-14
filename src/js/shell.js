@@ -20,8 +20,6 @@ function shell() {
           </ul>
         </div>
         <div class="body">
-          <div class="sidebar"></div>
-          <div class="contents"></div>
         </div>
        */}).toString().replace(/(\n)/g, '').split('*')[1]
   };
@@ -40,8 +38,8 @@ shell.prototype.setJqueryMap = function () {
   var $container = this.stateMap.$container;
   this.jqueryMap = {
     $container : $container,
-    $sidebar : $container.find(".sidebar"),
-    $contents : $container.find(".contents")
+    $contents : $container.find(".contents"),
+    $body : $container.find(".body")
   };
 };
 
@@ -51,16 +49,7 @@ shell.prototype.initModule = function ( $container ) {
   this.setJqueryMap();
 
   // 機能モジュールの初期化
-  this.fileManager.initModule( this.jqueryMap.$sidebar );
-  this.deviceConnector.initModule(
-    this.jqueryMap.$sidebar,
-    this.fileManager.getLogFileName.bind(this.fileManager)
-  );
-  this.graph.initModule(
-    this.jqueryMap.$sidebar,
-    this.jqueryMap.$contents,
-    this.fileManager.getLogFileData.bind(this.fileManager)
-  );
+  this.deviceConnector.initModule(this.jqueryMap.$body);
 };
 
 module.exports = shell;
