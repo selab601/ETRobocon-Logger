@@ -33,7 +33,6 @@ D3GraphRenderer.prototype.update = function (key, xValue, yValue) {
 };
 
 D3GraphRenderer.prototype.renderAll = function (xScope, yScope) {
-  this.removeAll();
 
   this.render_value_keymap.forEach( function ( key ) {
     this.graphMap[key].updateScale(xScope, yScope);
@@ -45,6 +44,10 @@ D3GraphRenderer.prototype.removeAll = function () {
   Object.keys( this.graphMap ).forEach( function ( key ) {
     this.graphMap[key].remove();
   }.bind(this));
+};
+
+D3GraphRenderer.prototype.remove = function ( key ) {
+  this.graphMap[key].remove();
 };
 
 /************************/

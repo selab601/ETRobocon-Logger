@@ -87,6 +87,7 @@ graph.prototype.onUpdateRenderValue = function ( event ) {
   var index = this.stateMap.render_value_keymap.indexOf( event.data );
   if ( index >= 0 ) {
     this.stateMap.render_value_keymap.splice(index,1);
+    this.renderer.remove( event.data );
   } else {
     this.stateMap.render_value_keymap.push( event.data );
   }
