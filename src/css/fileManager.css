@@ -1,0 +1,22 @@
+.file-manager-header {
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  background-color: gray;
+}
+
+.file-manager-body {
+  width: 100%;
+  height: 50px;
+  text-align: center;
+}
+
+#file-manager-input {
+  display: inline;
+  width: 90%;
+  height: 30px;
+  line-height: 30px;
+  /* FIXME: 中央揃えの指定に置き換える */
+  margin-top: 5px;
+}

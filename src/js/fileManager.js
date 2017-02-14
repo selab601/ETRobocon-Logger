@@ -7,14 +7,11 @@ function fileManager() {
     main_html: (function () {
       /*
         <div id="log-file-name">
-          <div class="sidebar-header">
-          Log file name
+          <div class="file-manager-header">
+            Log file name
           </div>
-
-          <div class="sidebar-content">
-            <center>
-              <input type="text" id="logFileName" name="logFileName" size="30">
-            </center>
+          <div class="file-manager-body">
+            <input type="text" id="file-manager-input" name="file-manager-input" size="30">
           </div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1]
@@ -35,13 +32,14 @@ fileManager.prototype.onUpdateLogFileName = function ( event ) {
 
 fileManager.prototype.onInitLogFileName = function ( ev, message ) {
   this.stateMap.logFileName = message;
-  this.jqueryMap.$logFileName.val(message);
+  this.jqueryMap.$file_manager_input.val(message);
 };
 
 /****************************/
 
 fileManager.prototype.getLogFileData = function () {
   var fs = require('fs'),
+      // TODO: ディレクトリパスを可変にする
       logFilePath = this.stateMap.logFilePath+this.stateMap.logFileName;
   var values = new Array();
 
@@ -69,7 +67,7 @@ fileManager.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
-    $logFileName : $append_target.find("#logFileName")
+    $file_manager_input : $append_target.find("#file-manager-input")
   };
 };
 
@@ -78,7 +76,7 @@ fileManager.prototype.initModule = function ( $append_target ) {
   $append_target.append( this.configMap.main_html );
   this.setJqueryMap();
 
-  this.jqueryMap.$logFileName.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
+  this.jqueryMap.$file_manager_input.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
 
   this.ipc.on('initLogFileName', this.onInitLogFileName.bind(this));
 };
