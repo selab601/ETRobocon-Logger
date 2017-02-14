@@ -7,16 +7,16 @@ function bluetoothConnector () {
     main_html : (function () {
       /*
         <div id="device-list">
-          <div class="sidebar-header">
+          <div class="device-connector-header">
             Devices
           </div>
-          <div class="sidebar-content">
-            <ul class="nav nav-pills nav-stacked" id="bt-device-group">
-            <!-- デバイスが追加されていく -->
+          <div class="device-connector-body">
+            <ul id="device-connector-device-group">
+              <!-- デバイスが追加されていく -->
             </ul>
-            <div class="button-area-line">
-              <a href="#" class="button" id="update-btn">UPDATE</a>
-              <a href="#" class="button danger" id="disconnect-btn">DISCONNECT</a>
+            <div class="device-connector-button-area">
+              <div class="device-connector-button" id="update-btn">UPDATE</div>
+              <div class="device-connector-button danger" id="disconnect-btn">DISCONNECT</div>
             </div>
           </div>
         </div>
@@ -64,7 +64,7 @@ bluetoothConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) 
 
   this.stateMap.deviceMap.push(device);
 
-  this.jqueryMap.$bt_device_group.append(
+  this.jqueryMap.$device_group.append(
     this.$('<li>').append(
       this.$("<a/>")
         .attr("href", "#")
@@ -113,7 +113,7 @@ bluetoothConnector.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target: $append_target,
-    $bt_device_group : $append_target.find("#bt-device-group"),
+    $device_group : $append_target.find("#device-connector-device-group"),
     $update_btn : $append_target.find("#update-btn"),
     $disconnect_btn : $append_target.find("#disconnect-btn")
   };

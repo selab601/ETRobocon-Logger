@@ -1,0 +1,68 @@
+.device-connector-header {
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  background-color: gray;
+}
+
+.device-connector-body {
+  width: 100%;
+}
+
+/* ボタン要素 */
+
+.device-connector-button-area {
+  margin: 5px auto;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  -moz-flex-direction: row;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  max-width: 90%;
+}
+
+.device-connector-button {
+  border-radius: 5px;
+  padding: 5px 8px 5px 8px;
+  color: white;
+  background: rgb(0,100,180);
+  padding: .7em;
+  font-size: .9em;
+  margin: .5em;
+  text-decoration: none;
+  flex-grow: 1;
+  text-align: center;
+  box-shadow: 2px 2px 2px #999;
+  cursor: pointer;
+}
+
+.device-connector-button.disabled {
+  color: rgb(220,220,220);
+  background: rgb(0,50,100);
+  pointer-events: none;
+}
+
+.device-connector-button:hover {
+  color: rgb(220,220,220);
+  background: rgb(0,50,100);
+}
+
+.device-connector-button.danger {
+  background: rgb(255,0,0);
+}
+
+.device-connector-button.danger:hover {
+  color: rgb(180,180,180);
+  background: rgb(180,0,0);
+}
+
+.device-connector-button.danger.disabled {
+  color: rgb(180,180,180);
+  background: rgb(180,0,0);
+}
