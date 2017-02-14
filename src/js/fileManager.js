@@ -6,12 +6,17 @@ function fileManager() {
   this.configMap = {
     main_html: (function () {
       /*
-        <div id="file-manager">
-          <div class="file-manager-header">
-            Log file name
-          </div>
-          <div class="file-manager-body">
-            <input type="text" id="file-manager-input" name="file-manager-input" size="30">
+        <div id="file-manager-wrapper">
+          <div id="file-manager">
+            <div class="file-manager-header">
+              Log file name
+            </div>
+            <div class="file-manager-body">
+              <input type="text" id="file-manager-input" name="file-manager-input" size="30">
+            </div>
+            <div class="file-manager-footer">
+              <div class="file-manager-button">CONNECT</div>
+            </div>
           </div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1]
@@ -21,6 +26,7 @@ function fileManager() {
     logFileName: undefined,
     $append_target: undefined
   };
+  this.callback = undefined;
   this.ipc = require('electron').ipcRenderer;
 };
 
@@ -33,6 +39,11 @@ fileManager.prototype.onUpdateLogFileName = function ( event ) {
 fileManager.prototype.onInitLogFileName = function ( ev, message ) {
   this.stateMap.logFileName = message;
   this.jqueryMap.$file_manager_input.val(message);
+};
+
+fileManager.prototype.onClickButton = function ( event ) {
+  console.log("pressed");
+  this.callback();
 };
 
 /****************************/
@@ -67,18 +78,40 @@ fileManager.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
-    $file_manager_input : $append_target.find("#file-manager-input")
+    $file_manager_input : $append_target.find("#file-manager-input"),
+    $file_manager_button : $append_target.find('.file-manager-button')
   };
 };
 
-fileManager.prototype.initModule = function ( $append_target ) {
+fileManager.prototype.initModule = function ( $append_target, callback ) {
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
   this.setJqueryMap();
 
-  this.jqueryMap.$file_manager_input.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
+  this.callback = callback;
 
+  console.log(this.jqueryMap.$file_manager_button);
+  this.jqueryMap.$file_manager_input.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
+  this.jqueryMap.$file_manager_button.bind( 'click', this.onClickButton.bind(this) );
   this.ipc.on('initLogFileName', this.onInitLogFileName.bind(this));
+};
+
+fileManager.prototype.removeModule = function () {
+  if ( ! this.jqueryMap === {} ) {
+    this.removeHtml();
+  }
+
+  this.stateMap = {
+    logFilePath: undefined,
+    logFileName: undefined,
+    $append_target: undefined
+  };
+  this.callback = undefined;
+};
+
+fileManager.prototype.removeHtml = function () {
+  this.jqueryMap.$append_target.find("#file-manager-wrapper").remove();
+  this.jqueryMap = {};
 };
 
 module.exports = fileManager;
