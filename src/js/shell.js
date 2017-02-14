@@ -6,6 +6,7 @@
 
 const FileManager = require('./fileManager.js');
 const DeviceConnector = require('./deviceConnector.js');
+const DeviceDisconnector = require('./deviceDisconnector.js');
 const Graph = require('./graph.js');
 
 function shell() {
@@ -29,7 +30,8 @@ function shell() {
   this.jqueryMap = {};
 
   this.fileManager = new FileManager();
-  this.deviceConnector = new DeviceConnector( this.fileManager );
+  this.deviceConnector = new DeviceConnector();
+  this.deviceDisconnector = new DeviceDisconnector();
   this.graph = new Graph();
 };
 
@@ -37,6 +39,28 @@ function shell() {
 
 shell.prototype.onConnectDevice = function () {
   this.deviceConnector.removeModule();
+  this.fileManager.initModule(
+    this.jqueryMap.$body,
+    this.onDefineLogFileName.bind(this)
+  );
+};
+
+shell.prototype.onDefineLogFileName = function () {
+  this.fileManager.removeHtml();
+  this.deviceDisconnector.initModule(
+    this.jqueryMap.$body,
+    this.fileManager.getLogFileName.bind(this.fileManager),
+    this.onDisconnectDevice.bind(this)
+  );
+};
+
+shell.prototype.onDisconnectDevice = function () {
+  this.fileManager.removeModule();
+  this.deviceDisconnector.removeModule();
+  this.deviceConnector.initModule(
+    this.jqueryMap.$body,
+    this.onConnectDevice.bind(this)
+  );
 };
 
 /****************************/
