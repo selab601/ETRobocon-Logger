@@ -82,7 +82,7 @@ D3Graph.prototype.clearData = function () {
 
 D3Graph.prototype.setMark = function (mark) {
   this.mark = mark;
-}
+};
 
 /**
  * グラフのスタイル(各箇所の大きさ)をデフォルト設定にリセットする
