@@ -12,6 +12,7 @@ function shell() {
   this.configMap = {
     main_html : (function () {
       /*
+        <div class="title-bar">ET Robocon Logger</div>
         <div class="header">
           <ul>
             <li><a href="#" class="menu-link">RealTime Graph</a></li>
