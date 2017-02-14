@@ -14,7 +14,6 @@ function shell() {
       /*
         <div class="header">
           <ul>
-            <li id="title">ET2016 Logger</li>
             <li><a href="#" class="menu-link">RealTime Graph</a></li>
             <li><a href="#" class="menu-link">Load JSON file</a></li>
           </ul>
