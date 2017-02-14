@@ -47,13 +47,8 @@ function graph() {
   this.stateMap = {
     $list_append_target : undefined,
     $graph_append_target : undefined,
-    history: {},
     render_value_keymap: []
   };
-
-  for (var i=0; i<this.configMap.graph_value_map.length; i++) {
-    this.stateMap.history[this.configMap.graph_value_map[i].id] = [];
-  }
 
   this.jqueryMap = {};
   this.ipc = require('electron').ipcRenderer;
@@ -77,7 +72,6 @@ graph.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   Object.keys(data).forEach(function(key) {
     // 受信データに誤りがあるとここで挿入に失敗する
     // TODO: 受信データのチェック
-    this.stateMap.history[key].push(data[key]);
     this.renderer.update(key, data["clock"], data[key]);
   }.bind(this));
 
