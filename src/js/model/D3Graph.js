@@ -15,7 +15,7 @@ const PADDING_BOTTOM = 40;
 const GRAPH_HEIGHT = SVG_ELEMENT_HEIGHT - (PADDING_TOP+PADDING_BOTTOM) - TITLE_SPACE_HEIGHT;
 const GRAPH_WIDTH = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
 
-function D3Graph(key, renderer) {
+function D3Graph( key, renderer, range ) {
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
   this.svgElementWidth  = SVG_ELEMENT_WIDTH;
   this.titleSpaceHeight = TITLE_SPACE_HEIGHT;
@@ -26,8 +26,9 @@ function D3Graph(key, renderer) {
   this.graphHeight      = GRAPH_HEIGHT;
   this.graphWidth       = GRAPH_WIDTH;
 
-  this.key      = key;
-  this.renderer = renderer;
+  this.key       = key;
+  this.renderer  = renderer;
+  this.range     = range;
   this.xValues   = [];
   this.yValues   = [];
   this.labelRenaderIntarval = 5;
@@ -62,6 +63,10 @@ function D3Graph(key, renderer) {
  * 描画データを追加する
  */
 D3Graph.prototype.appendData = function (xData, yData) {
+  if ( this.xValues.length > this.range ) {
+    this.xValues.shift();
+    this.yValues.shift();
+  }
   this.xValues.push(xData);
   this.yValues.push(yData);
 };

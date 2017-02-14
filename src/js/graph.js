@@ -55,12 +55,11 @@ function graph() {
   this.getLogFileData = undefined;
   this.$ = require('./model/lib/jquery-3.1.0.min.js');
 
-
   var keymap = [];
   this.configMap.graph_value_map.forEach( function ( data ) {
     keymap.push(data.id);
   }.bind(this));
-  this.renderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap );
+  this.renderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
 };
 
 /** イベントハンドラ **/
@@ -78,7 +77,8 @@ graph.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   // 描画
   // X 軸のデータ数をここで決めている
   // 描画しないデータは renderer 内で捨てるようにする
-  this.renderer.renderAll([data["clock"]-1000*10, data["clock"]]);
+  // this.renderer.renderAll([data["clock"]-1000*10, data["clock"]]);
+  this.renderer.renderAll();
   this.renderer.addLabel();
   this.renderer.addFocus();
 };
