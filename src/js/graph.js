@@ -57,7 +57,7 @@ function graph() {
 
   this.jqueryMap = {};
   this.ipc = require('electron').ipcRenderer;
-  this.fileManager = undefined;
+  this.getLogFileData = undefined;
   this.$ = require('./model/lib/jquery-3.1.0.min.js');
   this.renderer = new D3GraphRenderer( this.configMap.graph_value_map );
 };
@@ -91,7 +91,7 @@ graph.prototype.onUpdateRenderValue = function ( event ) {
 };
 
 graph.prototype.onRenderGraphFromLogFile = function ( event ) {
-  var values = this.fileManager.getLogFileData();
+  var values = this.getLogFileData();
   if ( values === undefined ) {
     return;
   }
@@ -134,7 +134,7 @@ graph.prototype.setJqueryMap = function () {
   };
 };
 
-graph.prototype.initModule = function ( $list_append_target, $graph_append_target, fileManager ) {
+graph.prototype.initModule = function ( $list_append_target, $graph_append_target, getLogFileData ) {
   this.stateMap.$list_append_target = $list_append_target;
   this.stateMap.$graph_append_target = $graph_append_target;
   $list_append_target.append( this.configMap.device_list_html );
@@ -142,7 +142,7 @@ graph.prototype.initModule = function ( $list_append_target, $graph_append_targe
   this.setJqueryMap();
   this.initGraphValuesList();
 
-  this.fileManager = fileManager;
+  this.getLogFileData = getLogFileData;
 
   // イベントハンドラ登録
 

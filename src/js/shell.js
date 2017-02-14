@@ -84,10 +84,14 @@ shell.prototype.initModule = function ( $container ) {
 
   // 機能モジュールの初期化
   this.fileManager.initModule( this.jqueryMap.$container_content_sidebar );
-  this.deviceConnector.initModule( this.jqueryMap.$container_content_sidebar );
+  this.deviceConnector.initModule(
+    this.jqueryMap.$container_content_sidebar,
+    this.fileManager.getLogFileName.bind(this.fileManager)
+  );
   this.graph.initModule(
     this.jqueryMap.$container_content_sidebar,
-    this.jqueryMap.$container_content_center
+    this.jqueryMap.$container_content_center,
+    this.fileManager.getLogFileData.bind(this.fileManager)
   );
 };
 
