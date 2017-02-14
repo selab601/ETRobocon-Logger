@@ -57,6 +57,7 @@ function graph() {
 
   this.jqueryMap = {};
   this.ipc = require('electron').ipcRenderer;
+  this.fileManager = undefined;
   this.$ = require('./model/lib/jquery-3.1.0.min.js');
   this.renderer = new D3GraphRenderer( this.configMap.graph_value_map );
 };
@@ -89,6 +90,25 @@ graph.prototype.onUpdateRenderValue = function ( event ) {
   }
 };
 
+graph.prototype.onRenderGraphFromLogFile = function ( event ) {
+  var values = this.fileManager.getLogFileData();
+  if ( values === undefined ) {
+    return;
+  }
+
+  this.renderer.initialize();
+
+  for (var i=0; i<Object.keys(values).length; i++) {
+    var obj = JSON.parse(values[i]);
+    Object.keys(obj).forEach(function(key) {
+      this.renderer.update(key, obj["clock"], obj[key]);
+    }.bind(this));
+  }
+
+  this.renderer.renderAll();
+  this.renderer.addBrush();
+};
+
 /*********************/
 
 graph.prototype.initGraphValuesList = function () {
@@ -114,13 +134,15 @@ graph.prototype.setJqueryMap = function () {
   };
 };
 
-graph.prototype.initModule = function ( $list_append_target, $graph_append_target ) {
+graph.prototype.initModule = function ( $list_append_target, $graph_append_target, fileManager ) {
   this.stateMap.$list_append_target = $list_append_target;
   this.stateMap.$graph_append_target = $graph_append_target;
   $list_append_target.append( this.configMap.device_list_html );
   $graph_append_target.html( this.configMap.graph_html );
   this.setJqueryMap();
   this.initGraphValuesList();
+
+  this.fileManager = fileManager;
 
   // イベントハンドラ登録
 

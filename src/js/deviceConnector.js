@@ -2,7 +2,7 @@
  * Bluetooth デバイスとの通信機能モジュール
  */
 
-function bluetoothConnector () {
+function bluetoothConnector ( fileManager ) {
   this.configMap = {
     main_html : (function () {
       /*
@@ -28,8 +28,8 @@ function bluetoothConnector () {
     deviceMap: []
   };
   this.jqueryMap = {};
+  this.fileManager = fileManager;
   this.ipc = require('electron').ipcRenderer;
-
   this.$ = require('./model/lib/jquery-3.1.0.min.js');
 };
 
@@ -78,8 +78,7 @@ bluetoothConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
 
 bluetoothConnector.prototype.onDisconnectDevice = function () {
   if ( this.stateMap.isConnected == false ) { return; }
-  // TODO: ログファイル名の取得
-  this.ipc.send('disconnectDevice', 'log-file-name');
+  this.ipc.send('disconnectDevice', this.fileManager.getLogFileName());
 };
 
 bluetoothConnector.prototype.onDisconnectDeviceComplete = function ( ev, message ) {
@@ -101,7 +100,7 @@ bluetoothConnector.prototype.setJqueryMap = function () {
 
 bluetoothConnector.prototype.initModule = function ( $append_target ) {
   this.stateMap.$append_target = $append_target;
-  $append_target.html( this.configMap.main_html );
+  $append_target.append( this.configMap.main_html );
   this.setJqueryMap();
 
   // イベントハンドラの登録

@@ -4,6 +4,7 @@
  * - 機能モジュールの管理
  */
 
+const FileManager = require('./fileManager.js');
 const DeviceConnector = require('./deviceConnector.js');
 const Graph = require('./graph.js');
 
@@ -61,7 +62,8 @@ function shell() {
   };
   this.jqueryMap = {};
 
-  this.deviceConnector = new DeviceConnector();
+  this.fileManager = new FileManager();
+  this.deviceConnector = new DeviceConnector( this.fileManager );
   this.graph = new Graph();
 };
 
@@ -81,6 +83,7 @@ shell.prototype.initModule = function ( $container ) {
   this.setJqueryMap();
 
   // 機能モジュールの初期化
+  this.fileManager.initModule( this.jqueryMap.$container_content_sidebar );
   this.deviceConnector.initModule( this.jqueryMap.$container_content_sidebar );
   this.graph.initModule(
     this.jqueryMap.$container_content_sidebar,
