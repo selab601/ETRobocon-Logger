@@ -6,18 +6,18 @@ const {app, BrowserWindow} = require('electron'),
       path = require('path'),
       url = require('url'),
       is_fake = true,
-      deviceConnector = is_fake ? require("./lib/fakeConnector.js") : require("./lib/deviceConnector.js");
+      deviceConnector = is_fake ? require("./lib/fakeConnector.js") : require("./lib/deviceConnector.js"),
+      FileManager = require('./lib/fileManager.js');
 
 // メインウインドウをグローバル変数として保持しておく
 // これがないと，JSのGCにウインドウを殺されてしまう
-var mainWindow, dc;
+var mainWindow, dc, fileManager;
 
 /******** アプリケーションのイベントハンドラ登録 ********/
 
 // 起準備動時の処理
 app.on('ready', function () {
   createWindow();
-  dc.updateLogFileName();
 });
 
 // 終了時の処理
@@ -44,7 +44,10 @@ function createWindow() {
   mainWindow = new BrowserWindow({width: 1024, height: 600});
   mainWindow.loadURL(`file://${__dirname}/src/index.html`);
 
-  dc = new deviceConnector( mainWindow, app.getAppPath() );
+  fileManager = new FileManager( mainWindow, app.getAppPath() );
+  fileManager.updateLogFilePath();
+
+  dc = new deviceConnector( mainWindow, fileManager );
 
   // ウインドウが閉じられた場合の処理
   mainWindow.on('closed', function() {
