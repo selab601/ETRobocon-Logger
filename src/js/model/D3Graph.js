@@ -5,12 +5,12 @@
 "use-strict";
 
 // 各種デフォルト設定値
-const SVG_ELEMENT_HEIGHT = 300;
+const SVG_ELEMENT_HEIGHT = 270;
 const SVG_ELEMENT_WIDTH = 700;
 const TITLE_SPACE_HEIGHT = 20;
 const PADDING_LEFT = 40;
 const PADDING_RIGHT = 10;
-const PADDING_TOP = 10;
+const PADDING_TOP = -15;
 const PADDING_BOTTOM = 40;
 const GRAPH_HEIGHT = SVG_ELEMENT_HEIGHT - (PADDING_TOP+PADDING_BOTTOM) - TITLE_SPACE_HEIGHT;
 const GRAPH_WIDTH = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
@@ -103,7 +103,7 @@ D3Graph.prototype.resetStyle = function () {
  * グラフを削除する
  */
 D3Graph.prototype.remove = function () {
-  this.d3.select("#d3graph>svg#"+this.key).remove();
+  this.d3.select("#d3graph>div#"+this.key).remove();
 };
 
 /**
@@ -144,10 +144,18 @@ D3Graph.prototype.updateScale = function (xScope, yScope) {
  */
 D3Graph.prototype.render = function () {
   // SVG 要素追加
-  if (this.d3.select("#d3graph>svg#" + this.key).empty()) {
+  if (this.d3.select("#d3graph>div#" + this.key).empty()) {
     this.d3.select("#d3graph")
+      .append("div")
+      .attr('class', 'graph-chart')
+      .attr('id', this.key);
+    this.d3.select("#d3graph>div#"+this.key)
+      .append("text")
+      .attr("class", "graph-chart-title")
+      .text(this.key);
+    this.d3.select("#d3graph>div#"+this.key)
       .append("svg")
-      .attr('class', 'chart')
+      .attr('class', 'graph-chart-svg')
       .attr('id', this.key)
       .attr("width", this.svgElementWidth)
       .attr("height", this.svgElementHeight);
@@ -161,16 +169,6 @@ D3Graph.prototype.render = function () {
     .attr("d", this.line(this.yValues))
     .attr("stroke", "steelblue")
     .attr("fill", "none");
-
-  // グラフタイトルの再描画
-  svg.selectAll("text").remove();
-  svg.append("text")
-    .attr("x", this.paddingLeft)
-    .attr("y", this.titleSpaceHeight)
-    .text(this.key)
-    .attr("font-family", "sans-serif")
-    .attr("font-size", "16px")
-    .attr("fill", "black");
 
   // 軸の描画
   svg.selectAll("g").remove();
