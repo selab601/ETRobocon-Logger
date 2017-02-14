@@ -6,7 +6,7 @@ function deviceConnector () {
   this.configMap = {
     main_html : (function () {
       /*
-        <div id="device-list">
+        <div id="device-connector">
           <div class="device-connector-header">
             Devices
           </div>

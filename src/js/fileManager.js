@@ -6,7 +6,7 @@ function fileManager() {
   this.configMap = {
     main_html: (function () {
       /*
-        <div id="log-file-name">
+        <div id="file-manager">
           <div class="file-manager-header">
             Log file name
           </div>
