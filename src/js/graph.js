@@ -82,6 +82,8 @@ graph.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   }.bind(this));
 
   // 描画
+  // X 軸のデータ数をここで決めている
+  // 描画しないデータは renderer 内で捨てるようにする
   this.renderer.renderAll([data["clock"]-1000*10, data["clock"]]);
   this.renderer.addLabel();
   this.renderer.addFocus();
