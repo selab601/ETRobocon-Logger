@@ -112,7 +112,7 @@ deviceConnector.prototype.initModule = function ( $append_target, callback ) {
 };
 
 deviceConnector.prototype.removeModule = function () {
-  this.stateMap.$append_target.find("#device-connector").remove();
+  this.stateMap.$append_target.find("#device-connector-wrapper").remove();
   this.stateMap = {
     $append_target : undefined,
     deviceMap: []
