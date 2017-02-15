@@ -56,7 +56,7 @@ shell.prototype.onDisconnectDevice = function () {
   this.fileManager.removeModule();
   this.deviceDisconnector.removeModule();
   this.graph.removeModule();
- 
+
   this.deviceConnector.initModule(
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
