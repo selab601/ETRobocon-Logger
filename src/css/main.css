@@ -109,4 +109,9 @@ html, body {
   background-color: gray;
 }
 
+.header ul li.isRendering {
+  background-color: gray;
+  pointer-events: none;
+}
+
 /* -------------------------- */

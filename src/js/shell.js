@@ -25,7 +25,8 @@ function shell() {
        */}).toString().replace(/(\n)/g, '').split('*')[1]
   };
   this.stateMap = {
-    $container : undefined
+    $container : undefined,
+    rendered_page_id : undefined
   };
   this.jqueryMap = {};
 
@@ -68,6 +69,14 @@ shell.prototype.onDisconnectDevice = function () {
 
 /****************************/
 
+shell.prototype.transitionTo = function ( page_id ) {
+  var page_link = this.stateMap.$container.find("#"+page_id);
+  if ( ! page_link ) { return; }
+
+  this.stateMap.rendered_page_id = page_id;
+  page_link.addClass("isRendering");
+};
+
 // TODO: private
 shell.prototype.setJqueryMap = function () {
   var $container = this.stateMap.$container;
@@ -83,6 +92,7 @@ shell.prototype.setJqueryMap = function () {
 shell.prototype.initModule = function ( $container ) {
   this.stateMap.$container = $container;
   $container.html( this.configMap.main_html );
+  this.transitionTo( "connect-page" );
   this.setJqueryMap();
 
   // 機能モジュールの初期化
