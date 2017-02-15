@@ -16,8 +16,8 @@ function shell() {
         <div class="title-bar">ET Robocon Logger</div>
         <div class="header">
           <ul>
-            <li id="connect-link">Connect</li>
-            <li id="load-link">Load</li>
+            <li id="connect-page">Connect</li>
+            <li id="load-page">Load</li>
           </ul>
         </div>
         <div class="body">
@@ -75,8 +75,8 @@ shell.prototype.setJqueryMap = function () {
     $container : $container,
     $contents : $container.find(".contents"),
     $body : $container.find(".body"),
-    $connect_link : $container.find("#connect-link"),
-    $load_link : $container.find("#load-link")
+    $connect_page : $container.find("#connect-page"),
+    $load_page : $container.find("#load-pgae")
   };
 };
 
