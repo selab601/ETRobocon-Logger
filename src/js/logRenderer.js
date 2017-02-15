@@ -2,32 +2,32 @@
  * グラフ描画機能モジュール
  */
 
-const D3GraphRenderer = require('./model/D3GraphRenderer.js');
-const TableRenderer = require('./model/TableRenderer.js');
+const D3GraphRenderer = require('./renderer/D3GraphRenderer.js');
+const TableRenderer = require('./renderer/TableRenderer.js');
 
-function graph() {
+function logRenderer() {
   this.configMap = {
     main_html : (function () {
       /*
-        <div id="graph">
-          <div id="graph-value-list-box">
-            <div class="graph-value-list-header">
+        <div id="log-renderer">
+          <div id="log-renderer-value-list-box">
+            <div class="log-renderer-value-list-header">
               Render Graph
             </div>
-            <div class="graph-value-list"></div>
+            <div class="log-renderer-value-list"></div>
           </div>
 
-          <nav id="graph-nav">
-            <div id="graph-nav-graph-tab" class="graph-nav-content selected">Graph</div>
-            <div id="graph-nav-table-tab" class="graph-nav-content">Table</div>
+          <nav id="log-renderer-nav">
+            <div id="log-renderer-nav-graph-tab" class="log-renderer-nav-content selected">Graph</div>
+            <div id="log-renderer-nav-table-tab" class="log-renderer-nav-content">Table</div>
           </nav>
-          <div id="graph-nav-graph" class="graph-content selected"></div>
-          <div id="graph-nav-table" class="graph-content"></div>
+          <div id="log-renderer-nav-graph" class="log-renderer-content selected"></div>
+          <div id="log-renderer-nav-table" class="log-renderer-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_base_html : (function () {
       /*
-        <div class="graph-render-value">
+        <div class="log-renderer-render-value">
           <input type="checkbox" name="checkbox" />
           <label></label>
         </div>
@@ -67,13 +67,13 @@ function graph() {
   this.configMap.graph_value_map.forEach( function ( data ) {
     keymap.push(data.id);
   }.bind(this));
-  this.renderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
+  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
   this.tableRenderer = new TableRenderer( keymap, this.stateMap.render_value_keymap );
 };
 
 /** イベントハンドラ **/
 
-graph.prototype.onReceiveDataFromDevice = function ( ev, message ) {
+logRenderer.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   var data = JSON.parse(message);
 
   /***** グラフの更新 *****/
@@ -82,7 +82,7 @@ graph.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   Object.keys(data).forEach(function(key) {
     // 受信データに誤りがあるとここで挿入に失敗する
     // TODO: 受信データのチェック
-    this.renderer.update(key, data["clock"], data[key]);
+    this.graphRenderer.update(key, data["clock"], data[key]);
 
     /***** 表の更新 *****/
     this.tableRenderer.update(key, data[key]);
@@ -91,17 +91,17 @@ graph.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   // 描画
   // X 軸のデータ数をここで決めている
   // 描画しないデータは renderer 内で捨てるようにする
-  // this.renderer.renderAll([data["clock"]-1000*10, data["clock"]]);
-  this.renderer.renderAll();
-  this.renderer.addLabel();
-  this.renderer.addFocus();
+  // this.graphRenderer.renderAll([data["clock"]-1000*10, data["clock"]]);
+  this.graphRenderer.renderAll();
+  this.graphRenderer.addLabel();
+  this.graphRenderer.addFocus();
 };
 
-graph.prototype.onUpdateRenderValue = function ( event ) {
+logRenderer.prototype.onUpdateRenderValue = function ( event ) {
   var index = this.stateMap.render_value_keymap.indexOf( event.data );
   if ( index >= 0 ) {
     this.stateMap.render_value_keymap.splice(index,1);
-    this.renderer.remove( event.data );
+    this.graphRenderer.remove( event.data );
   } else {
     this.stateMap.render_value_keymap.push( event.data );
   }
@@ -111,44 +111,44 @@ graph.prototype.onUpdateRenderValue = function ( event ) {
   }
 };
 
-graph.prototype.onRenderGraphFromLogFile = function () {
+logRenderer.prototype.onRenderGraphFromLogFile = function () {
   var values = this.getLogFileData();
   if ( values === null ) { return; }
 
-  this.renderer.initialize();
+  this.graphRenderer.initialize();
 
   for (var i=0; i<Object.keys(values).length; i++) {
     var obj = JSON.parse(values[i]);
     Object.keys(obj).forEach(function(key) {
-      this.renderer.update(key, obj["clock"], obj[key]);
+      this.graphRenderer.update(key, obj["clock"], obj[key]);
     }.bind(this));
   }
 
-  this.renderer.renderAll();
-  this.renderer.addBrush();
+  this.graphRenderer.renderAll();
+  this.graphRenderer.addBrush();
 };
 
-graph.prototype.onSelectTab = function ( event ) {
+logRenderer.prototype.onSelectTab = function ( event ) {
   console.log(event.target.id);
 
   // TODO: 選択したタブ等は dom に保存するのではなくメモリ上に保存すべき
   this.jqueryMap.$append_target.find(".selected").removeClass("selected");
 
   switch ( event.target.id ) {
-  case "graph-nav-table-tab":
-    this.jqueryMap.$graph_nav_table_tab.addClass("selected");
-    this.jqueryMap.$graph_nav_table.addClass("selected");
+  case "log-renderer-nav-table-tab":
+    this.jqueryMap.$log_renderer_nav_table_tab.addClass("selected");
+    this.jqueryMap.$log_renderer_nav_table.addClass("selected");
     break;
-  case "graph-nav-graph-tab":
-    this.jqueryMap.$graph_nav_graph_tab.addClass("selected");
-    this.jqueryMap.$graph_nav_graph.addClass("selected");
+  case "log-renderer-nav-graph-tab":
+    this.jqueryMap.$log_renderer_nav_graph_tab.addClass("selected");
+    this.jqueryMap.$log_renderer_nav_graph.addClass("selected");
     break;
   }
 };
 
 /*********************/
 
-graph.prototype.initGraphValuesList = function () {
+logRenderer.prototype.initGraphValuesList = function () {
   this.configMap.graph_value_map.forEach( function (value) {
     var base_html = this.$(this.configMap.graph_value_base_html);
     base_html.find('input')
@@ -157,41 +157,41 @@ graph.prototype.initGraphValuesList = function () {
     base_html.find('label')
       .attr('for', value.id)
       .text(value.label);
-    this.jqueryMap.$graph_value_list.append(base_html);
+    this.jqueryMap.$log_renderer_value_list.append(base_html);
   }.bind(this));
 };
 
-graph.prototype.setJqueryMap = function () {
+logRenderer.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
-    $graph_value_list : $append_target.find(".graph-value-list"),
-    $graph_nav_contents : $append_target.find(".graph-nav-content"),
-    $graph_nav_graph_tab : $append_target.find("#graph-nav-graph-tab"),
-    $graph_nav_table_tab : $append_target.find("#graph-nav-table-tab"),
-    $graph_nav_graph : $append_target.find("#graph-nav-graph"),
-    $graph_nav_table : $append_target.find("#graph-nav-table")
+    $log_renderer_value_list : $append_target.find(".log-renderer-value-list"),
+    $log_renderer_nav_contents : $append_target.find(".log-renderer-nav-content"),
+    $log_renderer_nav_graph_tab : $append_target.find("#log-renderer-nav-graph-tab"),
+    $log_renderer_nav_table_tab : $append_target.find("#log-renderer-nav-table-tab"),
+    $log_renderer_nav_graph : $append_target.find("#log-renderer-nav-graph"),
+    $log_renderer_nav_table : $append_target.find("#log-renderer-nav-table")
   };
 };
 
-graph.prototype.initModule = function ( $append_target, getLogFileData ) {
+logRenderer.prototype.initModule = function ( $append_target, getLogFileData ) {
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
   this.setJqueryMap();
   this.initGraphValuesList();
 
-  this.tableRenderer.initModule( this.jqueryMap.$graph_nav_table );
+  this.tableRenderer.initModule( this.jqueryMap.$log_renderer_nav_table );
 
   this.getLogFileData = getLogFileData;
 
   // イベントハンドラ登録
 
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
-  this.jqueryMap.$graph_nav_contents.bind( 'click', this.onSelectTab.bind(this) );
+  this.jqueryMap.$log_renderer_nav_contents.bind( 'click', this.onSelectTab.bind(this) );
 };
 
-graph.prototype.removeModule = function () {
-  this.stateMap.$append_target.find("#graph").remove();
+logRenderer.prototype.removeModule = function () {
+  this.stateMap.$append_target.find("#log-renderer").remove();
   this.jqueryMap = {};
 
   this.stateMap = {
@@ -204,8 +204,8 @@ graph.prototype.removeModule = function () {
   this.configMap.graph_value_map.forEach( function ( data ) {
     keymap.push(data.id);
   }.bind(this));
-  this.renderer = null;
-  this.renderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
+  this.graphRenderer = null;
+  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
 };
 
-module.exports = graph;
+module.exports = logRenderer;

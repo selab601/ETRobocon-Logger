@@ -103,7 +103,7 @@ D3Graph.prototype.resetStyle = function () {
  * グラフを削除する
  */
 D3Graph.prototype.remove = function () {
-  this.d3.select("#graph-nav-graph>div#"+this.key).remove();
+  this.d3.select("#log-renderer-nav-graph>div#"+this.key).remove();
 };
 
 /**
@@ -144,16 +144,16 @@ D3Graph.prototype.updateScale = function (xScope, yScope) {
  */
 D3Graph.prototype.render = function () {
   // SVG 要素追加
-  if (this.d3.select("#graph-nav-graph>div#" + this.key).empty()) {
-    this.d3.select("#graph-nav-graph")
+  if (this.d3.select("#log-renderer-nav-graph>div#" + this.key).empty()) {
+    this.d3.select("#log-renderer-nav-graph")
       .append("div")
       .attr('class', 'graph-chart')
       .attr('id', this.key);
-    this.d3.select("#graph-nav-graph>div#"+this.key)
+    this.d3.select("#log-renderer-nav-graph>div#"+this.key)
       .append("text")
       .attr("class", "graph-chart-title")
       .text(this.key);
-    this.d3.select("#graph-nav-graph>div#"+this.key)
+    this.d3.select("#log-renderer-nav-graph>div#"+this.key)
       .append("svg")
       .attr('class', 'graph-chart-svg')
       .attr('id', this.key)

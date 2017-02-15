@@ -8,7 +8,7 @@ const FileInputForm = require('./fileInputForm.js');
 const FileReader = require('./fileReader.js');
 const DeviceConnector = require('./deviceConnector.js');
 const DeviceDisconnector = require('./deviceDisconnector.js');
-const Graph = require('./graph.js');
+const LogRenderer = require('./logRenderer.js');
 
 function shell() {
   this.configMap = {
@@ -35,7 +35,7 @@ function shell() {
   this.fileReader = new FileReader();
   this.deviceConnector = new DeviceConnector();
   this.deviceDisconnector = new DeviceDisconnector();
-  this.graph = new Graph();
+  this.logRenderer = new LogRenderer();
 };
 
 /***** イベントハンドラ *****/
@@ -44,7 +44,7 @@ shell.prototype.onConnectDevice = function () {
   this.deviceConnector.removeModule();
   this.fileInputForm.removeHtml();
 
-  this.graph.initModule(
+  this.logRenderer.initModule(
     this.jqueryMap.$body,
     undefined
   );
@@ -60,7 +60,7 @@ shell.prototype.onConnectDevice = function () {
 shell.prototype.onDisconnectDevice = function () {
   this.fileInputForm.removeModule();
   this.deviceDisconnector.removeModule();
-  this.graph.removeModule();
+  this.logRenderer.removeModule();
 
   this.deviceConnector.initModule(
     this.jqueryMap.$body,
@@ -80,16 +80,16 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.fileInputForm.removeHtml();
     this.fileInputForm.removeModule();
 
-    this.graph.initModule(
+    this.logRenderer.initModule(
       this.jqueryMap.$body,
       this.fileReader.getLogFileData.bind(this.fileReader)
     );
     this.fileReader.initModule(
-      this.jqueryMap.$container.find(".graph-value-list-header")
+      this.jqueryMap.$container.find(".log-renderer-value-list-header")
     );
     break;
   case "connect-page":
-    this.graph.removeModule();
+    this.logRenderer.removeModule();
     this.fileReader.removeModule();
 
     this.deviceConnector.initModule(
