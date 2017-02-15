@@ -74,7 +74,9 @@ shell.prototype.setJqueryMap = function () {
   this.jqueryMap = {
     $container : $container,
     $contents : $container.find(".contents"),
-    $body : $container.find(".body")
+    $body : $container.find(".body"),
+    $connect_link : $container.find("#connect-link"),
+    $load_link : $container.find("#load-link")
   };
 };
 
