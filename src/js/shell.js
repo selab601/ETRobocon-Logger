@@ -94,13 +94,13 @@ shell.prototype.onTransitionTo = function ( event ) {
       this.jqueryMap.$body,
       this.moduleMap.fileReader.getLogFileData.bind(this.moduleMap.fileReader)
     );
-    this.moduleMap.fileReader.initModule(
+    this.moduleMap.fileReader.init(
       this.jqueryMap.$container.find(".log-renderer-value-list-header")
     );
     break;
   case "connect-page":
     this.moduleMap.logRenderer.removeModule();
-    this.moduleMap.fileReader.removeModule();
+    this.moduleMap.fileReader.remove();
 
     this.moduleMap.deviceConnector.init(
       this.jqueryMap.$body,
