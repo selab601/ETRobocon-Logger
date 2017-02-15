@@ -75,6 +75,7 @@ deviceConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
 deviceConnector.prototype.onSelectDevice = function ( event ) {
   this.jqueryMap.$device_group.find(".selected").removeClass("selected");
   this.$(event.target).addClass("selected");
+  this.stateMap.selected_device_address = event.data;
 };
 
 deviceConnector.prototype.onConnectDevice = function ( event ) {
