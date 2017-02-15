@@ -67,12 +67,18 @@ shell.prototype.onDisconnectDevice = function () {
   );
 };
 
+shell.prototype.onTransitionTo = function ( event ) {
+  console.log( event.data );
+  this.transitionTo( event.data );
+};
+
 /****************************/
 
 shell.prototype.transitionTo = function ( page_id ) {
   var page_link = this.stateMap.$container.find("#"+page_id);
   if ( ! page_link ) { return; }
 
+  this.jqueryMap.$container.find(".isRendering").removeClass("isRendering");
   this.stateMap.rendered_page_id = page_id;
   page_link.addClass("isRendering");
 };
@@ -85,15 +91,15 @@ shell.prototype.setJqueryMap = function () {
     $contents : $container.find(".contents"),
     $body : $container.find(".body"),
     $connect_page : $container.find("#connect-page"),
-    $load_page : $container.find("#load-pgae")
+    $load_page : $container.find("#load-page")
   };
 };
 
 shell.prototype.initModule = function ( $container ) {
   this.stateMap.$container = $container;
   $container.html( this.configMap.main_html );
-  this.transitionTo( "connect-page" );
   this.setJqueryMap();
+  this.transitionTo( "connect-page" );
 
   // 機能モジュールの初期化
   this.deviceConnector.initModule(
@@ -103,6 +109,10 @@ shell.prototype.initModule = function ( $container ) {
   this.fileManager.initModule(
     this.jqueryMap.$body.find(".device-connector-body")
   );
+
+  // イベントハンドラ登録
+  this.jqueryMap.$connect_page.bind( 'click', "connect-page", this.onTransitionTo.bind(this) );
+  this.jqueryMap.$load_page.bind( 'click', "load-page", this.onTransitionTo.bind(this) );
 };
 
 module.exports = shell;
