@@ -29,7 +29,7 @@
   margin-bottom: 15px;
 }
 
-#device-connector-update-btn {
+#device-connector-update-button {
   position: absolute;
   display: inline-block;
   right: 10px;
@@ -52,12 +52,12 @@
   background: rgb(0,93,183);
 }
 
-#device-connector-update-btn:hover {
+#device-connector-update-button:hover {
   color: rgb(220,220,220);
   background: rgb(0,50,100);
 }
 
-#device-connector-update-btn.disabled {
+#device-connector-update-button.disabled {
   color: rgb(: 2px;20,220,220);
   background: rgb(0,50,100);
   pointer-events: none;
@@ -109,7 +109,7 @@
   justify-content: center; -webkit-justify-content: center;
 }
 
-.device-connector-button {
+#device-connector-connect-button {
   border-radius: 5px;
   padding: 5px 8px 5px 8px;
   color: white;
@@ -124,13 +124,13 @@
   width: 100px;
 }
 
-.device-connector-button.disabled {
+#device-connector-connect-button.disabled {
   color: rgb(220,220,220);
   background: rgb(0,50,100);
   pointer-events: none;
 }
 
-.device-connector-button:hover {
+#device-connector-connect-button:hover {
   color: rgb(220,220,220);
   background: rgb(0,50,100);
 }

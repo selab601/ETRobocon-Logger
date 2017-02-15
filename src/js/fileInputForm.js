@@ -21,6 +21,8 @@ function fileInputForm() {
     logFileName: undefined,
     $append_target: undefined
   };
+  // jQuery オブジェクトのキャッシュ用
+  this.jqueryMap = {};
   // main プロセスとの通信用モジュール
   this.ipc = require('electron').ipcRenderer;
 };
@@ -30,6 +32,7 @@ function fileInputForm() {
 
 /**
  * フォーム内で文字列が編集された際に呼び出されるイベントハンドラ
+ *
  * 入力された文字列でメモリ上のファイル名を更新する
  */
 fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
@@ -38,6 +41,7 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
 
 /**
  * main プロセスからログファイル名を受信した際に呼び出されるイベントハンドラ
+ *
  * アプリケーション起動後やデバイスとの接続解除後，main プロセスは現在の日時
  * から適当なログファイル名を自動生成し，renderer プロセスに送信する．
  * このイベントハンドラでは，この時に受信したファイル名でフォームを初期化する．
@@ -59,6 +63,7 @@ fileInputForm.prototype.getLogFileName = function () {
 
 /**
  * jQuery オブジェクトをキャッシュする
+ *
  * この機能モジュール内で使用する jQuery オブジェクトをキャッシュしておく
  * これを行うことで，目的の DOM を取得するためにいちいち id や class で検索する
  * 手間が省ける上に，パフォーマンスが向上する．
@@ -75,10 +80,9 @@ fileInputForm.prototype.setJqueryMap = function () {
  * 機能モジュールの初期化
  */
 fileInputForm.prototype.init = function ( $append_target ) {
-  // DOM 要素をターゲットに追加
+  // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.after( this.configMap.main_html );
-
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
 
@@ -89,6 +93,7 @@ fileInputForm.prototype.init = function ( $append_target ) {
 
 /**
  * 機能モジュールの削除
+ *
  * 追加した DOM 要素を削除し，動的プロパティを初期化する
  * FIXME: 二重に remove を呼び出したときにエラーとなる
  */

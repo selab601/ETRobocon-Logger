@@ -53,7 +53,7 @@ function shell() {
 shell.prototype.onConnectDevice = function () {
   var logFileName = this.moduleMap.fileInputForm.getLogFileName();
 
-  this.moduleMap.deviceConnector.removeModule();
+  this.moduleMap.deviceConnector.remove();
   this.moduleMap.fileInputForm.remove();
 
   this.moduleMap.logRenderer.initModule(
@@ -73,7 +73,7 @@ shell.prototype.onDisconnectDevice = function () {
   this.moduleMap.deviceDisconnector.removeModule();
   this.moduleMap.logRenderer.removeModule();
 
-  this.moduleMap.deviceConnector.initModule(
+  this.moduleMap.deviceConnector.init(
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
   );
@@ -87,7 +87,7 @@ shell.prototype.onDisconnectDevice = function () {
 shell.prototype.onTransitionTo = function ( event ) {
   switch ( event.data ) {
   case "load-page":
-    this.moduleMap.deviceConnector.removeModule();
+    this.moduleMap.deviceConnector.remove();
     this.moduleMap.fileInputForm.remove();
 
     this.moduleMap.logRenderer.initModule(
@@ -102,7 +102,7 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.moduleMap.logRenderer.removeModule();
     this.moduleMap.fileReader.removeModule();
 
-    this.moduleMap.deviceConnector.initModule(
+    this.moduleMap.deviceConnector.init(
       this.jqueryMap.$body,
       this.onConnectDevice.bind(this)
     );
@@ -153,7 +153,7 @@ shell.prototype.initModule = function ( $container ) {
   this.transitionTo( "connect-page" );
 
   // 機能モジュールの初期化
-  this.moduleMap.deviceConnector.initModule(
+  this.moduleMap.deviceConnector.init(
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
   );
