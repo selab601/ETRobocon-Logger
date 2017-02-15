@@ -24,7 +24,7 @@ html, body {
 }
 
 .title-bar {
-  position: absolute;
+  position: fixed;
   padding: 0;
   margin: 0;
   background-color: rgb(239, 239, 239);
@@ -34,10 +34,11 @@ html, body {
   text-align: center;
   font-size: 12px;
   -webkit-app-region: drag;
+  z-index: 9999;
 }
 
 .header {
-  position: absolute;
+  position: fixed;
   padding: 0;
   margin: 0;
   margin-top: 23px;
@@ -48,6 +49,7 @@ html, body {
   height: 40px;
 
   border-bottom: 0.5px solid rgb(210, 210, 210);
+  z-index: 9999;
 }
 
 .body {
