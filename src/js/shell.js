@@ -56,7 +56,7 @@ shell.prototype.onConnectDevice = function () {
   this.moduleMap.deviceConnector.remove();
   this.moduleMap.fileInputForm.remove();
 
-  this.moduleMap.logRenderer.initModule(
+  this.moduleMap.logRenderer.init(
     this.jqueryMap.$body,
     undefined
   );
@@ -71,7 +71,7 @@ shell.prototype.onConnectDevice = function () {
 
 shell.prototype.onDisconnectDevice = function () {
   this.moduleMap.deviceDisconnector.remove();
-  this.moduleMap.logRenderer.removeModule();
+  this.moduleMap.logRenderer.remove();
 
   this.moduleMap.deviceConnector.init(
     this.jqueryMap.$body,
@@ -90,7 +90,7 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.moduleMap.deviceConnector.remove();
     this.moduleMap.fileInputForm.remove();
 
-    this.moduleMap.logRenderer.initModule(
+    this.moduleMap.logRenderer.init(
       this.jqueryMap.$body,
       this.moduleMap.fileReader.getLogFileData.bind(this.moduleMap.fileReader)
     );
@@ -99,7 +99,7 @@ shell.prototype.onTransitionTo = function ( event ) {
     );
     break;
   case "connect-page":
-    this.moduleMap.logRenderer.removeModule();
+    this.moduleMap.logRenderer.remove();
     this.moduleMap.fileReader.remove();
 
     this.moduleMap.deviceConnector.init(
@@ -147,9 +147,12 @@ shell.prototype.setJqueryMap = function () {
 };
 
 shell.prototype.initModule = function ( $container ) {
+  // DOM 要素の追加
   this.stateMap.$container = $container;
   $container.html( this.configMap.main_html );
+  // jQuery オブジェクトのキャッシュ
   this.setJqueryMap();
+
   this.transitionTo( "connect-page" );
 
   // 機能モジュールの初期化

@@ -126,8 +126,8 @@ fileReader.prototype.remove = function () {
 
   // 動的プロパティの初期化
   this.stateMap = {
-    logFilePath: undefined,
-    $append_target: undefined
+    logFilePath    : undefined,
+    $append_target : undefined
   };
 };
 

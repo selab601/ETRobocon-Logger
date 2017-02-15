@@ -86,7 +86,6 @@ deviceConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
   // リストに追加済みであったなら追加しない
   var isAlreadyAdded = false;
   this.stateMap.deviceMap.forEach(function (d) {
-    console.log(d.address + " : " + device.address);
     if ( d.address === device.address ) {
       isAlreadyAdded = true;
       return;
