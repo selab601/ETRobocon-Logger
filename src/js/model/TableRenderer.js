@@ -20,7 +20,7 @@ function TableRenderer ( keymap, render_keymap ) {
   };
   this.jqueryMap = {};
 
-  this.$ = require('./lib/jquery-3.1.0.min.js');
+  this.$ = require('../lib/jquery-3.1.0.min.js');
 };
 
 TableRenderer.prototype.initTableTuples = function () {

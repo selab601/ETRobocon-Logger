@@ -33,7 +33,7 @@ function D3Graph( key, renderer, range ) {
   this.yValues   = [];
   this.labelRenaderIntarval = 5;
 
-  this.d3 = require('./lib/d3.min.js');
+  this.d3 = require('../lib/d3.min.js');
 
   this.xScale = this.d3.scale.linear()
     .range([this.paddingLeft, this.svgElementWidth - this. paddingRight]);

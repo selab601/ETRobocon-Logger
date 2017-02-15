@@ -61,7 +61,7 @@ function graph() {
   this.jqueryMap = {};
   this.ipc = require('electron').ipcRenderer;
   this.getLogFileData = undefined;
-  this.$ = require('./model/lib/jquery-3.1.0.min.js');
+  this.$ = require('./lib/jquery-3.1.0.min.js');
 
   var keymap = [];
   this.configMap.graph_value_map.forEach( function ( data ) {

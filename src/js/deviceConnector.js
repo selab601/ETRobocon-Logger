@@ -33,7 +33,7 @@ function deviceConnector () {
   this.callback = undefined;
 
   this.ipc = require('electron').ipcRenderer;
-  this.$ = require('./model/lib/jquery-3.1.0.min.js');
+  this.$ = require('./lib/jquery-3.1.0.min.js');
 };
 
 /******* イベントハンドラ *******/
