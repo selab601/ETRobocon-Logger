@@ -3,6 +3,7 @@
  */
 
 const D3GraphRenderer = require('./model/D3GraphRenderer.js');
+const TableRenderer = require('./model/TableRenderer.js');
 
 function graph() {
   this.configMap = {
@@ -67,6 +68,7 @@ function graph() {
     keymap.push(data.id);
   }.bind(this));
   this.renderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
+  this.tableRenderer = new TableRenderer( keymap, this.stateMap.render_value_keymap );
 };
 
 /** イベントハンドラ **/
@@ -172,6 +174,8 @@ graph.prototype.initModule = function ( $append_target, getLogFileData ) {
   $append_target.html( this.configMap.main_html );
   this.setJqueryMap();
   this.initGraphValuesList();
+
+  this.tableRenderer.initModule( this.jqueryMap.$graph_nav_table );
 
   this.getLogFileData = getLogFileData;
 
