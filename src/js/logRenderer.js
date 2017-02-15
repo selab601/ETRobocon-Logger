@@ -69,8 +69,6 @@ function logRenderer() {
   };
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
-  // ログファイルが指定されていた場合に，そのデータを取得するためのコールバック関数
-  this.getLogFileData = undefined;
   // main プロセスとの通信用モジュール
   this.ipc = require('electron').ipcRenderer;
   // jQuery
@@ -82,7 +80,7 @@ function logRenderer() {
     keymap.push(data.id);
   }.bind(this));
   // TODO: 描画範囲(現状は100)を動的に指定できるようにする
-  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
+  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100, "log-renderer-content-graph" );
   this.tableRenderer = new TableRenderer( keymap, this.stateMap.render_value_keymap );
 };
 
@@ -129,34 +127,6 @@ logRenderer.prototype.onUpdateRenderValue = function ( event ) {
   } else {
     this.stateMap.render_value_keymap.push( event.data );
   }
-
-  // ログファイルからのデータ取得用コールバック関数が登録されていた場合には，
-  // ログファイルからのデータ読み込みを行う
-  if ( this.getLogFileData != undefined ) {
-    this.onRenderGraphFromLogFile();
-  }
-};
-
-/**
- * ログファイルからグラフを描画する際に呼び出すイベントハンドラ
- */
-logRenderer.prototype.onRenderGraphFromLogFile = function () {
-  // ログファイルの読み込みに失敗したら何もしない
-  // TODO: ユーザへのメッセージの描画
-  var values = this.getLogFileData();
-  if ( values === null ) { return; }
-
-  this.graphRenderer.initialize();
-
-  for (var i=0; i<Object.keys(values).length; i++) {
-    var obj = JSON.parse(values[i]);
-    Object.keys(obj).forEach(function(key) {
-      this.graphRenderer.update(key, obj["clock"], obj[key]);
-    }.bind(this));
-  }
-
-  this.graphRenderer.renderAll();
-  this.graphRenderer.addBrush();
 };
 
 /**
@@ -228,14 +198,8 @@ logRenderer.prototype.setJqueryMap = function () {
 
 /**
  * 機能モジュールの初期化
- *
- * @param $append_target この機能モジュールの DOM 要素を追加する対象となる DOM 要素
- * @param getLogFileData ログファイルの内容を取得するためのコールバック関数
- *                       ログファイルの読み込みをしない場合には，undefined を指定する
- *                       TODO: ログファイルの読み込みか，リアルタイムな描画かを
- *                             明示的に指定して機能モジュールを読み込みたい
  */
-logRenderer.prototype.init = function ( $append_target, getLogFileData ) {
+logRenderer.prototype.init = function ( $append_target ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
@@ -247,10 +211,6 @@ logRenderer.prototype.init = function ( $append_target, getLogFileData ) {
 
   // レンダリングモジュールの初期化
   this.tableRenderer.initModule( this.jqueryMap.$content_table );
-
-  // ログファイルの内容を取得するためのコールバック関数を登録
-  // ログファイルの内容を描画しない場合には，undefined が渡される
-  this.getLogFileData = getLogFileData;
 
   // イベントハンドラを登録
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
@@ -273,7 +233,6 @@ logRenderer.prototype.remove = function () {
     $append_target      : undefined,
     render_value_keymap : []
   };
-  this.getLogFileData = undefined;
 
   // レンダリングモジュールの初期化
   var keymap = [];

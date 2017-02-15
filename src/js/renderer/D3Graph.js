@@ -15,7 +15,7 @@ const PADDING_BOTTOM = 40;
 const GRAPH_HEIGHT = SVG_ELEMENT_HEIGHT - (PADDING_TOP+PADDING_BOTTOM) - TITLE_SPACE_HEIGHT;
 const GRAPH_WIDTH = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
 
-function D3Graph( key, renderer, range ) {
+function D3Graph( key, renderer, range, dom_id ) {
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
   this.svgElementWidth  = SVG_ELEMENT_WIDTH;
   this.titleSpaceHeight = TITLE_SPACE_HEIGHT;
@@ -29,6 +29,7 @@ function D3Graph( key, renderer, range ) {
   this.key       = key;
   this.renderer  = renderer;
   this.range     = range;
+  this.dom_id    = dom_id;
   this.xValues   = [];
   this.yValues   = [];
   this.labelRenaderIntarval = 5;
@@ -103,7 +104,7 @@ D3Graph.prototype.resetStyle = function () {
  * グラフを削除する
  */
 D3Graph.prototype.remove = function () {
-  this.d3.select("#log-renderer-content-graph>div#"+this.key).remove();
+  this.d3.select("#"+this.dom_id+">div#"+this.key).remove();
 };
 
 /**
@@ -144,16 +145,16 @@ D3Graph.prototype.updateScale = function (xScope, yScope) {
  */
 D3Graph.prototype.render = function () {
   // SVG 要素追加
-  if (this.d3.select("#log-renderer-content-graph>div#" + this.key).empty()) {
-    this.d3.select("#log-renderer-content-graph")
+  if (this.d3.select("#"+this.dom_id+">div#" + this.key).empty()) {
+    this.d3.select("#"+this.dom_id+"")
       .append("div")
       .attr('class', 'graph-chart')
       .attr('id', this.key);
-    this.d3.select("#log-renderer-content-graph>div#"+this.key)
+    this.d3.select("#"+this.dom_id+">div#"+this.key)
       .append("text")
       .attr("class", "graph-chart-title")
       .text(this.key);
-    this.d3.select("#log-renderer-content-graph>div#"+this.key)
+    this.d3.select("#"+this.dom_id+">div#"+this.key)
       .append("svg")
       .attr('class', 'graph-chart-svg')
       .attr('id', this.key)

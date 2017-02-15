@@ -7,10 +7,10 @@
  */
 
 const FileInputForm      = require('./fileInputForm.js');
-const FileReader         = require('./fileReader.js');
 const DeviceConnector    = require('./deviceConnector.js');
 const DeviceDisconnector = require('./deviceDisconnector.js');
 const LogRenderer        = require('./logRenderer.js');
+const LogAnalyzer        = require('./logAnalyzer.js');
 
 function shell() {
   // 静的プロパティ
@@ -36,10 +36,10 @@ function shell() {
   // 機能モジュール
   this.moduleMap = {
     fileInputForm      : new FileInputForm(),
-    fileReader         : new FileReader(),
     deviceConnector    : new DeviceConnector(),
     deviceDisconnector : new DeviceDisconnector(),
-    logRenderer        : new LogRenderer()
+    logRenderer        : new LogRenderer(),
+    logAnalyzer        : new LogAnalyzer()
   };
   // jQuery オブジェクトのキャッシュ
   this.jqueryMap = {};
@@ -56,10 +56,7 @@ shell.prototype.onConnectDevice = function () {
   this.moduleMap.deviceConnector.remove();
   this.moduleMap.fileInputForm.remove();
 
-  this.moduleMap.logRenderer.init(
-    this.jqueryMap.$body,
-    undefined
-  );
+  this.moduleMap.logRenderer.init(this.jqueryMap.$body);
   this.moduleMap.deviceDisconnector.init(
     this.jqueryMap.$body,
     logFileName,
@@ -90,17 +87,10 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.moduleMap.deviceConnector.remove();
     this.moduleMap.fileInputForm.remove();
 
-    this.moduleMap.logRenderer.init(
-      this.jqueryMap.$body,
-      this.moduleMap.fileReader.getLogFileData.bind(this.moduleMap.fileReader)
-    );
-    this.moduleMap.fileReader.init(
-      this.jqueryMap.$container.find(".log-renderer-list-header")
-    );
+    this.moduleMap.logAnalyzer.init(this.jqueryMap.$body);
     break;
   case "connect-page":
-    this.moduleMap.logRenderer.remove();
-    this.moduleMap.fileReader.remove();
+    this.moduleMap.logAnalyzer.remove();
 
     this.moduleMap.deviceConnector.init(
       this.jqueryMap.$body,
