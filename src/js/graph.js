@@ -48,7 +48,8 @@ function graph() {
   };
   this.stateMap = {
     $append_target : undefined,
-    render_value_keymap: []
+    render_value_keymap: [],
+    render_log_file : undefined
   };
 
   this.jqueryMap = {};
@@ -92,13 +93,16 @@ graph.prototype.onUpdateRenderValue = function ( event ) {
   } else {
     this.stateMap.render_value_keymap.push( event.data );
   }
+
+  if ( this.stateMap.render_log_file ) {
+    this.onRenderGraphFromLogFile();
+  }
 };
 
-graph.prototype.onRenderGraphFromLogFile = function ( event ) {
-  var values = this.getLogFileData();
-  if ( values === undefined ) {
-    return;
-  }
+graph.prototype.onRenderGraphFromLogFile = function () {
+  if ( this.stateMap.render_log_file === undefined ) { return; }
+
+  var values = parseLogFile( this.stateMap.render_log_file );
 
   this.renderer.initialize();
 
@@ -128,6 +132,10 @@ graph.prototype.initGraphValuesList = function () {
   }.bind(this));
 };
 
+graph.prototype.setLogFile = function ( log_file ) {
+  this.stateMap.render_log_file = log_file;
+};
+
 graph.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
@@ -155,7 +163,8 @@ graph.prototype.removeModule = function () {
 
   this.stateMap = {
     $append_target : undefined,
-    render_value_keymap: []
+    render_value_keymap: [],
+    render_log_file : undefined
   };
   this.getLogFileData = undefined;
 
@@ -165,6 +174,27 @@ graph.prototype.removeModule = function () {
   }.bind(this));
   this.renderer = null;
   this.renderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
+};
+
+var parseLogFile = function (logFileName) {
+  var remote = require('remote'),
+      fs = require('fs'),
+      logFilePath = remote.require('app').getAppPath()+'/log/'+logFileName;
+  var values = new Array();
+
+  var contents = fs.readFileSync(logFilePath);
+  var lines = contents
+        .toString()
+        .split('\n');
+
+  for (var i=0; i<lines.length; i++) {
+    values.push(lines[i]);
+  }
+
+  // 最後に余分な改行があるので削除
+  values.pop();
+
+  return values;
 };
 
 module.exports = graph;
