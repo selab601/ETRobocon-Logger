@@ -10,7 +10,7 @@ function fileManager() {
           <div class="file-manager-title">
             Log file
           </div>
-          <input type="text" id="file-manager-input" name="file-manager-input" size="30">
+          <input type="text" id="file-manager-input"/>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1]
   };
@@ -66,7 +66,7 @@ fileManager.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
-    $file_manager_input : $append_target.find("#file-manager-input")
+    $file_manager_input : $append_target.parent().find("#file-manager-input")
   };
 };
 
@@ -75,7 +75,6 @@ fileManager.prototype.initModule = function ( $append_target, callback ) {
   $append_target.after( this.configMap.main_html );
   this.setJqueryMap();
 
-  console.log(this.jqueryMap.$file_manager_button);
   this.jqueryMap.$file_manager_input.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
   this.ipc.on('initLogFileName', this.onInitLogFileName.bind(this));
 };
