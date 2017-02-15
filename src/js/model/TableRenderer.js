@@ -29,9 +29,15 @@ TableRenderer.prototype.initTableTuples = function () {
     base_html.find('.table-renderer-key')
       .text( key );
     base_html.find('.table-renderer-value')
+      .attr( 'id', key )
       .text("---");
     this.jqueryMap.$table_renderer_box.append(base_html);
   }.bind(this));
+};
+
+TableRenderer.prototype.update = function ( key, value ) {
+  // TODO: jQuery オブジェクトをキャッシュしておくべきかも
+  this.jqueryMap.$table_renderer_box.find("#"+key).text(value);
 };
 
 TableRenderer.prototype.setJqueryMap = function () {

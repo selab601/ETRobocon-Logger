@@ -76,11 +76,16 @@ function graph() {
 graph.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   var data = JSON.parse(message);
 
+  /***** グラフの更新 *****/
+
   // 値の更新
   Object.keys(data).forEach(function(key) {
     // 受信データに誤りがあるとここで挿入に失敗する
     // TODO: 受信データのチェック
     this.renderer.update(key, data["clock"], data[key]);
+
+    /***** 表の更新 *****/
+    this.tableRenderer.update(key, data[key]);
   }.bind(this));
 
   // 描画
