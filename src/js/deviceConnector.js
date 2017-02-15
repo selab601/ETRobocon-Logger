@@ -8,14 +8,17 @@ function deviceConnector () {
       /*
         <div id="device-connector-wrapper">
           <div id="device-connector">
-            <div class="device-connector-header">Devices</div>
+            <div class="device-connector-header">
+              Devices
+              <div id="device-connector-update-btn">更新</div>
+            </div>
             <div class="device-connector-body">
               <ul id="device-connector-device-group">
                 <!-- デバイスが追加されていく -->
               </ul>
             </div>
             <div class="device-connector-footer">
-              <div class="device-connector-button" id="update-btn">UPDATE</div>
+              <div class="device-connector-button" id="connect-btn">CONNECT</div>
             </div>
           </div>
         </div>
@@ -23,7 +26,8 @@ function deviceConnector () {
   };
   this.stateMap = {
     $append_target : undefined,
-    deviceMap: []
+    deviceMap: [],
+    selected_device_address : undefined
   };
   this.jqueryMap = {};
   this.callback = undefined;
@@ -61,16 +65,24 @@ deviceConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
   this.stateMap.deviceMap.push(device);
 
   this.jqueryMap.$device_group.append(
-    this.$('<li>').append(
-      this.$("<a/>")
-        .attr("href", "#")
-        .text(device.name)
-        .bind( 'click', device.address, this.onConnectDevice.bind(this) )));
+    this.$('<li>')
+      .addClass("device-connector-device-name")
+      .text(device.name)
+      .bind( 'click', device.address, this.onSelectDevice.bind(this) ));
   this.jqueryMap.$update_btn.removeClass('disabled');
 };
 
+deviceConnector.prototype.onSelectDevice = function ( event ) {
+  this.jqueryMap.$device_group.find(".selected").removeClass("selected");
+  this.$(event.target).addClass("selected");
+};
+
 deviceConnector.prototype.onConnectDevice = function ( event ) {
-  this.ipc.send('connectDevice', event.data);
+  if ( this.stateMap.selected_device_address === undefined ) {
+    return;
+  }
+
+  this.ipc.send('connectDevice', this.stateMap.selected_device_address);
   this.jqueryMap.$update_btn.addClass('disabled');
 };
 
@@ -91,7 +103,8 @@ deviceConnector.prototype.setJqueryMap = function () {
   this.jqueryMap = {
     $append_target: $append_target,
     $device_group : $append_target.find("#device-connector-device-group"),
-    $update_btn : $append_target.find("#update-btn")
+    $update_btn : $append_target.find("#device-connector-update-btn"),
+    $connect_btn : $append_target.find("#connect-btn")
   };
 };
 
@@ -105,6 +118,7 @@ deviceConnector.prototype.initModule = function ( $append_target, callback ) {
   // イベントハンドラの登録
 
   this.jqueryMap.$update_btn.bind( 'click', this.onUpdateDevices.bind(this));
+  this.jqueryMap.$connect_btn.bind( 'click', this.onConnectDevice.bind(this));
   this.ipc.on('updateDevicesComplete', this.onUpdateDevicesComplete.bind(this));
   this.ipc.on('updateDevicesFailed', this.onUpdateDevicesFailed.bind(this));
   this.ipc.on('connectDeviceComplete', this.onConnectDeviceComplete.bind(this));
