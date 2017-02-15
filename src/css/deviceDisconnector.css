@@ -1,5 +1,4 @@
-
-.device-disconnector-button {
+#device-disconnector-button {
   border-radius: 5px;
   padding: 5px 8px 5px 8px;
   color: white;
@@ -19,12 +18,12 @@
   right: 10px;
 }
 
-.device-disconnector-button:hover {
+#device-disconnector-button:hover {
   color: rgb(180,180,180);
   background: rgb(180,0,0);
 }
 
-.device-disconnector-button.disabled {
+#device-disconnector-button.disabled {
   color: rgb(180,180,180);
   background: rgb(180,0,0);
 }

@@ -60,7 +60,7 @@ shell.prototype.onConnectDevice = function () {
     this.jqueryMap.$body,
     undefined
   );
-  this.moduleMap.deviceDisconnector.initModule(
+  this.moduleMap.deviceDisconnector.init(
     this.jqueryMap.$body,
     logFileName,
     this.onDisconnectDevice.bind(this)
@@ -70,7 +70,7 @@ shell.prototype.onConnectDevice = function () {
 };
 
 shell.prototype.onDisconnectDevice = function () {
-  this.moduleMap.deviceDisconnector.removeModule();
+  this.moduleMap.deviceDisconnector.remove();
   this.moduleMap.logRenderer.removeModule();
 
   this.moduleMap.deviceConnector.init(

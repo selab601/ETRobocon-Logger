@@ -18,8 +18,8 @@ function fileInputForm() {
   };
   // 動的プロパティ
   this.stateMap = {
-    logFileName: undefined,
-    $append_target: undefined
+    logFileName    : undefined,
+    $append_target : undefined
   };
   // jQuery オブジェクトのキャッシュ用
   this.jqueryMap = {};
