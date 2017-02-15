@@ -1,6 +1,8 @@
-![icon](./images/logger_icon.png)
+# ET Robocon Logger
 
-Electron 製の EV3 用ロガーです．
+[ETロボコン](http://www.etrobo.jp/) で使用するために開発したロガーです．
+EV3 と Bluetooth 接続すると，機体の状態をリアルタイムで確認できます．
+また，ログをファイルに保存し，後に参照することができます．
 
 ## 使い方
 
@@ -115,3 +117,9 @@ $ electron-packager ./logger ET2016-Logger --platform=darwin --arch=x64 --versio
 
 アイコン制作はイラストレーターが欲しいところですが，Keynote が割りと最強なので使うと良いと思います．
 自分がアイコン作成に使用した keynote ファイルも `images` 以下にあげておきます．
+
+## TODO
+
+- ログの参照機能
+- レスポンシブデザイン
+- グラフではなく現在の値の観測機能
