@@ -42,8 +42,8 @@ app.on('activate', function() {
 // メインウインドウの生成
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 600,
+    width: 1100,
+    height: 700,
     titleBarStyle: 'hidden'
   });
   mainWindow.loadURL(`file://${__dirname}/src/index.html`);

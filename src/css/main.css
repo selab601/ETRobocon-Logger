@@ -11,6 +11,8 @@ html, body {
   height: 100%;
   font-family: sans-serif;
   color: #444;
+
+  min-width: calc(230px + 800px);
 }
 
 #container {
