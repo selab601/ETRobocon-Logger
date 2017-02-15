@@ -15,7 +15,13 @@ function graph() {
             </div>
             <div class="graph-value-list"></div>
           </div>
-          <div id="d3graph"></div>
+
+          <nav id="graph-nav">
+            <div id="graph-nav-graph-tab" class="graph-nav-content selected">Graph</div>
+            <div id="graph-nav-table-tab" class="graph-nav-content">Table</div>
+          </nav>
+          <div id="graph-nav-graph" class="graph-content selected"></div>
+          <div id="graph-nav-table" class="graph-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_base_html : (function () {

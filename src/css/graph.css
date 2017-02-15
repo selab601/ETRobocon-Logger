@@ -40,9 +40,57 @@
   cursor: pointer;
 }
 
-#d3graph {
-  margin-top: 20px;
+#graph-nav {
   display: inline-block;
-  height: calc( 100% - 40px );
+
+  width: calc( 100% - 231px - 10px );
+  height: 27px;
+
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.graph-nav-content {
+  display: inline-block;
+
+  width: 70px;
+  height: 27px;
+
+  font-weight: normal;
+  font-size: 14px;
+  text-align: center;
+  line-height: 27px;
+
+  margin-right: 3px;
+
+  border-left: 1px solid rgb(204,204,204);
+  border-right: 1px solid rgb(204,204,204);
+  border-top: 1px solid rgb(204,204,204);
+  border-radius: 3px 3px 0 0;
+  cursor: pointer;
+
+  background-color: rgb(246,246,246);
+}
+
+.graph-nav-content.selected {
+  background-color: white;
+  border-bottom: 1px solid white;
+  pointer-events: none;
+}
+
+.graph-content {
+  display: none;
+
+  width: calc( 100% - 231px - 2px - 20px );
+  height: calc( 100% - 40px - 2px - 10px );
+
+  margin: 0 10px 10px 10px;
+  padding: 0;
+
   overflow: scroll;
+  border: 1px solid rgb(204,204,204);
+}
+
+.graph-content.selected {
+  display: inline-block;
 }
