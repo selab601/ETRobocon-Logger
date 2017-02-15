@@ -16,8 +16,8 @@ function shell() {
         <div class="title-bar">ET Robocon Logger</div>
         <div class="header">
           <ul>
-            <li id="connect-page">Connect</li>
-            <li id="load-page">Load</li>
+            <li class="header-element" id="connect-page">Connect</li>
+            <li class="header-element" id="load-page">Load</li>
           </ul>
         </div>
         <div class="body">
@@ -51,6 +51,8 @@ shell.prototype.onConnectDevice = function () {
     this.fileManager.getLogFileName.bind(this.fileManager),
     this.onDisconnectDevice.bind(this)
   );
+
+  this.disableTransition();
 };
 
 shell.prototype.onDisconnectDevice = function () {
@@ -65,6 +67,8 @@ shell.prototype.onDisconnectDevice = function () {
   this.fileManager.initModule(
     this.jqueryMap.$body.find(".device-connector-body")
   );
+
+  this.enableTransition();
 };
 
 shell.prototype.onTransitionTo = function ( event ) {
@@ -73,6 +77,14 @@ shell.prototype.onTransitionTo = function ( event ) {
 };
 
 /****************************/
+
+shell.prototype.enableTransition = function () {
+  this.jqueryMap.$container.find(".header-element").removeClass("disabled");
+};
+
+shell.prototype.disableTransition = function () {
+  this.jqueryMap.$container.find(".header-element").addClass("disabled");
+};
 
 shell.prototype.transitionTo = function ( page_id ) {
   var page_link = this.stateMap.$container.find("#"+page_id);

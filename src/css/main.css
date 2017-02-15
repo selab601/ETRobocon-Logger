@@ -114,4 +114,9 @@ html, body {
   pointer-events: none;
 }
 
+.header ul li.disabled {
+  background-color: gray;
+  pointer-events: none;
+}
+
 /* -------------------------- */
