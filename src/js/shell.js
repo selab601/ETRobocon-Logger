@@ -16,8 +16,8 @@ function shell() {
         <div class="title-bar">ET Robocon Logger</div>
         <div class="header">
           <ul>
-            <li><a href="#" class="menu-link">RealTime Graph</a></li>
-            <li><a href="#" class="menu-link">Load JSON file</a></li>
+            <li id="connect-link">Connect</li>
+            <li id="load-link">Load</li>
           </ul>
         </div>
         <div class="body">
