@@ -44,7 +44,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 600,
-    frame: false
+    titleBarStyle: 'hidden'
   });
   mainWindow.loadURL(`file://${__dirname}/src/index.html`);
 
