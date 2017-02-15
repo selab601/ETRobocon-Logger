@@ -70,7 +70,7 @@ fileManager.prototype.setJqueryMap = function () {
   };
 };
 
-fileManager.prototype.initModule = function ( $append_target, callback ) {
+fileManager.prototype.initModule = function ( $append_target ) {
   this.stateMap.$append_target = $append_target;
   $append_target.after( this.configMap.main_html );
   this.setJqueryMap();

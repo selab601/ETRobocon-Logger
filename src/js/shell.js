@@ -79,8 +79,7 @@ shell.prototype.initModule = function ( $container ) {
     this.onConnectDevice.bind(this)
   );
   this.fileManager.initModule(
-    this.jqueryMap.$body.find(".device-connector-body"),
-    this.onConnectDevice.bind(this)
+    this.jqueryMap.$body.find(".device-connector-body")
   );
 };
 
