@@ -6,16 +6,18 @@ const D3GraphRenderer = require('./model/D3GraphRenderer.js');
 
 function graph() {
   this.configMap = {
-    device_list_html : (function () {
+    main_html : (function () {
       /*
         <div id="graph">
-          <div class="graph-header">
-            Render Graph
+          <div id="graph-value-list-box">
+            <div class="graph-value-list-header">
+              Render Graph
+            </div>
+            <div class="graph-value-list"></div>
           </div>
-          <div class="graph-body"></div>
+          <div id="d3graph"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
-    graph_html : '<div id="d3graph"></div>',
     graph_value_base_html : (function () {
       /*
         <div class="graph-render-value">
@@ -45,8 +47,7 @@ function graph() {
     ]
   };
   this.stateMap = {
-    $list_append_target : undefined,
-    $graph_append_target : undefined,
+    $append_target : undefined,
     render_value_keymap: []
   };
 
@@ -123,25 +124,21 @@ graph.prototype.initGraphValuesList = function () {
     base_html.find('label')
       .attr('for', value.id)
       .text(value.label);
-    this.jqueryMap.$graph_body.append(base_html);
+    this.jqueryMap.$graph_value_list.append(base_html);
   }.bind(this));
 };
 
 graph.prototype.setJqueryMap = function () {
-  var $graph_append_target = this.stateMap.$graph_append_target;
-  var $list_append_target = this.stateMap.$list_append_target;
+  var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
-    $graph_append_target : $graph_append_target,
-    $list_append_target : $list_append_target,
-    $graph_body : $list_append_target.find(".graph-body")
+    $append_target : $append_target,
+    $graph_value_list : $append_target.find(".graph-value-list")
   };
 };
 
-graph.prototype.initModule = function ( $list_append_target, $graph_append_target, getLogFileData ) {
-  this.stateMap.$list_append_target = $list_append_target;
-  this.stateMap.$graph_append_target = $graph_append_target;
-  $list_append_target.append( this.configMap.device_list_html );
-  $graph_append_target.html( this.configMap.graph_html );
+graph.prototype.initModule = function ( $append_target, getLogFileData ) {
+  this.stateMap.$append_target = $append_target;
+  $append_target.html( this.configMap.main_html );
   this.setJqueryMap();
   this.initGraphValuesList();
 
@@ -150,6 +147,24 @@ graph.prototype.initModule = function ( $list_append_target, $graph_append_targe
   // イベントハンドラ登録
 
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
+};
+
+graph.prototype.removeModule = function () {
+  this.stateMap.$append_target.find("#graph").remove();
+  this.jqueryMap = {};
+
+  this.stateMap = {
+    $append_target : undefined,
+    render_value_keymap: []
+  };
+  this.getLogFileData = undefined;
+
+  var keymap = [];
+  this.configMap.graph_value_map.forEach( function ( data ) {
+    keymap.push(data.id);
+  }.bind(this));
+  this.renderer = null;
+  this.renderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
 };
 
 module.exports = graph;

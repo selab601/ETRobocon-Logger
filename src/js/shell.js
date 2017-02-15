@@ -40,6 +40,11 @@ function shell() {
 shell.prototype.onConnectDevice = function () {
   this.deviceConnector.removeModule();
   this.fileManager.removeHtml();
+
+  this.graph.initModule(
+    this.jqueryMap.$body,
+    this.fileManager.getLogFileData.bind(this.fileManager)
+  );
   this.deviceDisconnector.initModule(
     this.jqueryMap.$body,
     this.fileManager.getLogFileName.bind(this.fileManager),
@@ -50,6 +55,8 @@ shell.prototype.onConnectDevice = function () {
 shell.prototype.onDisconnectDevice = function () {
   this.fileManager.removeModule();
   this.deviceDisconnector.removeModule();
+  this.graph.removeModule();
+ 
   this.deviceConnector.initModule(
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
