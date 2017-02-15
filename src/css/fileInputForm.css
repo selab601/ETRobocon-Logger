@@ -1,11 +1,11 @@
-#file-manager {
+#file-input-form {
   width: calc( 100% - 40px );
   heihgt: 30px;
   text-center: align;
   margin: 20px;
 }
 
-.file-manager-title {
+.file-input-form-title {
   display: inline-block;
   height: 30px;
   line-height: 30px;
@@ -13,7 +13,7 @@
   width: 60px;
 }
 
-#file-manager-input {
+#file-input-form-input {
   display: inline;
   border: none;
   padding: 0 0 0 5px;

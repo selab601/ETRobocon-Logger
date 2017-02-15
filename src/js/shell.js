@@ -4,7 +4,7 @@
  * - 機能モジュールの管理
  */
 
-const FileManager = require('./fileManager.js');
+const FileInputForm = require('./fileInputForm.js');
 const DeviceConnector = require('./deviceConnector.js');
 const DeviceDisconnector = require('./deviceDisconnector.js');
 const Graph = require('./graph.js');
@@ -30,7 +30,7 @@ function shell() {
   };
   this.jqueryMap = {};
 
-  this.fileManager = new FileManager();
+  this.fileInputForm = new FileInputForm();
   this.deviceConnector = new DeviceConnector();
   this.deviceDisconnector = new DeviceDisconnector();
   this.graph = new Graph();
@@ -40,15 +40,15 @@ function shell() {
 
 shell.prototype.onConnectDevice = function () {
   this.deviceConnector.removeModule();
-  this.fileManager.removeHtml();
+  this.fileInputForm.removeHtml();
 
   this.graph.initModule(
     this.jqueryMap.$body,
-    this.fileManager.getLogFileData.bind(this.fileManager)
+    this.fileInputForm.getLogFileData.bind(this.fileInputForm)
   );
   this.deviceDisconnector.initModule(
     this.jqueryMap.$body,
-    this.fileManager.getLogFileName.bind(this.fileManager),
+    this.fileInputForm.getLogFileName.bind(this.fileInputForm),
     this.onDisconnectDevice.bind(this)
   );
 
@@ -56,7 +56,7 @@ shell.prototype.onConnectDevice = function () {
 };
 
 shell.prototype.onDisconnectDevice = function () {
-  this.fileManager.removeModule();
+  this.fileInputForm.removeModule();
   this.deviceDisconnector.removeModule();
   this.graph.removeModule();
 
@@ -64,7 +64,7 @@ shell.prototype.onDisconnectDevice = function () {
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
   );
-  this.fileManager.initModule(
+  this.fileInputForm.initModule(
     this.jqueryMap.$body.find(".device-connector-body")
   );
 
@@ -75,15 +75,15 @@ shell.prototype.onTransitionTo = function ( event ) {
   switch ( event.data ) {
   case "load-page":
     this.deviceConnector.removeModule();
-    this.fileManager.removeHtml();
-    this.fileManager.removeModule();
+    this.fileInputForm.removeHtml();
+    this.fileInputForm.removeModule();
     break;
   case "connect-page":
     this.deviceConnector.initModule(
       this.jqueryMap.$body,
       this.onConnectDevice.bind(this)
     );
-    this.fileManager.initModule(
+    this.fileInputForm.initModule(
       this.jqueryMap.$body.find(".device-connector-body")
     );
     break;
@@ -134,7 +134,7 @@ shell.prototype.initModule = function ( $container ) {
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
   );
-  this.fileManager.initModule(
+  this.fileInputForm.initModule(
     this.jqueryMap.$body.find(".device-connector-body")
   );
 

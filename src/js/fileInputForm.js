@@ -2,15 +2,15 @@
  * ログファイルの管理を行う
  */
 
-function fileManager() {
+function fileInputForm() {
   this.configMap = {
     main_html: (function () {
       /*
-        <div id="file-manager">
-          <div class="file-manager-title">
+        <div id="file-input-form">
+          <div class="file-input-form-title">
             Log file
           </div>
-          <input type="text" id="file-manager-input"/>
+          <input type="text" id="file-input-form-input"/>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1]
   };
@@ -25,18 +25,18 @@ function fileManager() {
 
 /***** イベントハンドラ *****/
 
-fileManager.prototype.onUpdateLogFileName = function ( event ) {
+fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
   this.stateMap.logFileName = event.target.value;
 };
 
-fileManager.prototype.onInitLogFileName = function ( ev, message ) {
+fileInputForm.prototype.onInitLogFileName = function ( ev, message ) {
   this.stateMap.logFileName = message;
   this.jqueryMap.$file_manager_input.val(message);
 };
 
 /****************************/
 
-fileManager.prototype.getLogFileData = function () {
+fileInputForm.prototype.getLogFileData = function () {
   var fs = require('fs'),
       // TODO: ディレクトリパスを可変にする
       logFilePath = this.stateMap.logFilePath+this.stateMap.logFileName;
@@ -57,20 +57,20 @@ fileManager.prototype.getLogFileData = function () {
   return values;
 };
 
-fileManager.prototype.getLogFileName = function () {
+fileInputForm.prototype.getLogFileName = function () {
   console.log(this.stateMap.logFileName);
   return this.stateMap.logFileName;
 };
 
-fileManager.prototype.setJqueryMap = function () {
+fileInputForm.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
-    $file_manager_input : $append_target.parent().find("#file-manager-input")
+    $file_manager_input : $append_target.parent().find("#file-input-form-input")
   };
 };
 
-fileManager.prototype.initModule = function ( $append_target ) {
+fileInputForm.prototype.initModule = function ( $append_target ) {
   this.stateMap.$append_target = $append_target;
   $append_target.after( this.configMap.main_html );
   this.setJqueryMap();
@@ -79,7 +79,7 @@ fileManager.prototype.initModule = function ( $append_target ) {
   this.ipc.on('initLogFileName', this.onInitLogFileName.bind(this));
 };
 
-fileManager.prototype.removeModule = function () {
+fileInputForm.prototype.removeModule = function () {
   if ( ! this.jqueryMap === {} ) {
     this.removeHtml();
   }
@@ -91,9 +91,9 @@ fileManager.prototype.removeModule = function () {
   };
 };
 
-fileManager.prototype.removeHtml = function () {
-  this.jqueryMap.$append_target.find("#file-manager").remove();
+fileInputForm.prototype.removeHtml = function () {
+  this.jqueryMap.$append_target.find("#file-input-form").remove();
   this.jqueryMap = {};
 };
 
-module.exports = fileManager;
+module.exports = fileInputForm;
