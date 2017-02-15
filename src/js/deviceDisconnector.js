@@ -6,10 +6,10 @@ function deviceDisconnector () {
       */}).toString().replace(/(\n)/g, '').split('*')[1]
   };
   this.stateMap = {
-    $append_target : undefined
+    $append_target : undefined,
+    logFileName : undefined
   };
   this.jqueryMap = {};
-  this.getLogFileName = undefined;
   this.callback = undefined;
 
   this.ipc = require('electron').ipcRenderer;
@@ -20,7 +20,7 @@ function deviceDisconnector () {
 /***** イベントハンドラ *****/
 
 deviceDisconnector.prototype.onDisconnectDevice = function () {
-  this.ipc.send('disconnectDevice', this.getLogFileName());
+  this.ipc.send('disconnectDevice', this.stateMap.logFileName);
   this.jqueryMap.$disconnect_btn.addClass('disabled');
 };
 
@@ -41,12 +41,12 @@ deviceDisconnector.prototype.setJqueryMap = function () {
   };
 };
 
-deviceDisconnector.prototype.initModule = function ( $append_target, getLogFileName, callback ) {
+deviceDisconnector.prototype.initModule = function ( $append_target, logFileName, callback ) {
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
   this.setJqueryMap();
 
-  this.getLogFileName = getLogFileName;
+  this.stateMap.logFileName = logFileName;
   this.callback = callback;
 
   // イベントハンドラの登録
@@ -58,10 +58,10 @@ deviceDisconnector.prototype.removeModule = function () {
   this.jqueryMap.$disconnect_btn.remove();
   this.jqueryMap = {};
   this.stateMap = {
-    $append_target : undefined
+    $append_target : undefined,
+    logFileName : undefined
   };
   this.jqueryMap = {};
-  this.getLogFileName = undefined;
   this.callback = undefined;
 };
 

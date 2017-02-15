@@ -51,8 +51,10 @@ function shell() {
  * Bluetooth デバイスとの接続時の処理
  */
 shell.prototype.onConnectDevice = function () {
+  var logFileName = this.moduleMap.fileInputForm.getLogFileName();
+
   this.moduleMap.deviceConnector.removeModule();
-  this.moduleMap.fileInputForm.removeHtml();
+  this.moduleMap.fileInputForm.remove();
 
   this.moduleMap.logRenderer.initModule(
     this.jqueryMap.$body,
@@ -60,7 +62,7 @@ shell.prototype.onConnectDevice = function () {
   );
   this.moduleMap.deviceDisconnector.initModule(
     this.jqueryMap.$body,
-    this.moduleMap.fileInputForm.getLogFileName.bind(this.moduleMap.fileInputForm),
+    logFileName,
     this.onDisconnectDevice.bind(this)
   );
 
@@ -68,7 +70,6 @@ shell.prototype.onConnectDevice = function () {
 };
 
 shell.prototype.onDisconnectDevice = function () {
-  this.moduleMap.fileInputForm.removeModule();
   this.moduleMap.deviceDisconnector.removeModule();
   this.moduleMap.logRenderer.removeModule();
 
@@ -76,7 +77,7 @@ shell.prototype.onDisconnectDevice = function () {
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
   );
-  this.moduleMap.fileInputForm.initModule(
+  this.moduleMap.fileInputForm.init(
     this.jqueryMap.$body.find(".device-connector-body")
   );
 
@@ -87,8 +88,7 @@ shell.prototype.onTransitionTo = function ( event ) {
   switch ( event.data ) {
   case "load-page":
     this.moduleMap.deviceConnector.removeModule();
-    this.moduleMap.fileInputForm.removeHtml();
-    this.moduleMap.fileInputForm.removeModule();
+    this.moduleMap.fileInputForm.remove();
 
     this.moduleMap.logRenderer.initModule(
       this.jqueryMap.$body,
@@ -106,7 +106,7 @@ shell.prototype.onTransitionTo = function ( event ) {
       this.jqueryMap.$body,
       this.onConnectDevice.bind(this)
     );
-    this.moduleMap.fileInputForm.initModule(
+    this.moduleMap.fileInputForm.init(
       this.jqueryMap.$body.find(".device-connector-body")
     );
     break;
@@ -157,7 +157,7 @@ shell.prototype.initModule = function ( $container ) {
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
   );
-  this.moduleMap.fileInputForm.initModule(
+  this.moduleMap.fileInputForm.init(
     this.jqueryMap.$body.find(".device-connector-body")
   );
 
