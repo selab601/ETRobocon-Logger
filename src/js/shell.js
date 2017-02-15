@@ -72,7 +72,23 @@ shell.prototype.onDisconnectDevice = function () {
 };
 
 shell.prototype.onTransitionTo = function ( event ) {
-  console.log( event.data );
+  switch ( event.data ) {
+  case "load-page":
+    this.deviceConnector.removeModule();
+    this.fileManager.removeHtml();
+    this.fileManager.removeModule();
+    break;
+  case "connect-page":
+    this.deviceConnector.initModule(
+      this.jqueryMap.$body,
+      this.onConnectDevice.bind(this)
+    );
+    this.fileManager.initModule(
+      this.jqueryMap.$body.find(".device-connector-body")
+    );
+    break;
+  };
+
   this.transitionTo( event.data );
 };
 
