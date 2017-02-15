@@ -121,6 +121,24 @@ graph.prototype.onRenderGraphFromLogFile = function () {
   this.renderer.addBrush();
 };
 
+graph.prototype.onSelectTab = function ( event ) {
+  console.log(event.target.id);
+
+  // TODO: 選択したタブ等は dom に保存するのではなくメモリ上に保存すべき
+  this.jqueryMap.$append_target.find(".selected").removeClass("selected");
+
+  switch ( event.target.id ) {
+  case "graph-nav-table-tab":
+    this.jqueryMap.$graph_nav_table_tab.addClass("selected");
+    this.jqueryMap.$graph_nav_table.addClass("selected");
+    break;
+  case "graph-nav-graph-tab":
+    this.jqueryMap.$graph_nav_graph_tab.addClass("selected");
+    this.jqueryMap.$graph_nav_graph.addClass("selected");
+    break;
+  }
+};
+
 /*********************/
 
 graph.prototype.initGraphValuesList = function () {
@@ -140,7 +158,12 @@ graph.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
-    $graph_value_list : $append_target.find(".graph-value-list")
+    $graph_value_list : $append_target.find(".graph-value-list"),
+    $graph_nav_contents : $append_target.find(".graph-nav-content"),
+    $graph_nav_graph_tab : $append_target.find("#graph-nav-graph-tab"),
+    $graph_nav_table_tab : $append_target.find("#graph-nav-table-tab"),
+    $graph_nav_graph : $append_target.find("#graph-nav-graph"),
+    $graph_nav_table : $append_target.find("#graph-nav-table")
   };
 };
 
@@ -155,6 +178,7 @@ graph.prototype.initModule = function ( $append_target, getLogFileData ) {
   // イベントハンドラ登録
 
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
+  this.jqueryMap.$graph_nav_contents.bind( 'click', this.onSelectTab.bind(this) );
 };
 
 graph.prototype.removeModule = function () {
