@@ -58,8 +58,8 @@
 
 .device-connector-body {
   margin: 0;
-  height: 250px;
-  width: calc(100%-40px);
+  height: 195px;
+  width: calc( 100% - 40px );
   margin: 0 20px 0 20px;
   overflow: scroll;
   border: 1px solid black;

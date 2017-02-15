@@ -39,13 +39,6 @@ function shell() {
 
 shell.prototype.onConnectDevice = function () {
   this.deviceConnector.removeModule();
-  this.fileManager.initModule(
-    this.jqueryMap.$body,
-    this.onDefineLogFileName.bind(this)
-  );
-};
-
-shell.prototype.onDefineLogFileName = function () {
   this.fileManager.removeHtml();
   this.deviceDisconnector.initModule(
     this.jqueryMap.$body,
@@ -81,7 +74,14 @@ shell.prototype.initModule = function ( $container ) {
   this.setJqueryMap();
 
   // 機能モジュールの初期化
-  this.deviceConnector.initModule(this.jqueryMap.$body, this.onConnectDevice.bind(this));
+  this.deviceConnector.initModule(
+    this.jqueryMap.$body,
+    this.onConnectDevice.bind(this)
+  );
+  this.fileManager.initModule(
+    this.jqueryMap.$body.find(".device-connector-body"),
+    this.onConnectDevice.bind(this)
+  );
 };
 
 module.exports = shell;
