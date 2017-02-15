@@ -19,24 +19,24 @@ function logRenderer() {
     main_html : (function () {
       /*
         <div id="log-renderer">
-          <div id="log-renderer-value-list-box">
-            <div class="log-renderer-value-list-header">
+          <div id="log-renderer-list-box">
+            <div class="log-renderer-list-header">
               Render Graph
             </div>
-            <div class="log-renderer-value-list"></div>
+            <div class="log-renderer-list"></div>
           </div>
 
-          <nav id="log-renderer-nav">
-            <div id="log-renderer-nav-graph-tab" class="log-renderer-nav-content selected">Graph</div>
-            <div id="log-renderer-nav-table-tab" class="log-renderer-nav-content">Table</div>
+          <nav id="log-renderer-tabs">
+            <div id="log-renderer-tab-graph" class="log-renderer-tab selected">Graph</div>
+            <div id="log-renderer-tab-table" class="log-renderer-tab">Table</div>
           </nav>
-          <div id="log-renderer-nav-graph" class="log-renderer-content selected"></div>
-          <div id="log-renderer-nav-table" class="log-renderer-content"></div>
+          <div id="log-renderer-content-graph" class="log-renderer-content selected"></div>
+          <div id="log-renderer-content-table" class="log-renderer-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_base_html : (function () {
       /*
-        <div class="log-renderer-render-value">
+        <div class="log-renderer-list-val">
           <input type="checkbox" name="checkbox" />
           <label></label>
         </div>
@@ -170,13 +170,13 @@ logRenderer.prototype.onSelectTab = function ( event ) {
   this.jqueryMap.$append_target.find(".selected").removeClass("selected");
 
   switch ( event.target.id ) {
-  case "log-renderer-nav-table-tab":
-    this.jqueryMap.$log_renderer_nav_table_tab.addClass("selected");
-    this.jqueryMap.$log_renderer_nav_table.addClass("selected");
+  case "log-renderer-tab-table":
+    this.jqueryMap.$tab_table.addClass("selected");
+    this.jqueryMap.$content_table.addClass("selected");
     break;
-  case "log-renderer-nav-graph-tab":
-    this.jqueryMap.$log_renderer_nav_graph_tab.addClass("selected");
-    this.jqueryMap.$log_renderer_nav_graph.addClass("selected");
+  case "log-renderer-tab-graph":
+    this.jqueryMap.$tab_graph.addClass("selected");
+    this.jqueryMap.$content_graph.addClass("selected");
     break;
   }
 };
@@ -194,15 +194,15 @@ logRenderer.prototype.onSelectTab = function ( event ) {
  * この選択を行うために，ログファイル内の値の種類の一覧を描画する必要がある．
  */
 logRenderer.prototype.initGraphValuesList = function () {
-  this.configMap.graph_value_map.forEach( function (value) {
-    var base_html = this.$(this.configMap.graph_value_base_html);
-    base_html.find('input')
-      .attr('id', value.id)
-      .bind('click', value.id, this.onUpdateRenderValue.bind(this));
-    base_html.find('label')
-      .attr('for', value.id)
-      .text(value.label);
-    this.jqueryMap.$log_renderer_value_list.append(base_html);
+  this.configMap.graph_value_map.forEach( function ( value ) {
+    var base_html = this.$( this.configMap.graph_value_base_html );
+    base_html.find( 'input' )
+      .attr( 'id', value.id )
+      .bind( 'click', value.id, this.onUpdateRenderValue.bind(this) );
+    base_html.find( 'label' )
+      .attr( 'for', value.id )
+      .text( value.label );
+    this.jqueryMap.$list.append( base_html );
   }.bind(this));
 };
 
@@ -216,13 +216,13 @@ logRenderer.prototype.initGraphValuesList = function () {
 logRenderer.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
-    $append_target              : $append_target,
-    $log_renderer_value_list    : $append_target.find(".log-renderer-value-list"),
-    $log_renderer_nav_contents  : $append_target.find(".log-renderer-nav-content"),
-    $log_renderer_nav_graph_tab : $append_target.find("#log-renderer-nav-graph-tab"),
-    $log_renderer_nav_table_tab : $append_target.find("#log-renderer-nav-table-tab"),
-    $log_renderer_nav_graph     : $append_target.find("#log-renderer-nav-graph"),
-    $log_renderer_nav_table     : $append_target.find("#log-renderer-nav-table")
+    $append_target : $append_target,
+    $list          : $append_target.find(".log-renderer-list"),
+    $tab           : $append_target.find(".log-renderer-tab"),
+    $tab_graph     : $append_target.find("#log-renderer-tab-graph"),
+    $tab_table     : $append_target.find("#log-renderer-tab-table"),
+    $content_graph : $append_target.find("#log-renderer-content-graph"),
+    $content_table : $append_target.find("#log-renderer-content-table")
   };
 };
 
@@ -246,7 +246,7 @@ logRenderer.prototype.init = function ( $append_target, getLogFileData ) {
   this.initGraphValuesList();
 
   // レンダリングモジュールの初期化
-  this.tableRenderer.initModule( this.jqueryMap.$log_renderer_nav_table );
+  this.tableRenderer.initModule( this.jqueryMap.$content_table );
 
   // ログファイルの内容を取得するためのコールバック関数を登録
   // ログファイルの内容を描画しない場合には，undefined が渡される
@@ -254,7 +254,7 @@ logRenderer.prototype.init = function ( $append_target, getLogFileData ) {
 
   // イベントハンドラを登録
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
-  this.jqueryMap.$log_renderer_nav_contents.bind( 'click', this.onSelectTab.bind(this) );
+  this.jqueryMap.$tab.bind( 'click', this.onSelectTab.bind(this) );
 };
 
 /**

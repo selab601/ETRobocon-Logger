@@ -95,7 +95,7 @@ shell.prototype.onTransitionTo = function ( event ) {
       this.moduleMap.fileReader.getLogFileData.bind(this.moduleMap.fileReader)
     );
     this.moduleMap.fileReader.init(
-      this.jqueryMap.$container.find(".log-renderer-value-list-header")
+      this.jqueryMap.$container.find(".log-renderer-list-header")
     );
     break;
   case "connect-page":
