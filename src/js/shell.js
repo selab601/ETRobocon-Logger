@@ -54,6 +54,9 @@ shell.prototype.onDisconnectDevice = function () {
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
   );
+  this.fileManager.initModule(
+    this.jqueryMap.$body.find(".device-connector-body")
+  );
 };
 
 /****************************/
