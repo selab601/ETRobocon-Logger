@@ -1,16 +1,19 @@
 /**
- * - 機能コンテナのレンダリングと管理
+ * シェルモジュール
+ * 以下の役割を持つ
+ * - 各種機能コンテナのレンダリングと管理
  * - アプリケーションの状態の管理
  * - 機能モジュールの管理
  */
 
-const FileInputForm = require('./fileInputForm.js');
-const FileReader = require('./fileReader.js');
-const DeviceConnector = require('./deviceConnector.js');
+const FileInputForm      = require('./fileInputForm.js');
+const FileReader         = require('./fileReader.js');
+const DeviceConnector    = require('./deviceConnector.js');
 const DeviceDisconnector = require('./deviceDisconnector.js');
-const LogRenderer = require('./logRenderer.js');
+const LogRenderer        = require('./logRenderer.js');
 
 function shell() {
+  // 静的プロパティ
   this.configMap = {
     main_html : (function () {
       /*
@@ -21,36 +24,43 @@ function shell() {
             <li class="header-element" id="load-page">Load</li>
           </ul>
         </div>
-        <div class="body">
-        </div>
+        <div class="body"></div>
        */}).toString().replace(/(\n)/g, '').split('*')[1]
   };
+  // 動的プロパティ
   this.stateMap = {
     $container : undefined,
+    // 現在描画中の header-element の id
     rendered_page_id : undefined
   };
+  // 機能モジュール
+  this.moduleMap = {
+    fileInputForm      : new FileInputForm(),
+    fileReader         : new FileReader(),
+    deviceConnector    : new DeviceConnector(),
+    deviceDisconnector : new DeviceDisconnector(),
+    logRenderer        : new LogRenderer()
+  };
+  // jQuery オブジェクトのキャッシュ
   this.jqueryMap = {};
-
-  this.fileInputForm = new FileInputForm();
-  this.fileReader = new FileReader();
-  this.deviceConnector = new DeviceConnector();
-  this.deviceDisconnector = new DeviceDisconnector();
-  this.logRenderer = new LogRenderer();
 };
 
 /***** イベントハンドラ *****/
 
+/**
+ * Bluetooth デバイスとの接続時の処理
+ */
 shell.prototype.onConnectDevice = function () {
-  this.deviceConnector.removeModule();
-  this.fileInputForm.removeHtml();
+  this.moduleMap.deviceConnector.removeModule();
+  this.moduleMap.fileInputForm.removeHtml();
 
-  this.logRenderer.initModule(
+  this.moduleMap.logRenderer.initModule(
     this.jqueryMap.$body,
     undefined
   );
-  this.deviceDisconnector.initModule(
+  this.moduleMap.deviceDisconnector.initModule(
     this.jqueryMap.$body,
-    this.fileInputForm.getLogFileName.bind(this.fileInputForm),
+    this.moduleMap.fileInputForm.getLogFileName.bind(this.moduleMap.fileInputForm),
     this.onDisconnectDevice.bind(this)
   );
 
@@ -58,15 +68,15 @@ shell.prototype.onConnectDevice = function () {
 };
 
 shell.prototype.onDisconnectDevice = function () {
-  this.fileInputForm.removeModule();
-  this.deviceDisconnector.removeModule();
-  this.logRenderer.removeModule();
+  this.moduleMap.fileInputForm.removeModule();
+  this.moduleMap.deviceDisconnector.removeModule();
+  this.moduleMap.logRenderer.removeModule();
 
-  this.deviceConnector.initModule(
+  this.moduleMap.deviceConnector.initModule(
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
   );
-  this.fileInputForm.initModule(
+  this.moduleMap.fileInputForm.initModule(
     this.jqueryMap.$body.find(".device-connector-body")
   );
 
@@ -76,27 +86,27 @@ shell.prototype.onDisconnectDevice = function () {
 shell.prototype.onTransitionTo = function ( event ) {
   switch ( event.data ) {
   case "load-page":
-    this.deviceConnector.removeModule();
-    this.fileInputForm.removeHtml();
-    this.fileInputForm.removeModule();
+    this.moduleMap.deviceConnector.removeModule();
+    this.moduleMap.fileInputForm.removeHtml();
+    this.moduleMap.fileInputForm.removeModule();
 
-    this.logRenderer.initModule(
+    this.moduleMap.logRenderer.initModule(
       this.jqueryMap.$body,
-      this.fileReader.getLogFileData.bind(this.fileReader)
+      this.moduleMap.fileReader.getLogFileData.bind(this.moduleMap.fileReader)
     );
-    this.fileReader.initModule(
+    this.moduleMap.fileReader.initModule(
       this.jqueryMap.$container.find(".log-renderer-value-list-header")
     );
     break;
   case "connect-page":
-    this.logRenderer.removeModule();
-    this.fileReader.removeModule();
+    this.moduleMap.logRenderer.removeModule();
+    this.moduleMap.fileReader.removeModule();
 
-    this.deviceConnector.initModule(
+    this.moduleMap.deviceConnector.initModule(
       this.jqueryMap.$body,
       this.onConnectDevice.bind(this)
     );
-    this.fileInputForm.initModule(
+    this.moduleMap.fileInputForm.initModule(
       this.jqueryMap.$body.find(".device-connector-body")
     );
     break;
@@ -128,11 +138,11 @@ shell.prototype.transitionTo = function ( page_id ) {
 shell.prototype.setJqueryMap = function () {
   var $container = this.stateMap.$container;
   this.jqueryMap = {
-    $container : $container,
-    $contents : $container.find(".contents"),
-    $body : $container.find(".body"),
+    $container    : $container,
+    $contents     : $container.find(".contents"),
+    $body         : $container.find(".body"),
     $connect_page : $container.find("#connect-page"),
-    $load_page : $container.find("#load-page")
+    $load_page    : $container.find("#load-page")
   };
 };
 
@@ -143,11 +153,11 @@ shell.prototype.initModule = function ( $container ) {
   this.transitionTo( "connect-page" );
 
   // 機能モジュールの初期化
-  this.deviceConnector.initModule(
+  this.moduleMap.deviceConnector.initModule(
     this.jqueryMap.$body,
     this.onConnectDevice.bind(this)
   );
-  this.fileInputForm.initModule(
+  this.moduleMap.fileInputForm.initModule(
     this.jqueryMap.$body.find(".device-connector-body")
   );
 
