@@ -12,7 +12,8 @@ html, body {
   font-family: sans-serif;
   color: #444;
 
-  min-width: calc(230px + 800px);
+  min-width: 1100px;
+  min-height: 700px;
 }
 
 #container {
