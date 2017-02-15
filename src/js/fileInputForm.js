@@ -36,27 +36,6 @@ fileInputForm.prototype.onInitLogFileName = function ( ev, message ) {
 
 /****************************/
 
-fileInputForm.prototype.getLogFileData = function () {
-  var fs = require('fs'),
-      // TODO: ディレクトリパスを可変にする
-      logFilePath = this.stateMap.logFilePath+this.stateMap.logFileName;
-  var values = new Array();
-
-  var contents = fs.readFileSync(logFilePath);
-  var lines = contents
-        .toString()
-        .split('\n');
-
-  for (var i=0; i<lines.length; i++) {
-    values.push(lines[i]);
-  }
-
-  // 最後に余分な改行があるので削除
-  values.pop();
-
-  return values;
-};
-
 fileInputForm.prototype.getLogFileName = function () {
   console.log(this.stateMap.logFileName);
   return this.stateMap.logFileName;

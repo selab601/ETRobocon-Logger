@@ -5,6 +5,7 @@
  */
 
 const FileInputForm = require('./fileInputForm.js');
+const FileReader = require('./fileReader.js');
 const DeviceConnector = require('./deviceConnector.js');
 const DeviceDisconnector = require('./deviceDisconnector.js');
 const Graph = require('./graph.js');
@@ -31,6 +32,7 @@ function shell() {
   this.jqueryMap = {};
 
   this.fileInputForm = new FileInputForm();
+  this.fileReader = new FileReader();
   this.deviceConnector = new DeviceConnector();
   this.deviceDisconnector = new DeviceDisconnector();
   this.graph = new Graph();
@@ -44,7 +46,7 @@ shell.prototype.onConnectDevice = function () {
 
   this.graph.initModule(
     this.jqueryMap.$body,
-    this.fileInputForm.getLogFileData.bind(this.fileInputForm)
+    undefined
   );
   this.deviceDisconnector.initModule(
     this.jqueryMap.$body,
@@ -77,8 +79,19 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.deviceConnector.removeModule();
     this.fileInputForm.removeHtml();
     this.fileInputForm.removeModule();
+
+    this.graph.initModule(
+      this.jqueryMap.$body,
+      this.fileReader.getLogFileData.bind(this.fileReader)
+    );
+    this.fileReader.initModule(
+      this.jqueryMap.$container.find(".graph-value-list-header")
+    );
     break;
   case "connect-page":
+    this.graph.removeModule();
+    this.fileReader.removeModule();
+
     this.deviceConnector.initModule(
       this.jqueryMap.$body,
       this.onConnectDevice.bind(this)
