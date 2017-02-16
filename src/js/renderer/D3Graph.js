@@ -6,14 +6,14 @@
 
 // 各種デフォルト設定値
 const SVG_ELEMENT_HEIGHT = 270;
-const SVG_ELEMENT_WIDTH = 700;
+const SVG_ELEMENT_WIDTH  = 700;
 const TITLE_SPACE_HEIGHT = 20;
-const PADDING_LEFT = 40;
-const PADDING_RIGHT = 10;
-const PADDING_TOP = -15;
-const PADDING_BOTTOM = 40;
-const GRAPH_HEIGHT = SVG_ELEMENT_HEIGHT - (PADDING_TOP+PADDING_BOTTOM) - TITLE_SPACE_HEIGHT;
-const GRAPH_WIDTH = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
+const PADDING_LEFT       = 40;
+const PADDING_RIGHT      = 10;
+const PADDING_TOP        = -15;
+const PADDING_BOTTOM     = 40;
+const GRAPH_HEIGHT       = SVG_ELEMENT_HEIGHT - (PADDING_TOP+PADDING_BOTTOM) - TITLE_SPACE_HEIGHT;
+const GRAPH_WIDTH        = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
 
 /**
  * グラフ
@@ -67,8 +67,11 @@ function D3Graph( key, renderer, range, dom_id ) {
     .tickPadding(10); // 目盛線とテキストの間の長さ
 
   this.brush = this.d3.svg.brush();
-  this.mark = null;
+  this.mark  = null;
 };
+
+
+/***** グラフの更新 *****/
 
 /**
  * 描画データを追加する
@@ -91,32 +94,6 @@ D3Graph.prototype.clearData = function () {
   this.xValues = [];
   this.yValues = [];
   this.mark = null;
-};
-
-D3Graph.prototype.setMark = function (mark) {
-  this.mark = mark;
-};
-
-/**
- * グラフのスタイル(各箇所の大きさ)をデフォルト設定にリセットする
- */
-D3Graph.prototype.resetStyle = function () {
-  this.svgElementHeight = SVG_ELEMENT_HEIGHT;
-  this.svgElementWidth = SVG_ELEMENT_WIDTH;
-  this.titleSpaceHeight = TITLE_SPACE_HEIGHT;
-  this.paddingLeft = PADDING_LEFT;
-  this.paddingRight = PADDING_RIGHT;
-  this.paddingTop = PADDING_TOP;
-  this.paddingBottom = PADDING_BOTTOM;
-  this.graphHeight = GRAPH_HEIGHT;
-  this.graphWidth = GRAPH_WIDTH;
-};
-
-/**
- * グラフを削除する
- */
-D3Graph.prototype.remove = function () {
-  this.d3.select("#"+this.dom_id+">div#"+this.key).remove();
 };
 
 /**
@@ -153,7 +130,34 @@ D3Graph.prototype.updateScale = function (xScope, yScope) {
 };
 
 /**
- * 現在のスケール設定に従ってグラフを描画する
+ * グラフのスタイル(各箇所の大きさ)をデフォルト設定にリセットする
+ */
+D3Graph.prototype.resetStyle = function () {
+  this.svgElementHeight = SVG_ELEMENT_HEIGHT;
+  this.svgElementWidth = SVG_ELEMENT_WIDTH;
+  this.titleSpaceHeight = TITLE_SPACE_HEIGHT;
+  this.paddingLeft = PADDING_LEFT;
+  this.paddingRight = PADDING_RIGHT;
+  this.paddingTop = PADDING_TOP;
+  this.paddingBottom = PADDING_BOTTOM;
+  this.graphHeight = GRAPH_HEIGHT;
+  this.graphWidth = GRAPH_WIDTH;
+};
+
+/************************/
+
+
+/***** グラフの描画 *****/
+
+/**
+ * グラフを DOM 要素から削除する
+ */
+D3Graph.prototype.remove = function () {
+  this.d3.select("#"+this.dom_id+">div#"+this.key).remove();
+};
+
+/**
+ * グラフを DOM 要素に描画する
  */
 D3Graph.prototype.render = function () {
   // SVG 要素追加
@@ -198,57 +202,21 @@ D3Graph.prototype.render = function () {
   this.renderMark();
 };
 
-D3Graph.prototype.renderMark = function () {
-  var svg = this.d3.select("svg#"+this.key);
-  // マークの描画
-  if (this.mark == null) {return;}
-  svg.selectAll("path.mark").remove();
-  svg.append("path")
-    .attr("class", "mark")
-    .attr("d", this.markLine([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight]))
-    .attr("stroke", "red")
-    .attr("fill", "none");
-};
+/************************/
 
-D3Graph.prototype.addLabel = function () {
-  var svg = this.d3.select("svg#"+this.key);
-  svg.selectAll("text")
-    .data(this.yValues)
-    .enter()
-    .append("text")
-    .text(function(d) { return d; })
-    .attr("x", function(d, i) {
-      return this.xScale(this.xValues[i]);
-    }.bind(this))
-    .attr("y", function(d) {
-      return this.yScale(d);
-    }.bind(this))
-    .attr('opacity', function(d, i) {
-      if (i == 0) {
-        return 1;
-      }
-      // 直前の値との差分から，ラベルを表示するかしないか決める
-      if (this.yValues[i] - this.yValues[i-1] < this.labelRenaderIntarval) {
-        return 0;
-      } else {
-        return 1;
-      }
-    }.bind(this))
-    .attr("font-family", "sans-serif")
-    .attr("font-size", "11px")
-    .attr("fill", "black");
-};
 
+/***** グラフへの性質の追加 *****/
+
+/**
+ * Blush の追加
+ *
+ * brushオブジェクトを追加する
+ * blush は透明な rect であり，マウスイベントを取得する．
+ * blush オブジェクト上でドラッグすると，ドラッグ範囲を選択できる．
+ * 範囲が選択されている状態でbrush.extent()メソッドを実行するとその範囲のデータ値を返す
+ */
 D3Graph.prototype.addBrush = function () {
   var svg = this.d3.select("svg#"+this.key);
-
-  /* --------- brush ------------ */
-  /*
-   * brushオブジェクトを追加する
-   * brushは透明なrectをグループ上設置しマウスイベントを取得する。
-   * 設置したrect上ではドラッグで範囲選択が可能
-   * 範囲が選択されている状態でbrush.extent()メソッドを実行するとその範囲のデータ値を返す
-   */
 
   var brushGroup = svg.append("g")
         .attr("class", "brush")
@@ -297,33 +265,53 @@ D3Graph.prototype.addBrush = function () {
   var backGroundRect = brushGroup.select("rect.background");
   this.addFocus(backGroundRect);
 
-  /* --------------------------- */
-
   return rect;
 };
 
-D3Graph.prototype.addMarkEvent = function (rect) {
-  var self = this;
-  rect.on("mousedown", function() {
-    // 右クリックの時は動作を止める
-    if (this.d3.event.button === 2) { // only enable for right click
-      this.d3.event.stopImmediatePropagation();
-    }
-  }.bind(this))
-    .on("contextmenu", function (d, i) {
-      // 右クリック時の処理
-      self.d3.event.preventDefault();
-
-      var mouseXPos = self.xScale.invert(self.d3.mouse(this)[0]),
-          leftSideIndex = self.bisectXValue(self.xValues, mouseXPos, 1),
-          leftSideXData = self.xScale[leftSideIndex - 1],
-          rightSideXData = self.xScale[leftSideIndex],
-          index = mouseXPos - leftSideXData > rightSideXData - mouseXPos ? leftSideIndex-1 : leftSideIndex;
-
-      self.renderer.setMark(index);
-    });
+/**
+ * ラベルの追加
+ *
+ * ラベルは，グラフ上の各値に対し，その Y 値を表したものであり，
+ * グラフ上の値の近傍に描画される．
+ * 全ての値にラベルを描画すると見辛いので，時間軸上の前後の Y 値
+ * の差分が一定以上の場合のみ描画する．
+ * この時の「一定」の値は，「labelRenderIntarval」プロパティに定められている．
+ */
+D3Graph.prototype.addLabel = function () {
+  var svg = this.d3.select("svg#"+this.key);
+  svg.selectAll("text")
+    .data(this.yValues)
+    .enter()
+    .append("text")
+    .text(function(d) { return d; })
+    .attr("x", function(d, i) {
+      return this.xScale(this.xValues[i]);
+    }.bind(this))
+    .attr("y", function(d) {
+      return this.yScale(d);
+    }.bind(this))
+    .attr('opacity', function(d, i) {
+      if (i == 0) {
+        return 1;
+      }
+      // 直前の値との差分から，ラベルを表示するかしないか決める
+      if (this.yValues[i] - this.yValues[i-1] < this.labelRenaderIntarval) {
+        return 0;
+      } else {
+        return 1;
+      }
+    }.bind(this))
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "11px")
+    .attr("fill", "black");
 };
 
+/**
+ * フォーカスの追加
+ *
+ * フォーカスは，グラフ上の各値の詳細を表示する機能
+ * グラフにマウスを重ねると，直近の要素の x, y 値がグラフ上に描画される
+ */
 D3Graph.prototype.addFocus = function (rect) {
   var svg = this.d3.select("svg#"+this.key);
 
@@ -370,6 +358,44 @@ D3Graph.prototype.addFocus = function (rect) {
     focus.attr("transform", "translate(" + xScale_(xValues_[index]) + "," + yScale_(yValues_[index]) + ")");
     focus.select("text").text("(" + xValues_[index] + ", " + yValues_[index] + ")");
   }
+};
+
+D3Graph.prototype.setMark = function (mark) {
+  this.mark = mark;
+};
+
+D3Graph.prototype.renderMark = function () {
+  var svg = this.d3.select("svg#"+this.key);
+  // マークの描画
+  if (this.mark == null) {return;}
+  svg.selectAll("path.mark").remove();
+  svg.append("path")
+    .attr("class", "mark")
+    .attr("d", this.markLine([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight]))
+    .attr("stroke", "red")
+    .attr("fill", "none");
+};
+
+D3Graph.prototype.addMarkEvent = function (rect) {
+  var self = this;
+  rect.on("mousedown", function() {
+    // 右クリックの時は動作を止める
+    if (this.d3.event.button === 2) { // only enable for right click
+      this.d3.event.stopImmediatePropagation();
+    }
+  }.bind(this))
+    .on("contextmenu", function (d, i) {
+      // 右クリック時の処理
+      self.d3.event.preventDefault();
+
+      var mouseXPos = self.xScale.invert(self.d3.mouse(this)[0]),
+          leftSideIndex = self.bisectXValue(self.xValues, mouseXPos, 1),
+          leftSideXData = self.xScale[leftSideIndex - 1],
+          rightSideXData = self.xScale[leftSideIndex],
+          index = mouseXPos - leftSideXData > rightSideXData - mouseXPos ? leftSideIndex-1 : leftSideIndex;
+
+      self.renderer.setMark(index);
+    });
 };
 
 module.exports = D3Graph;
