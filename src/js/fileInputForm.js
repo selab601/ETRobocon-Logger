@@ -48,6 +48,7 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
  */
 fileInputForm.prototype.onInitLogFileName = function ( ev, message ) {
   this.stateMap.logFileName = message;
+  // TODO: DOM 要素が描画されるまで待ちたい...
   this.jqueryMap.$file_input_form_text.val(message);
 };
 

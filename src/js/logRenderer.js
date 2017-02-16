@@ -74,6 +74,7 @@ function logRenderer() {
  * 受信したデータで，グラフとテーブルの描画を更新する
  */
 logRenderer.prototype.onReceiveDataFromDevice = function ( ev, message ) {
+  // TODO: 値の検証
   var data = JSON.parse(message);
 
   Object.keys(data).forEach(function(key) {
