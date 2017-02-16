@@ -223,6 +223,7 @@ D3Graph.prototype.render = function () {
  * グラフを DOM 要素から削除する
  */
 D3Graph.prototype.remove = function () {
+  if ( this.d3ObjectsMap.div === undefined ) { return; }
   this.d3ObjectsMap.div.remove();
   this.d3ObjectsMap = {};
 };
