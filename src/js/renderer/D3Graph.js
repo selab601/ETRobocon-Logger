@@ -18,14 +18,14 @@ const GRAPH_WIDTH        = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
 /**
  * グラフ
  *
- * @param key      描画対象の値の種類を識別するキー
- * @param renderer グラフのレンダラ．D3GraphRenderer を指定する
- * @param range    描画範囲．ここで指定された描画範囲よりも多くのデータが
- *                 追加されようとした場合，古いデータから抜け落ちてゆく
- *                 制限したくない場合は，null を指定する
- * @param dom_id   グラフを追加する対象の DOM の ID
+ * @param key              描画対象の値の種類を識別するキー
+ * @param maxXValueLength  描画範囲．ここで指定された描画範囲よりも多くのデータが
+ *                         追加されようとした場合，古いデータから抜け落ちてゆく
+ *                         制限したくない場合は，null を指定する
+ * @param append_target_id グラフを追加する対象の DOM の ID
+ * @param setMarkCallback  マークセット時に実行されるコールバック関数
  */
-function D3Graph( key, renderer, range, dom_id ) {
+function D3Graph( key, maxXValueLength, append_target_id, setMarkCallback ) {
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
   this.svgElementWidth  = SVG_ELEMENT_WIDTH;
   this.titleSpaceHeight = TITLE_SPACE_HEIGHT;
@@ -36,12 +36,13 @@ function D3Graph( key, renderer, range, dom_id ) {
   this.graphHeight      = GRAPH_HEIGHT;
   this.graphWidth       = GRAPH_WIDTH;
 
-  this.key       = key;
-  this.renderer  = renderer;
-  this.range     = range;
-  this.dom_id    = dom_id;
-  this.xValues   = [];
-  this.yValues   = [];
+  this.maxXValueLength  = maxXValueLength;
+  this.key              = key;
+  this.id               = "#" + append_target_id + ">div#" + key;
+  this.append_target_id = append_target_id;
+  this.setMarkCallback  = setMarkCallback;
+  this.xValues          = [];
+  this.yValues          = [];
   this.labelRenaderIntarval = 5;
 
   this.d3 = require('../lib/d3.min.js');
@@ -54,31 +55,30 @@ function D3Graph( key, renderer, range, dom_id ) {
   this.line         = this.d3.svg.line();
   this.markLine     = this.d3.svg.line();
   this.bisectXValue = this.d3.bisector(function(d) { return d; }).left,
-
-  this.xAxis = this.d3.svg.axis()
+  this.brush        = this.d3.svg.brush();
+  this.mark         = null;
+  this.xAxis        = this.d3.svg.axis()
     .orient('bottom')
     .innerTickSize(-this.graphHeight)  // 目盛線の長さ（内側）
     .outerTickSize(5) // 目盛線の長さ（外側）
     .tickPadding(10); // 目盛線とテキストの間の長さ
-  this.yAxis = this.d3.svg.axis()
+  this.yAxis        = this.d3.svg.axis()
     .orient('left')
     .innerTickSize(-this.graphWidth)  // 目盛線の長さ（内側）
     .outerTickSize(5) // 目盛線の長さ（外側）
     .tickPadding(10); // 目盛線とテキストの間の長さ
-
-  this.brush = this.d3.svg.brush();
-  this.mark  = null;
 };
 
 
-/***** グラフの更新 *****/
+/***** グラフの描画内容の変更 *****/
 
 /**
  * 描画データを追加する
  */
 D3Graph.prototype.appendData = function (xData, yData) {
-  if ( this.range !== null ) {
-    if ( this.xValues.length > this.range ) {
+  // X 値の最大保持数が設定されている場合は，値の切り捨て判定/処理を行う
+  if ( this.maxXValueLength !== null ) {
+    if ( this.xValues.length > this.maxXValueLength ) {
       this.xValues.shift();
       this.yValues.shift();
     }
@@ -98,6 +98,13 @@ D3Graph.prototype.clearData = function () {
 
 /**
  * グラフのスケールを設定する
+ *
+ * @param 描画するX軸の範囲を開始値と終了値の配列で示したもの 例) [ 開始値, 終了値 ]
+ *        null を指定した場合，データ内の先頭の値，末尾の値が各々自動的に選択される
+ * @param 描画するY軸の範囲を開始値と終了値の配列で示したもの 例) [ 開始値, 終了値 ]
+ *        null を指定した場合，データ内の最小値，最大値にマージンを加えたものが選択される
+ *
+ * TODO: Y 値のマージンを可変にする
  */
 D3Graph.prototype.updateScale = function (xScope, yScope) {
   // 描画範囲の設定
@@ -114,16 +121,15 @@ D3Graph.prototype.updateScale = function (xScope, yScope) {
     .x(function(d,i){return this.xScale(this.xValues[i]);}.bind(this))
     .y(function(d,i){return this.yScale(d);}.bind(this))
     .interpolate("linear");
+  // mark にスケールを設定
   this.markLine
     .x(function(d,i){return this.xScale(this.xValues[this.mark]);}.bind(this))
     .y(function(d){return d;}.bind(this))
     .interpolate("linear");
-
   // brushオブジェクトにスケールを設定
   this.brush
     .x(this.xScale)
     .y(this.yScale);
-
   // 軸にスケールを設定
   this.xAxis.scale(this.xScale);
   this.yAxis.scale(this.yScale);
@@ -150,36 +156,34 @@ D3Graph.prototype.resetStyle = function () {
 /***** グラフの描画 *****/
 
 /**
- * グラフを DOM 要素から削除する
- */
-D3Graph.prototype.remove = function () {
-  this.d3.select("#"+this.dom_id+">div#"+this.key).remove();
-};
-
-/**
  * グラフを DOM 要素に描画する
+ *
+ * TODO: パスと軸について，一度削除してから描画し直しているが，パフォーマンスが悪そう
+ *       描画済みのものを直接更新できないか？
+ *       ついでにキャッシュも行えると良い
  */
 D3Graph.prototype.render = function () {
-  // SVG 要素追加
-  if (this.d3.select("#"+this.dom_id+">div#" + this.key).empty()) {
-    this.d3.select("#"+this.dom_id+"")
+  // グラフ自体がまだ存在しなければ，描画する
+  if (this.d3.select(this.id).empty()) {
+    this.d3.select("#"+this.append_target_id)
       .append("div")
       .attr('class', 'graph-chart')
       .attr('id', this.key);
-    this.d3.select("#"+this.dom_id+">div#"+this.key)
+    this.d3.select(this.id)
       .append("text")
       .attr("class", "graph-chart-title")
       .text(this.key);
-    this.d3.select("#"+this.dom_id+">div#"+this.key)
+    this.d3.select(this.id)
       .append("svg")
       .attr('class', 'graph-chart-svg')
       .attr('id', this.key)
       .attr("width", this.svgElementWidth)
       .attr("height", this.svgElementHeight);
   }
+
   var svg = this.d3.select("svg#"+this.key);
 
-  // グラフの再描画
+  // パスの再描画
   svg.selectAll("path#"+this.key).remove();
   svg.append("path")
     .attr("id", this.key)
@@ -187,7 +191,7 @@ D3Graph.prototype.render = function () {
     .attr("stroke", "steelblue")
     .attr("fill", "none");
 
-  // 軸の描画
+  // X軸，Y軸の描画
   svg.selectAll("g").remove();
   svg.append('g')
     .attr("class", "axis")
@@ -200,6 +204,13 @@ D3Graph.prototype.render = function () {
 
   // マークの描画
   this.renderMark();
+};
+
+/**
+ * グラフを DOM 要素から削除する
+ */
+D3Graph.prototype.remove = function () {
+  this.d3.select(this.id).remove();
 };
 
 /************************/
@@ -236,9 +247,9 @@ D3Graph.prototype.addBrush = function () {
 
   function brushed () {
     var xStart = this.brush.extent()[0][0];
-    var xEnd = this.brush.extent()[1][0];
+    var xEnd   = this.brush.extent()[1][0];
     var yStart = this.brush.extent()[0][1];
-    var yEnd = this.brush.extent()[1][1];
+    var yEnd   = this.brush.extent()[1][1];
 
     if (xStart == xEnd && yStart == yEnd) {
       // デフォルトに戻す
@@ -394,7 +405,7 @@ D3Graph.prototype.addMarkEvent = function (rect) {
           rightSideXData = self.xScale[leftSideIndex],
           index = mouseXPos - leftSideXData > rightSideXData - mouseXPos ? leftSideIndex-1 : leftSideIndex;
 
-      self.renderer.setMark(index);
+      self.setMarkCallback(index);
     });
 };
 

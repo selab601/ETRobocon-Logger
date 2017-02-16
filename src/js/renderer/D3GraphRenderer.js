@@ -6,14 +6,12 @@
 
 var D3Graph = require("./D3graph.js");
 
-function D3GraphRenderer ( all_keymap, render_value_keymap, range, dom_id ) {
-  this.all_keymap = all_keymap;
+function D3GraphRenderer ( all_keymap, render_value_keymap, maxXValueLength, append_target_id ) {
+  this.all_keymap          = all_keymap;
   this.render_value_keymap = render_value_keymap;
-  this.range = range;
-  this.dom_id = dom_id;
-  this.graphMap = {};
+  this.graphMap            = {};
   this.all_keymap.forEach( function ( key ) {
-    this.graphMap[ key ] = new D3Graph( key, this, this.range, this.dom_id );
+    this.graphMap[ key ]   = new D3Graph( key, maxXValueLength, append_target_id, this.setMark.bind(this) );
   }.bind(this));
 };
 
