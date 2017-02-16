@@ -38,12 +38,14 @@ function D3Graph( key, maxXValueLength, append_target_id, setMarkCallback ) {
 
   this.maxXValueLength  = maxXValueLength;
   this.key              = key;
-  this.id               = "#" + append_target_id + ">div#" + key;
   this.append_target_id = append_target_id;
   this.setMarkCallback  = setMarkCallback;
+
   this.xValues          = [];
   this.yValues          = [];
-  this.labelRenaderIntarval = 5;
+  this.d3ObjectsMap     = {};
+  // TODO: 可変にする
+  this.labelInterval    = 5;
 
   this.d3 = require('../lib/d3.min.js');
 
@@ -155,50 +157,61 @@ D3Graph.prototype.resetStyle = function () {
 
 /***** グラフの描画 *****/
 
+D3Graph.prototype.setD3ObjectsMap = function () {
+  this.d3.select("#"+this.append_target_id)
+    .append("div")
+    .attr('class', 'graph-chart')
+    .attr('id', this.key);
+  var div = this.d3.select("#"+this.append_target_id+">div#"+this.key);
+  div
+    .append("text")
+    .attr("class", "graph-chart-title")
+    .text(this.key);
+  div
+    .append("svg")
+    .attr('class', 'graph-chart-svg')
+    .attr('id', this.key)
+    .attr("width", this.svgElementWidth)
+    .attr("height", this.svgElementHeight);
+  var svg = this.d3.select("svg#"+this.key);
+
+  svg.append("path")
+    .attr("id", this.key)
+    .attr("stroke", "steelblue")
+    .attr("fill", "none");
+  svg.append('g')
+    .attr("class", "axis")
+    .attr("id", this.key+"-x-axis");
+  svg.append('g')
+    .attr("class", "axis")
+    .attr("id", this.key+"-y-axis");
+
+  this.d3ObjectsMap = {
+    div  : div,
+    svg  : svg,
+    path : svg.select("path#"+this.key),
+    xG   : svg.select("g#"+this.key+"-x-axis"),
+    yG   : svg.select("g#"+this.key+"-y-axis")
+  };
+};
+
 /**
  * グラフを DOM 要素に描画する
- *
- * TODO: パスと軸について，一度削除してから描画し直しているが，パフォーマンスが悪そう
- *       描画済みのものを直接更新できないか？
- *       ついでにキャッシュも行えると良い
  */
 D3Graph.prototype.render = function () {
   // グラフ自体がまだ存在しなければ，描画する
-  if (this.d3.select(this.id).empty()) {
-    this.d3.select("#"+this.append_target_id)
-      .append("div")
-      .attr('class', 'graph-chart')
-      .attr('id', this.key);
-    this.d3.select(this.id)
-      .append("text")
-      .attr("class", "graph-chart-title")
-      .text(this.key);
-    this.d3.select(this.id)
-      .append("svg")
-      .attr('class', 'graph-chart-svg')
-      .attr('id', this.key)
-      .attr("width", this.svgElementWidth)
-      .attr("height", this.svgElementHeight);
+  if (this.d3.select("#"+this.append_target_id+">div#"+this.key).empty()) {
+    this.setD3ObjectsMap();
   }
 
-  var svg = this.d3.select("svg#"+this.key);
-
   // パスの再描画
-  svg.selectAll("path#"+this.key).remove();
-  svg.append("path")
-    .attr("id", this.key)
-    .attr("d", this.line(this.yValues))
-    .attr("stroke", "steelblue")
-    .attr("fill", "none");
-
-  // X軸，Y軸の描画
-  svg.selectAll("g").remove();
-  svg.append('g')
-    .attr("class", "axis")
+  this.d3ObjectsMap.path
+    .attr("d", this.line(this.yValues));
+  // X軸，Y軸の再描画
+  this.d3ObjectsMap.xG
     .attr("transform", "translate(0," + ( this.svgElementHeight - this.paddingBottom ) + ")")
     .call(this.xAxis);
-  svg.append('g')
-    .attr("class", "axis")
+  this.d3ObjectsMap.yG
     .attr("transform", "translate(" + this.paddingLeft + ",0)")
     .call(this.yAxis);
 
@@ -210,7 +223,8 @@ D3Graph.prototype.render = function () {
  * グラフを DOM 要素から削除する
  */
 D3Graph.prototype.remove = function () {
-  this.d3.select(this.id).remove();
+  this.d3ObjectsMap.div.remove();
+  this.d3ObjectsMap = {};
 };
 
 /************************/
@@ -227,7 +241,7 @@ D3Graph.prototype.remove = function () {
  * 範囲が選択されている状態でbrush.extent()メソッドを実行するとその範囲のデータ値を返す
  */
 D3Graph.prototype.addBrush = function () {
-  var svg = this.d3.select("svg#"+this.key);
+  var svg = this.d3ObjectsMap.svg;
 
   var brushGroup = svg.append("g")
         .attr("class", "brush")
@@ -265,7 +279,7 @@ D3Graph.prototype.addBrush = function () {
     this.addMarkEvent(rect);
 
     // brushオブジェクト上の矩形を消す
-    this.d3.select('svg#'+this.key).select('.extent')
+    this.d3ObjectsMap.svg.select('.extent')
       .attr({width: 0, height: 0, x: 0, y: 0});
   }
 
@@ -289,7 +303,9 @@ D3Graph.prototype.addBrush = function () {
  * この時の「一定」の値は，「labelRenderIntarval」プロパティに定められている．
  */
 D3Graph.prototype.addLabel = function () {
-  var svg = this.d3.select("svg#"+this.key);
+  var svg = this.d3ObjectsMap.svg;
+  if ( svg === undefined ) { return; }
+
   svg.selectAll("text")
     .data(this.yValues)
     .enter()
@@ -306,7 +322,7 @@ D3Graph.prototype.addLabel = function () {
         return 1;
       }
       // 直前の値との差分から，ラベルを表示するかしないか決める
-      if (this.yValues[i] - this.yValues[i-1] < this.labelRenaderIntarval) {
+      if (this.yValues[i] - this.yValues[i-1] < this.labelInterval) {
         return 0;
       } else {
         return 1;
@@ -324,7 +340,8 @@ D3Graph.prototype.addLabel = function () {
  * グラフにマウスを重ねると，直近の要素の x, y 値がグラフ上に描画される
  */
 D3Graph.prototype.addFocus = function (rect) {
-  var svg = this.d3.select("svg#"+this.key);
+  var svg = this.d3ObjectsMap.svg;
+  if ( svg === undefined ) { return; }
 
   if (rect == null) {
     // 追加する rect が存在しなければ，新たに rect 要素を追加する
@@ -376,7 +393,9 @@ D3Graph.prototype.setMark = function (mark) {
 };
 
 D3Graph.prototype.renderMark = function () {
-  var svg = this.d3.select("svg#"+this.key);
+  var svg = this.d3ObjectsMap.svg;
+  if ( svg === undefined ) { return; }
+
   // マークの描画
   if (this.mark == null) {return;}
   svg.selectAll("path.mark").remove();
