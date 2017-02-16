@@ -262,11 +262,16 @@ D3Graph.prototype.addBrush = function () {
   }
 };
 
+/**
+ * Brush オブジェクトの背景である RECT 要素を取得する
+ */
 D3Graph.prototype.getBrushRect = function () {
   return this.d3ObjectsMap.brush_object_rect;
 };
 
-// brush 処理時に呼び出されるイベントハンドラ
+/**
+ * brush 処理時に呼び出されるイベントハンドラ
+ */
 function onBrushed () {
   // 領域選択の座標， 左上座標: (xStart, yStart), 右下座標: (xEnd, yEnd)
   var xStart = this.brush.extent()[0][0];
@@ -345,11 +350,14 @@ D3Graph.prototype.addLabel = function () {
  *
  * フォーカスは，グラフ上の各値の詳細を表示する機能
  * グラフにマウスを重ねると，直近の要素の x, y 値がグラフ上に描画される
+ *
+ * @param フォーカスを追加する対象のrect要素．指定がない場合は追加する．
  */
-D3Graph.prototype.addFocus = function (rect) {
+D3Graph.prototype.addFocus = function ( target_rect ) {
   var svg = this.d3ObjectsMap.svg;
   if ( svg === undefined ) { return; }
 
+  var rect = target_rect;
   if (rect == null) {
     // 追加する rect が存在しなければ，新たに rect 要素を追加する
     svg.selectAll("rect.focus_overlay").remove();
@@ -364,10 +372,8 @@ D3Graph.prototype.addFocus = function (rect) {
   var focus = svg.append("g")
         .attr("class", "focus")
         .style("display", "none");
-
   focus.append("circle")
     .attr("r", 4.5);
-
   focus.append("text")
     .attr("x", 9)
     .attr("dy", ".35em");

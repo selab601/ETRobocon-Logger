@@ -50,21 +50,38 @@ D3GraphRenderer.prototype.renderAll = function (xScope, yScope, options) {
     this.graphMap[key].render();
 
     // TODO: options の検証
+    /**
+     * グラフに拡大/縮小機能を追加する．
+     * blush オブジェクトとは，グラフ上でマウスドラッグした際に表示される
+     * 半透明のボックスのこと．
+     * このボックス内部が拡大して描画される．
+     * グラフ内で通常の左クリックを行うと最初の縮尺に戻る．
+     */
     var brush_rect = null;
     if (options.indexOf("brush") != -1) {
       this.graphMap[key].addBrush();
       brush_rect = this.graphMap[key].getBrushRect();
     }
 
+    /**
+     * フォーカスとは，グラフにマウスオーバーすると，直近の値の詳細をグラフ上に描画する機能
+     */
     if (options.indexOf("focus") != -1) {
       this.graphMap[key].addFocus(brush_rect);
     }
 
+    /**
+     * マークとは，グラフ上で右クリックすることでグラフに印をつけられる機能
+     * つけた印は前グラフ間で共有される
+     */
     if (options.indexOf("mark") != -1) {
       this.graphMap[key].addMarkEvent(brush_rect);
       this.graphMap[key].renderMark();
     }
 
+    /**
+     * グラフ上の各値に自動的に付加される Y 値のラベル
+     */
     if (options.indexOf("label") != -1) {
       this.graphMap[key].addLabel();
     }
@@ -90,51 +107,9 @@ D3GraphRenderer.prototype.remove = function ( key ) {
 
 /************************/
 
-
-/***** グラフへの性質の追加 *****/
-
 /**
- * 全グラフへ blush オブジェクトを追加
- *
- * グラフに拡大/縮小機能を追加する．
- * blush オブジェクトとは，グラフ上でマウスドラッグした際に表示される
- * 半透明のボックスのこと．
- * このボックス内部が拡大して描画される．
- * グラフ内で通常の左クリックを行うと最初の縮尺に戻る．
- */
-D3GraphRenderer.prototype.addBrush = function () {
-  this.all_keymap.forEach( function ( key ) {
-    this.graphMap[key].addBrush();
-  }.bind(this));
-};
-
-/**
- * 全グラフへラベルを追加
- *
- * グラフ上の各値に自動的に付加される Y 値のラベル
- */
-D3GraphRenderer.prototype.addLabel = function () {
-  this.all_keymap.forEach( function ( key ) {
-    this.graphMap[key].addLabel();
-  }.bind(this));
-};
-
-/**
- * 全グラフへフォーカスを追加
- *
- * フォーカスとは，グラフにマウスオーバーすると，直近の値の詳細をグラフ上に描画する機能
- */
-D3GraphRenderer.prototype.addFocus = function () {
-  this.all_keymap.forEach( function ( key ) {
-    this.graphMap[key].addFocus();
-  }.bind(this));
-};
-
-/**
- * 全グラフへマークを追加
- *
- * マークとは，グラフ上で右クリックすることでグラフに印をつけられる機能
- * つけた印は前グラフ間で共有される
+ * Graph 側でマークが追加された時，他の全てのグラフにもマークを追加する
+ * まず，全てのグラフにマークを追加し，その後マークの描画を行う
  */
 D3GraphRenderer.prototype.setMark = function (mark) {
   Object.keys(this.graphMap).forEach(function(key) {
@@ -145,8 +120,5 @@ D3GraphRenderer.prototype.setMark = function (mark) {
     this.graphMap[this.render_value_keymap[i]].renderMark();
   }
 };
-
-/********************************/
-
 
 module.exports = D3GraphRenderer;
