@@ -38,7 +38,7 @@ function logAnalyzer() {
   this.configMap.graph_value_map.forEach( function ( data ) {
     keymap.push(data.id);
   }.bind(this));
-  this.graphRenderer = new D3GraphRenderer( keymap, keymap, 100, "log-analyzer-graph" );
+  this.graphRenderer = new D3GraphRenderer( keymap, keymap, null, "log-analyzer-graph" );
 };
 
 

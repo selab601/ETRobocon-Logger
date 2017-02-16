@@ -15,6 +15,16 @@ const PADDING_BOTTOM = 40;
 const GRAPH_HEIGHT = SVG_ELEMENT_HEIGHT - (PADDING_TOP+PADDING_BOTTOM) - TITLE_SPACE_HEIGHT;
 const GRAPH_WIDTH = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
 
+/**
+ * グラフ
+ *
+ * @param key      描画対象の値の種類を識別するキー
+ * @param renderer グラフのレンダラ．D3GraphRenderer を指定する
+ * @param range    描画範囲．ここで指定された描画範囲よりも多くのデータが
+ *                 追加されようとした場合，古いデータから抜け落ちてゆく
+ *                 制限したくない場合は，null を指定する
+ * @param dom_id   グラフを追加する対象の DOM の ID
+ */
 function D3Graph( key, renderer, range, dom_id ) {
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
   this.svgElementWidth  = SVG_ELEMENT_WIDTH;
@@ -64,9 +74,11 @@ function D3Graph( key, renderer, range, dom_id ) {
  * 描画データを追加する
  */
 D3Graph.prototype.appendData = function (xData, yData) {
-  if ( this.xValues.length > this.range ) {
-    this.xValues.shift();
-    this.yValues.shift();
+  if ( this.range !== null ) {
+    if ( this.xValues.length > this.range ) {
+      this.xValues.shift();
+      this.yValues.shift();
+    }
   }
   this.xValues.push(xData);
   this.yValues.push(yData);
