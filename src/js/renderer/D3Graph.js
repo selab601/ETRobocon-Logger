@@ -257,8 +257,13 @@ D3Graph.prototype.addBrush = function () {
     brush_object.selectAll(".resize").remove();
     this.brush.on("brushend", onBrushed.bind(this));
 
-    this.d3ObjectsMap.brush_object = brush_object;
+    this.d3ObjectsMap.brush_object      = brush_object;
+    this.d3ObjectsMap.brush_object_rect = brush_object.select("rect.background");
   }
+};
+
+D3Graph.prototype.getBrushRect = function () {
+  return this.d3ObjectsMap.brush_object_rect;
 };
 
 // brush 処理時に呼び出されるイベントハンドラ
@@ -286,9 +291,9 @@ function onBrushed () {
   // サイズは SVG 要素と同じになっているみたい
   // 他の rect を上に重ねると動作しなくなるため，この rect に対して
   // 要素を追加していけば良い
-  var brush_rect = this.d3ObjectsMap.brush_object.select("rect.background");
-  this.addFocus(brush_rect);
-  this.addMarkEvent(brush_rect);
+  var brush_object_rect = this.d3ObjectsMap.brush_object_rect;
+  this.addFocus(brush_object_rect);
+  this.addMarkEvent(brush_object_rect);
 
   // brushオブジェクト上の矩形を消す
   this.d3ObjectsMap.svg.select('.extent')
@@ -378,7 +383,6 @@ D3Graph.prototype.addFocus = function (rect) {
   var yValues_ = this.yValues;
   var bisectXValue_ = this.bisectXValue;
   var d3_ = this.d3;
-
   function mousemove() {
     var mouseXPos = xScale_.invert(d3_.mouse(this)[0]),
         leftSideIndex = bisectXValue_(xValues_, mouseXPos, 1),

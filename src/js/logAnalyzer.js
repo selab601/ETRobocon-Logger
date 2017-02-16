@@ -88,8 +88,7 @@ logAnalyzer.prototype.onRenderGraphFromLogFile = function () {
     }.bind(this));
   }
 
-  this.graphRenderer.renderAll();
-  this.graphRenderer.addBrush();
+  this.graphRenderer.renderAll(null, null, ["brush", "label", "focus", "mark"]);
 };
 
 /****************************/

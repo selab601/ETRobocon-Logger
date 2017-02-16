@@ -87,9 +87,7 @@ logRenderer.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   }.bind(this));
 
   // グラフの描画
-  this.graphRenderer.renderAll();
-  this.graphRenderer.addLabel();
-  this.graphRenderer.addFocus();
+  this.graphRenderer.renderAll(null, null, ["label", "focus"]);
 };
 
 /**

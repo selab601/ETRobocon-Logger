@@ -44,10 +44,30 @@ D3GraphRenderer.prototype.update = function (key, xValue, yValue) {
 /**
  * 全グラフの描画
  */
-D3GraphRenderer.prototype.renderAll = function (xScope, yScope) {
+D3GraphRenderer.prototype.renderAll = function (xScope, yScope, options) {
   this.render_value_keymap.forEach( function ( key ) {
     this.graphMap[key].updateScale(xScope, yScope);
     this.graphMap[key].render();
+
+    // TODO: options の検証
+    var brush_rect = null;
+    if (options.indexOf("brush") != -1) {
+      this.graphMap[key].addBrush();
+      brush_rect = this.graphMap[key].getBrushRect();
+    }
+
+    if (options.indexOf("focus") != -1) {
+      this.graphMap[key].addFocus(brush_rect);
+    }
+
+    if (options.indexOf("mark") != -1) {
+      this.graphMap[key].addMarkEvent(brush_rect);
+      this.graphMap[key].renderMark();
+    }
+
+    if (options.indexOf("label") != -1) {
+      this.graphMap[key].addLabel();
+    }
   }.bind(this));
 };
 
