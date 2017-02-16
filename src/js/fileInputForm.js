@@ -48,7 +48,10 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
  */
 fileInputForm.prototype.onInitLogFileName = function ( ev, message ) {
   this.stateMap.logFileName = message;
-  // TODO: DOM 要素が描画されるまで待ちたい...
+
+  // DOM 要素が描画前であれば，描画しない
+  // この場合，DOM 要素描画時にログファイル名が描画される．
+  if ( this.jqueryMap.$file_input_form_text === undefined ) { return; }
   this.jqueryMap.$file_input_form_text.val(message);
 };
 
@@ -75,6 +78,11 @@ fileInputForm.prototype.setJqueryMap = function () {
     $append_target : $append_target,
     $file_input_form_text : $append_target.parent().find("#file-input-form-text")
   };
+
+  // DOM 要素描画後，ログファイル名が設定されていれば初期化
+  if ( this.stateMap.logFileName != undefined ) {
+    this.jqueryMap.$file_input_form_text.val(this.stateMap.logFileName);
+  }
 };
 
 /**
