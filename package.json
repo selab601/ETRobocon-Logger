@@ -1,6 +1,6 @@
 {
-  "name": "et2016-logger",
-  "version": "0.0.1",
+  "name": "etrobocon-logger",
+  "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
     "bluetooth-serial-port": "2.1.0",
