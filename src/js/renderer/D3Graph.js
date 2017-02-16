@@ -23,9 +23,11 @@ const GRAPH_WIDTH        = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
  *                         追加されようとした場合，古いデータから抜け落ちてゆく
  *                         制限したくない場合は，null を指定する
  * @param append_target_id グラフを追加する対象の DOM の ID
- * @param setMarkCallback  マークセット時に実行されるコールバック関数
+ * @param onRenderMark     マーク付加イベントが発生した際に，全てのグラフにマークの描画
+ *                         を支持するためのコールバック関数
  */
-function D3Graph( key, maxXValueLength, append_target_id, setMarkCallback ) {
+function D3Graph( key, maxXValueLength, append_target_id, onRenderMark ) {
+  /*** レイアウト値 ***/
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
   this.svgElementWidth  = SVG_ELEMENT_WIDTH;
   this.titleSpaceHeight = TITLE_SPACE_HEIGHT;
@@ -39,36 +41,68 @@ function D3Graph( key, maxXValueLength, append_target_id, setMarkCallback ) {
   this.maxXValueLength  = maxXValueLength;
   this.key              = key;
   this.append_target_id = append_target_id;
-  this.setMarkCallback  = setMarkCallback;
+  this.onRenderMark  = onRenderMark;
 
+  // グラフの描画に関係する値
   this.xValues          = [];
   this.yValues          = [];
+
+  // d3Object のキャッシュ用
   this.d3ObjectsMap     = {};
+
+  // ラベルの描画間隔
   // TODO: 可変にする
   this.labelInterval    = 5;
 
   this.d3 = require('../lib/d3.min.js');
 
+  this.bisectXValue = this.d3.bisector(function(d) { return d; }).left,
+
+  // スケールの初期化
   this.xScale = this.d3.scale.linear()
     .range([this.paddingLeft, this.svgElementWidth - this. paddingRight]);
   this.yScale = this.d3.scale.linear()
     .range([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight]);
 
+  /***** 各種線分，要素の描画のための関数 *****/
+  //** パス **//
   this.line         = this.d3.svg.line();
+  // スケール設定
+  this.line
+    .x(function(d,i){return this.xScale(this.xValues[i]);}.bind(this))
+    .y(function(d,i){return this.yScale(d);}.bind(this))
+    .interpolate("linear");
+
+  //** マーク **//
   this.markLine     = this.d3.svg.line();
-  this.bisectXValue = this.d3.bisector(function(d) { return d; }).left,
+  this.mark_index   = null;
+  // スケール設定
+  this.markLine
+    .x(function(d,i){return this.xScale(this.xValues[this.mark_index]);}.bind(this))
+    .y(function(d){return d;}.bind(this))
+    .interpolate("linear");
+
+  //** brush オブジェクト **//
   this.brush        = this.d3.svg.brush();
-  this.mark         = null;
+  // スケール設定
+  this.brush
+    .x(this.xScale)
+    .y(this.yScale);
+
+  //** X軸，Y軸 **//
   this.xAxis        = this.d3.svg.axis()
     .orient('bottom')
     .innerTickSize(-this.graphHeight)  // 目盛線の長さ（内側）
-    .outerTickSize(5) // 目盛線の長さ（外側）
-    .tickPadding(10); // 目盛線とテキストの間の長さ
+    .outerTickSize(5)                  // 目盛線の長さ（外側）
+    .tickPadding(10);                  // 目盛線とテキストの間の長さ
   this.yAxis        = this.d3.svg.axis()
     .orient('left')
-    .innerTickSize(-this.graphWidth)  // 目盛線の長さ（内側）
-    .outerTickSize(5) // 目盛線の長さ（外側）
-    .tickPadding(10); // 目盛線とテキストの間の長さ
+    .innerTickSize(-this.graphWidth)   // 目盛線の長さ（内側）
+    .outerTickSize(5)                  // 目盛線の長さ（外側）
+    .tickPadding(10);                  // 目盛線とテキストの間の長さ
+  // スケール設定
+  this.xAxis.scale(this.xScale);
+  this.yAxis.scale(this.yScale);
 };
 
 
@@ -95,7 +129,7 @@ D3Graph.prototype.appendData = function (xData, yData) {
 D3Graph.prototype.clearData = function () {
   this.xValues = [];
   this.yValues = [];
-  this.mark = null;
+  this.mark_index = null;
 };
 
 /**
@@ -119,22 +153,6 @@ D3Graph.prototype.updateScale = function (xScope, yScope) {
   // スケールと線分描画のための関数を定義
   this.xScale.domain([minGraphXData, maxGraphXData]);
   this.yScale.domain([minGraphYData, maxGraphYData]);
-  this.line
-    .x(function(d,i){return this.xScale(this.xValues[i]);}.bind(this))
-    .y(function(d,i){return this.yScale(d);}.bind(this))
-    .interpolate("linear");
-  // mark にスケールを設定
-  this.markLine
-    .x(function(d,i){return this.xScale(this.xValues[this.mark]);}.bind(this))
-    .y(function(d){return d;}.bind(this))
-    .interpolate("linear");
-  // brushオブジェクトにスケールを設定
-  this.brush
-    .x(this.xScale)
-    .y(this.yScale);
-  // 軸にスケールを設定
-  this.xAxis.scale(this.xScale);
-  this.yAxis.scale(this.yScale);
 };
 
 /**
@@ -157,7 +175,14 @@ D3Graph.prototype.resetStyle = function () {
 
 /***** グラフの描画 *****/
 
-D3Graph.prototype.setD3ObjectsMap = function () {
+/**
+ * 描画の初期化
+ *
+ * グラフ描画の内，更新が必要ない描画部分は最初のみ描画する
+ * 例えば，グラフのタイトル等
+ * また，描画した各要素はキャッシュする．
+ */
+D3Graph.prototype.initialRender = function () {
   this.d3.select("#"+this.append_target_id)
     .append("div")
     .attr('class', 'graph-chart')
@@ -201,7 +226,7 @@ D3Graph.prototype.setD3ObjectsMap = function () {
 D3Graph.prototype.render = function () {
   // グラフ自体がまだ存在しなければ，描画する
   if (this.d3.select("#"+this.append_target_id+">div#"+this.key).empty()) {
-    this.setD3ObjectsMap();
+    this.initialRender();
   }
 
   // パスの再描画
@@ -400,34 +425,27 @@ D3Graph.prototype.addFocus = function ( target_rect ) {
   }
 };
 
-D3Graph.prototype.setMark = function (mark) {
-  this.mark = mark;
-};
-
-D3Graph.prototype.renderMark = function () {
-  var svg = this.d3ObjectsMap.svg;
-  if ( svg === undefined ) { return; }
-
-  // マークの描画
-  if ( this.mark == null ) { return; }
-  svg.selectAll("path.mark").remove();
-  svg.append("path")
-    .attr("class", "mark")
-    .attr("d", this.markLine([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight]))
-    .attr("stroke", "red")
-    .attr("fill", "none");
-};
-
 /**
- * マークを追加する
+ * マークの描画イベントを追加する
  *
- * @param rect マークを追加する対象の rect 要素
+ * @param target_rect マークを追加する対象の rect 要素
  */
-D3Graph.prototype.addMarkEvent = function ( rect ) {
+D3Graph.prototype.addMarkEvent = function ( target_rect ) {
+
+  var rect = target_rect;
+  if (rect == null) {
+    // 追加する rect が存在しなければ，新たに rect 要素を追加する
+    rect = svg.append("rect")
+      .attr("class", "mark_overlay")
+      .attr('opacity', 0)
+      .attr("width", this.svgElementWidth)
+      .attr("height", this.svgElementHeight);
+  }
+
   var self = this;
   rect.on("mousedown", function() {
     // 右クリックの時は動作を止める
-    if (this.d3.event.button === 2) { // only enable for right click
+    if (this.d3.event.button === 2) {
       this.d3.event.stopImmediatePropagation();
     }
   }.bind(this))
@@ -435,14 +453,56 @@ D3Graph.prototype.addMarkEvent = function ( rect ) {
       // 右クリック時の処理
       self.d3.event.preventDefault();
 
+      // マークを付加する場所の決定
+      // クリック地点から一番近いX座標を index として保持し，
+      // それをもってして全グラフに描画を促す
       var mouseXPos      = self.xScale.invert(self.d3.mouse(this)[0]),
           leftSideIndex  = self.bisectXValue(self.xValues, mouseXPos, 1),
           leftSideXData  = self.xScale[leftSideIndex - 1],
           rightSideXData = self.xScale[leftSideIndex],
           index          = mouseXPos - leftSideXData > rightSideXData - mouseXPos ? leftSideIndex-1 : leftSideIndex;
 
-      self.setMarkCallback(index);
+      self.onRenderMark( index );
     });
+};
+
+/**
+ * マークを設定する
+ *
+ * 必ずしも全グラフを描画するわけではないので，マークの設定と描画の処理は別にする
+ */
+D3Graph.prototype.setMark = function (mark) {
+  this.mark_index = mark;
+};
+
+/**
+ * マークを描画する
+ *
+ * 必ずしも全グラフを描画するわけではないので，マークの設定と描画の処理は別にする
+ * mark_index はデータの index を示しているだけで，描画されるマークの要素自体は
+ * this.markLine である．
+ * markLine にはX軸方向の描画に対してコールバック関数が登録されており，
+ * this.mark_index が更新されると自動的に描画位置も更新される．
+ * そのため，この関数内で描画位置の更新等を行う必要はない．
+ *
+ * <markLine に登録されているコールバック関数>
+ * this.markLine
+ *   .x(function(d,i){return this.xScale(this.xValues[this.mark_index]);}.bind(this))
+ *   .y(function(d){return d;}.bind(this))
+ *   .interpolate("linear");
+ */
+D3Graph.prototype.renderMark = function () {
+  var svg = this.d3ObjectsMap.svg;
+  if ( svg === undefined ) { return; }
+
+  if ( this.mark_index == null ) { return; }
+
+  svg.selectAll("path.mark").remove();
+  svg.append("path")
+    .attr("class", "mark")
+    .attr("d", this.markLine([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight]))
+    .attr("stroke", "red")
+    .attr("fill", "none");
 };
 
 module.exports = D3Graph;

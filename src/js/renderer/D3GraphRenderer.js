@@ -11,7 +11,7 @@ function D3GraphRenderer ( all_keymap, render_value_keymap, maxXValueLength, app
   this.render_value_keymap = render_value_keymap;
   this.graphMap            = {};
   this.all_keymap.forEach( function ( key ) {
-    this.graphMap[ key ]   = new D3Graph( key, maxXValueLength, append_target_id, this.setMark.bind(this) );
+    this.graphMap[ key ]   = new D3Graph( key, maxXValueLength, append_target_id, this.onRenderMark.bind(this) );
   }.bind(this));
 };
 
@@ -43,11 +43,28 @@ D3GraphRenderer.prototype.update = function (key, xValue, yValue) {
 
 /**
  * 全グラフの描画
+ *
+ * @param xScope  描画範囲(X軸)
+ * @param yScope  描画範囲(Y軸)
+ * @param options 描画オプション
  */
 D3GraphRenderer.prototype.renderAll = function (xScope, yScope, options) {
   this.render_value_keymap.forEach( function ( key ) {
-    this.graphMap[key].updateScale(xScope, yScope);
-    this.graphMap[key].render();
+    renderGraph( this.graphMap[key], xScope, yScope, options );
+  }.bind(this));
+};
+
+/**
+ * 単一のグラフの描画
+ *
+ * @param graph   描画対象の D3Graph
+ * @param xScope  描画範囲(X軸)
+ * @param yScope  描画範囲(Y軸)
+ * @param options 描画オプション
+ */
+function renderGraph ( graph, xScope, yScope, options ) {
+    graph.updateScale(xScope, yScope);
+    graph.render();
 
     // TODO: options の検証
     /**
@@ -59,33 +76,33 @@ D3GraphRenderer.prototype.renderAll = function (xScope, yScope, options) {
      */
     var brush_rect = null;
     if (options.indexOf("brush") != -1) {
-      this.graphMap[key].addBrush();
-      brush_rect = this.graphMap[key].getBrushRect();
+      graph.addBrush();
+      brush_rect = graph.getBrushRect();
     }
 
     /**
      * フォーカスとは，グラフにマウスオーバーすると，直近の値の詳細をグラフ上に描画する機能
      */
     if (options.indexOf("focus") != -1) {
-      this.graphMap[key].addFocus(brush_rect);
+      graph.addFocus(brush_rect);
     }
 
     /**
      * マークとは，グラフ上で右クリックすることでグラフに印をつけられる機能
      * つけた印は前グラフ間で共有される
+     * addMarkEvent で，マウスイベントをキャッチするためのイベントハンドラを登録する
      */
     if (options.indexOf("mark") != -1) {
-      this.graphMap[key].addMarkEvent(brush_rect);
-      this.graphMap[key].renderMark();
+      graph.addMarkEvent(brush_rect);
+      graph.renderMark();
     }
 
     /**
      * グラフ上の各値に自動的に付加される Y 値のラベル
      */
     if (options.indexOf("label") != -1) {
-      this.graphMap[key].addLabel();
+      graph.addLabel();
     }
-  }.bind(this));
 };
 
 /**
@@ -110,12 +127,16 @@ D3GraphRenderer.prototype.remove = function ( key ) {
 /**
  * Graph 側でマークが追加された時，他の全てのグラフにもマークを追加する
  * まず，全てのグラフにマークを追加し，その後マークの描画を行う
+ *
+ * @param mark_index マークを追加するX軸データのインデックス
  */
-D3GraphRenderer.prototype.setMark = function (mark) {
-  Object.keys(this.graphMap).forEach(function(key) {
-    this.graphMap[key].setMark(mark);
+D3GraphRenderer.prototype.onRenderMark = function ( mark_index ) {
+  // 全グラフに，マークを設定する
+  Object.keys(this.graphMap).forEach(function( key ) {
+    this.graphMap[key].setMark( mark_index );
   }.bind(this));
 
+  // 描画すべきグラフについては，マークを描画する
   for (var i=0; i<this.render_value_keymap.length; i++) {
     this.graphMap[this.render_value_keymap[i]].renderMark();
   }
