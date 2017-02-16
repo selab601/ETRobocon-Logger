@@ -158,6 +158,10 @@ deviceConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
 /********************************/
 
 
+deviceConnector.prototype.getDeviceMap = function () {
+  return this.stateMap.deviceMap;
+};
+
 /**
  * jQuery オブジェクトをキャッシュする
  *
@@ -178,7 +182,7 @@ deviceConnector.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-deviceConnector.prototype.init = function ( $append_target, callback ) {
+deviceConnector.prototype.init = function ( $append_target, deviceMap, callback ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
@@ -187,6 +191,17 @@ deviceConnector.prototype.init = function ( $append_target, callback ) {
 
   // Bluetooth デバイスとの接続が完了したときに実行されるコールバック関数
   this.callback = callback;
+
+  // モジュール外部から Bluetooth デバイス一覧を更新
+  this.stateMap.deviceMap = deviceMap;
+  this.stateMap.deviceMap.forEach( function ( device ) {
+    // DOM 要素に追加
+    this.jqueryMap.$device_group.append(
+      this.$('<li>')
+        .addClass( "device-connector-device-name" )
+        .text( device.name )
+        .bind( 'click', device.address, this.onSelectDevice.bind(this) ));
+  }.bind(this));
 
   /***** イベントハンドラを登録 *****/
   // DOM 要素へのユーザ操作に反応するイベントハンドラ

@@ -31,7 +31,8 @@ function shell() {
   this.stateMap = {
     $container : undefined,
     // 現在描画中の header-element の id
-    rendered_page_id : undefined
+    rendered_page_id : undefined,
+    deviceMap : []
   };
   // 機能モジュール
   this.moduleMap = {
@@ -53,6 +54,9 @@ function shell() {
 shell.prototype.onConnectDevice = function () {
   var logFileName = this.moduleMap.fileInputForm.getLogFileName();
 
+  // デバイス情報の保持
+  // TODO: 外部ファイルに保持しておくべき？
+  this.stateMap.deviceMap = this.moduleMap.deviceConnector.getDeviceMap();
   this.moduleMap.deviceConnector.remove();
   this.moduleMap.fileInputForm.remove();
 
@@ -72,6 +76,7 @@ shell.prototype.onDisconnectDevice = function () {
 
   this.moduleMap.deviceConnector.init(
     this.jqueryMap.$body,
+    this.stateMap.deviceMap,
     this.onConnectDevice.bind(this)
   );
   this.moduleMap.fileInputForm.init(
@@ -94,6 +99,7 @@ shell.prototype.onTransitionTo = function ( event ) {
 
     this.moduleMap.deviceConnector.init(
       this.jqueryMap.$body,
+      this.stateMap.deviceMap,
       this.onConnectDevice.bind(this)
     );
     this.moduleMap.fileInputForm.init(
@@ -148,6 +154,7 @@ shell.prototype.initModule = function ( $container ) {
   // 機能モジュールの初期化
   this.moduleMap.deviceConnector.init(
     this.jqueryMap.$body,
+    this.stateMap.deviceMap,
     this.onConnectDevice.bind(this)
   );
   this.moduleMap.fileInputForm.init(
