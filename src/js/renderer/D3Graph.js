@@ -242,57 +242,58 @@ D3Graph.prototype.remove = function () {
  * 範囲が選択されている状態でbrush.extent()メソッドを実行するとその範囲のデータ値を返す
  */
 D3Graph.prototype.addBrush = function () {
-  var svg = this.d3ObjectsMap.svg;
-
-  var brushGroup = svg.append("g")
+  // TODO: ここの条件分岐は addBrush を呼び出す側で行うべき
+  if ( this.d3ObjectsMap.brush_object === undefined ) {
+    var brush_object = this.d3ObjectsMap.svg
+        .append("g")
         .attr("class", "brush")
         .call(this.brush);
+    brush_object
+        .selectAll("rect")
+        .style({
+          "fill": "#69f",
+          "fill-opacity": "0.3"
+        });
+    brush_object.selectAll(".resize").remove();
+    this.brush.on("brushend", onBrushed.bind(this));
 
-  var rect = brushGroup
-    .selectAll("rect")
-    .attr("height", this.graphHeight)
-    .style({
-      "fill": "#69f",
-      "fill-opacity": "0.3"
-    });
+    this.d3ObjectsMap.brush_object = brush_object;
+  }
+};
 
-  brushGroup.selectAll(".resize").remove();
+// brush 処理時に呼び出されるイベントハンドラ
+function onBrushed () {
+  // 領域選択の座標， 左上座標: (xStart, yStart), 右下座標: (xEnd, yEnd)
+  var xStart = this.brush.extent()[0][0];
+  var xEnd   = this.brush.extent()[1][0];
+  var yStart = this.brush.extent()[0][1];
+  var yEnd   = this.brush.extent()[1][1];
 
-  this.brush.on("brushend", brushed.bind(this));
-
-  function brushed () {
-    var xStart = this.brush.extent()[0][0];
-    var xEnd   = this.brush.extent()[1][0];
-    var yStart = this.brush.extent()[0][1];
-    var yEnd   = this.brush.extent()[1][1];
-
-    if (xStart == xEnd && yStart == yEnd) {
-      // デフォルトに戻す
-      this.updateScale();
-    } else {
-      this.updateScale([xStart, xEnd], [yStart, yEnd]);
-    }
-
-    this.render();
-    this.renderMark();
-    var rect = this.addBrush();
-    this.addFocus(rect);
-    this.addMarkEvent(rect);
-
-    // brushオブジェクト上の矩形を消す
-    this.d3ObjectsMap.svg.select('.extent')
-      .attr({width: 0, height: 0, x: 0, y: 0});
+  // 開始点と終了点が同じ = 単純なクリック の場合は，デフォルトのスケールに戻す
+  // それ以外の場合は，スケールを更新する
+  if (xStart == xEnd && yStart == yEnd) {
+    this.updateScale();
+  } else {
+    this.updateScale([xStart, xEnd], [yStart, yEnd]);
   }
 
+  // 再描画
+  // TODO: 再描画の設定は描画ごとに異なるため，ここは別処理に切り出したい．
+  this.render();
+  this.renderMark();
+  this.addBrush();
   // 背景の rect を返す
   // サイズは SVG 要素と同じになっているみたい
   // 他の rect を上に重ねると動作しなくなるため，この rect に対して
   // 要素を追加していけば良い
-  var backGroundRect = brushGroup.select("rect.background");
-  this.addFocus(backGroundRect);
+  var brush_rect = this.d3ObjectsMap.brush_object.select("rect.background");
+  this.addFocus(brush_rect);
+  this.addMarkEvent(brush_rect);
 
-  return rect;
-};
+  // brushオブジェクト上の矩形を消す
+  this.d3ObjectsMap.svg.select('.extent')
+    .attr({width: 0, height: 0, x: 0, y: 0});
+}
 
 /**
  * ラベルの追加
@@ -398,7 +399,7 @@ D3Graph.prototype.renderMark = function () {
   if ( svg === undefined ) { return; }
 
   // マークの描画
-  if (this.mark == null) {return;}
+  if ( this.mark == null ) { return; }
   svg.selectAll("path.mark").remove();
   svg.append("path")
     .attr("class", "mark")
@@ -407,7 +408,12 @@ D3Graph.prototype.renderMark = function () {
     .attr("fill", "none");
 };
 
-D3Graph.prototype.addMarkEvent = function (rect) {
+/**
+ * マークを追加する
+ *
+ * @param rect マークを追加する対象の rect 要素
+ */
+D3Graph.prototype.addMarkEvent = function ( rect ) {
   var self = this;
   rect.on("mousedown", function() {
     // 右クリックの時は動作を止める
@@ -419,11 +425,11 @@ D3Graph.prototype.addMarkEvent = function (rect) {
       // 右クリック時の処理
       self.d3.event.preventDefault();
 
-      var mouseXPos = self.xScale.invert(self.d3.mouse(this)[0]),
-          leftSideIndex = self.bisectXValue(self.xValues, mouseXPos, 1),
-          leftSideXData = self.xScale[leftSideIndex - 1],
+      var mouseXPos      = self.xScale.invert(self.d3.mouse(this)[0]),
+          leftSideIndex  = self.bisectXValue(self.xValues, mouseXPos, 1),
+          leftSideXData  = self.xScale[leftSideIndex - 1],
           rightSideXData = self.xScale[leftSideIndex],
-          index = mouseXPos - leftSideXData > rightSideXData - mouseXPos ? leftSideIndex-1 : leftSideIndex;
+          index          = mouseXPos - leftSideXData > rightSideXData - mouseXPos ? leftSideIndex-1 : leftSideIndex;
 
       self.setMarkCallback(index);
     });
