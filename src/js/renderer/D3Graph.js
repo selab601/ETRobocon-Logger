@@ -343,6 +343,7 @@ D3Graph.prototype.addLabel = function () {
   var svg = this.d3ObjectsMap.svg;
   if ( svg === undefined ) { return; }
 
+  svg.selectAll("text").remove();
   svg.selectAll("text")
     .data(this.yValues)
     .enter()
