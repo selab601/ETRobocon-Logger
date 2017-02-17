@@ -57,9 +57,10 @@ shell.prototype.onConnectDevice = function () {
   // デバイス情報の保持
   // TODO: 外部ファイルに保持しておくべき？
   this.stateMap.deviceMap = this.moduleMap.deviceConnector.getDeviceMap();
-  this.moduleMap.deviceConnector.remove();
-  this.moduleMap.fileInputForm.remove();
 
+  // モジュール削除
+  this.removeAllModules();
+  // モジュール初期化
   this.moduleMap.logRenderer.init(this.jqueryMap.$body);
   this.moduleMap.deviceDisconnector.init(
     this.jqueryMap.$body,
@@ -71,9 +72,9 @@ shell.prototype.onConnectDevice = function () {
 };
 
 shell.prototype.onDisconnectDevice = function () {
-  this.moduleMap.deviceDisconnector.remove();
-  this.moduleMap.logRenderer.remove();
-
+  // モジュール削除
+  this.removeAllModules();
+  // モジュール初期化
   this.moduleMap.deviceConnector.init(
     this.jqueryMap.$body,
     this.stateMap.deviceMap,
@@ -89,14 +90,15 @@ shell.prototype.onDisconnectDevice = function () {
 shell.prototype.onTransitionTo = function ( event ) {
   switch ( event.data ) {
   case "load-page":
-    this.moduleMap.deviceConnector.remove();
-    this.moduleMap.fileInputForm.remove();
-
+    // モジュール削除
+    this.removeAllModules();
+    // モジュール初期化
     this.moduleMap.logAnalyzer.init(this.jqueryMap.$body);
     break;
   case "connect-page":
-    this.moduleMap.logAnalyzer.remove();
-
+    // モジュール削除
+    this.removeAllModules();
+    // モジュール初期化
     this.moduleMap.deviceConnector.init(
       this.jqueryMap.$body,
       this.stateMap.deviceMap,
@@ -128,6 +130,12 @@ shell.prototype.transitionTo = function ( page_id ) {
   this.jqueryMap.$container.find(".isRendering").removeClass("isRendering");
   this.stateMap.rendered_page_id = page_id;
   page_link.addClass("isRendering");
+};
+
+shell.prototype.removeAllModules = function () {
+  Object.keys(this.moduleMap).forEach ( function ( key ) {
+    this[key].remove();
+  }, this.moduleMap);
 };
 
 // TODO: private
