@@ -104,6 +104,9 @@ deviceDisconnector.prototype.remove = function () {
     this.jqueryMap = {};
   }
 
+  // イベントハンドラの削除
+  this.ipc.removeAllListeners('disconnectDeviceComplete');
+
   // 動的プロパティ初期化
   this.stateMap = {
     $append_target : undefined,

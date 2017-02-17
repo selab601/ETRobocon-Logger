@@ -113,6 +113,9 @@ fileInputForm.prototype.remove = function () {
     this.jqueryMap = {};
   }
 
+  // イベントハンドラの削除
+  this.ipc.removeAllListeners('initLogFileName');
+
   // 動的プロパティ初期化
   this.stateMap = {
     logFileName: undefined,

@@ -210,6 +210,9 @@ logRenderer.prototype.remove = function () {
     this.jqueryMap = {};
   }
 
+  // イベントハンドラの削除
+  this.ipc.removeAllListeners('receiveDataFromDevice');
+
   // 動的プロパティの初期化
   this.stateMap = {
     $append_target      : undefined,

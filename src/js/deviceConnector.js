@@ -227,6 +227,12 @@ deviceConnector.prototype.remove = function () {
     this.jqueryMap = {};
   }
 
+  // イベントハンドラの削除
+  this.ipc.removeAllListeners('updateDevicesComplete');
+  this.ipc.removeAllListeners('updateDevicesFailed');
+  this.ipc.removeAllListeners('connectDeviceComplete');
+  this.ipc.removeAllListeners('connectDeviceFailed');
+
   // 動的プロパティの初期化
   this.stateMap = {
     $append_target : undefined,
