@@ -338,6 +338,8 @@ function onBrushed () {
  * 全ての値にラベルを描画すると見辛いので，時間軸上の前後の Y 値
  * の差分が一定以上の場合のみ描画する．
  * この時の「一定」の値は，「labelRenderIntarval」プロパティに定められている．
+ *
+ * TODO: 毎回全ラベルを削除していると処理が重くなるのでどうにかする
  */
 D3Graph.prototype.addLabel = function () {
   var svg = this.d3ObjectsMap.svg;
