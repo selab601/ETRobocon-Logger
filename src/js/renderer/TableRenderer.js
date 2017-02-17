@@ -58,6 +58,8 @@ TableRenderer.prototype.initTableTuples = function () {
  * @param value 更新する値
  */
 TableRenderer.prototype.update = function ( key, value ) {
+  // DOM 要素が既に削除されていれば無視する
+  if ( this.jqueryMap.$table_renderer_table_values === undefined ) { return; }
   this.jqueryMap.$table_renderer_table_values[key].text(value);
 };
 
