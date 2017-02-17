@@ -159,8 +159,10 @@ logAnalyzer.prototype.init = function ( $append_target ) {
  */
 logAnalyzer.prototype.remove = function () {
   // DOM 要素削除
-  this.stateMap.$append_target.find("#log-analyzer").remove();
-  this.jqueryMap = {};
+  if ( Object.keys(this.jqueryMap).length != 0 ) {
+    this.stateMap.$append_target.find("#log-analyzer").remove();
+    this.jqueryMap = {};
+  }
 
   // 動的プロパティの初期化
   this.stateMap = {

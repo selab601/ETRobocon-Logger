@@ -222,8 +222,10 @@ deviceConnector.prototype.init = function ( $append_target, deviceMap, callback 
  */
 deviceConnector.prototype.remove = function () {
   // DOM 要素の削除
-  this.stateMap.$append_target.find("#device-connector-wrapper").remove();
-  this.jqueryMap = {};
+  if ( Object.keys(this.jqueryMap).length != 0 ) {
+    this.stateMap.$append_target.find("#device-connector-wrapper").remove();
+    this.jqueryMap = {};
+  }
 
   // 動的プロパティの初期化
   this.stateMap = {

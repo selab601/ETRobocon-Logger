@@ -99,8 +99,10 @@ deviceDisconnector.prototype.init = function ( $append_target, logFileName, call
  */
 deviceDisconnector.prototype.remove = function () {
   // DOM 要素削除
-  this.jqueryMap.$disconnect_btn.remove();
-  this.jqueryMap = {};
+  if ( Object.keys(this.jqueryMap).length != 0 ) {
+    this.jqueryMap.$disconnect_btn.remove();
+    this.jqueryMap = {};
+  }
 
   // 動的プロパティ初期化
   this.stateMap = {

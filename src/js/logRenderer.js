@@ -205,8 +205,10 @@ logRenderer.prototype.init = function ( $append_target ) {
  */
 logRenderer.prototype.remove = function () {
   // DOM 要素削除
-  this.stateMap.$append_target.find("#log-renderer").remove();
-  this.jqueryMap = {};
+  if ( Object.keys(this.jqueryMap).length != 0 ) {
+    this.stateMap.$append_target.find("#log-renderer").remove();
+    this.jqueryMap = {};
+  }
 
   // 動的プロパティの初期化
   this.stateMap = {

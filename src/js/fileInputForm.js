@@ -108,8 +108,10 @@ fileInputForm.prototype.init = function ( $append_target ) {
  */
 fileInputForm.prototype.remove = function () {
   // DOM 要素削除
-  this.jqueryMap.$append_target.find("#file-input-form").remove();
-  this.jqueryMap = {};
+  if ( Object.keys(this.jqueryMap).length != 0 ) {
+    this.jqueryMap.$append_target.find("#file-input-form").remove();
+    this.jqueryMap = {};
+  }
 
   // 動的プロパティ初期化
   this.stateMap = {
