@@ -34,7 +34,7 @@ html, body {
   text-align: center;
   font-size: 12px;
   -webkit-app-region: drag;
-  z-index: 9999;
+  z-index: 998;
 }
 
 .header {
@@ -49,7 +49,7 @@ html, body {
   height: 40px;
 
   border-bottom: 0.5px solid rgb(210, 210, 210);
-  z-index: 9999;
+  z-index: 998;
 }
 
 .body {

@@ -11,6 +11,7 @@ const DeviceConnector    = require('./deviceConnector.js');
 const DeviceDisconnector = require('./deviceDisconnector.js');
 const LogRenderer        = require('./logRenderer.js');
 const LogAnalyzer        = require('./logAnalyzer.js');
+const Dialog             = require('./dialog.js');
 
 function shell() {
   // 静的プロパティ
@@ -40,7 +41,8 @@ function shell() {
     deviceConnector    : new DeviceConnector(),
     deviceDisconnector : new DeviceDisconnector(),
     logRenderer        : new LogRenderer(),
-    logAnalyzer        : new LogAnalyzer()
+    logAnalyzer        : new LogAnalyzer(),
+    dialog             : new Dialog()
   };
   // jQuery オブジェクトのキャッシュ
   this.jqueryMap = {};
@@ -65,7 +67,8 @@ shell.prototype.onConnectDevice = function () {
   this.moduleMap.deviceDisconnector.init(
     this.jqueryMap.$body,
     logFileName,
-    this.onDisconnectDevice.bind(this)
+    this.onDisconnectDevice.bind(this),
+    this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
   );
 
   this.disableTransition();
@@ -78,7 +81,8 @@ shell.prototype.onDisconnectDevice = function () {
   this.moduleMap.deviceConnector.init(
     this.jqueryMap.$body,
     this.stateMap.deviceMap,
-    this.onConnectDevice.bind(this)
+    this.onConnectDevice.bind(this),
+    this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
   );
   this.moduleMap.fileInputForm.init(
     this.jqueryMap.$body.find(".device-connector-body")
@@ -102,7 +106,8 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.moduleMap.deviceConnector.init(
       this.jqueryMap.$body,
       this.stateMap.deviceMap,
-      this.onConnectDevice.bind(this)
+      this.onConnectDevice.bind(this),
+      this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
     );
     this.moduleMap.fileInputForm.init(
       this.jqueryMap.$body.find(".device-connector-body")
@@ -134,6 +139,8 @@ shell.prototype.transitionTo = function ( page_id ) {
 
 shell.prototype.removeAllModules = function () {
   Object.keys(this.moduleMap).forEach ( function ( key ) {
+    // ダイアログは削除しない
+    if ( key === "dialog" ) { return; }
     this[key].remove();
   }, this.moduleMap);
 };
@@ -163,11 +170,13 @@ shell.prototype.initModule = function ( $container ) {
   this.moduleMap.deviceConnector.init(
     this.jqueryMap.$body,
     this.stateMap.deviceMap,
-    this.onConnectDevice.bind(this)
+    this.onConnectDevice.bind(this),
+    this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
   );
   this.moduleMap.fileInputForm.init(
     this.jqueryMap.$body.find(".device-connector-body")
   );
+  this.moduleMap.dialog.init( this.jqueryMap.$container );
 
   // イベントハンドラ登録
   this.jqueryMap.$connect_page.bind( 'click', "connect-page", this.onTransitionTo.bind(this) );

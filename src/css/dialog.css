@@ -1,0 +1,50 @@
+#dialog {
+  position: fixed;
+  display: none;
+  right: 10px;
+  top: 10px;
+
+  margin: 10px;
+  width: 300px;
+
+  border-radius: 5px;
+  background-color: rgb(241, 241, 241);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+#dialog-title {
+  width: calc(100% - 24px - 5px);
+  padding: 5px 10px 5px 10px;
+
+  font-weight: bold;
+  font-size: 12px;
+
+  background-color: rgb(233, 233, 233);
+  border-radius: 5px 5px 0 0;
+}
+
+#dialog-body {
+  width: calc(100% - 20px);
+  padding: 5px 10px 5px 10px;
+
+  font-size: 12px;
+}
+
+#dialog-delete-button {
+  position: absolute;
+  display: inline-block;
+  right: 5px;
+  top: 5px;
+  width: 18px;
+  height: 18px;
+
+  border-radius: 5px;
+  text-decoration: none;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+
+  color: white;
+  background-color: rgb(88, 88, 88);
+}

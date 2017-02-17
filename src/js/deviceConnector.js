@@ -38,6 +38,8 @@ function deviceConnector () {
   this.jqueryMap = {};
   // Bluetooth デバイスとの接続成功時に実行されるコールバック関数
   this.callback = undefined;
+  // ユーザへ通知を行うコールバック関数
+  this.messenger = undefined;
   // main プロセスとの通信用モジュール
   this.ipc = require('electron').ipcRenderer;
   // jQuery
@@ -67,7 +69,7 @@ deviceConnector.prototype.onUpdateDevices = function () {
  * TODO: メッセージボックス等で失敗をユーザに通知
  */
 deviceConnector.prototype.onUpdateDevicesFailed = function ( ev, message ) {
-  console.log(message);
+  this.messenger( message.title, message.body );
   this.jqueryMap.$update_btn.removeClass('disabled');
   this.jqueryMap.$connect_btn.removeClass('disabled');
 };
@@ -140,7 +142,7 @@ deviceConnector.prototype.onConnectDevice = function ( event ) {
  * 登録されたコールバック関数を実行する．
  */
 deviceConnector.prototype.onConnectDeviceComplete = function ( ev, message ) {
-  console.log(message);
+  this.messenger( message.title, message.body );
   this.callback();
 };
 
@@ -150,7 +152,7 @@ deviceConnector.prototype.onConnectDeviceComplete = function ( ev, message ) {
  * TODO: メッセージをユーザに向けて表示
  */
 deviceConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
-  console.log(message);
+  this.messenger( message.title, message.body );
   this.jqueryMap.$update_btn.removeClass('disabled');
   this.jqueryMap.$connect_btn.removeClass('disabled');
 };
@@ -182,7 +184,7 @@ deviceConnector.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-deviceConnector.prototype.init = function ( $append_target, deviceMap, callback ) {
+deviceConnector.prototype.init = function ( $append_target, deviceMap, callback, messenger ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
@@ -191,6 +193,8 @@ deviceConnector.prototype.init = function ( $append_target, deviceMap, callback 
 
   // Bluetooth デバイスとの接続が完了したときに実行されるコールバック関数
   this.callback = callback;
+  // メッセージ通知用のコールバック関数
+  this.messenger = messenger;
 
   // モジュール外部から Bluetooth デバイス一覧を更新
   this.stateMap.deviceMap = deviceMap;
@@ -240,6 +244,7 @@ deviceConnector.prototype.remove = function () {
     selected_device_address : undefined
   };
   this.callback = undefined;
+  this.messenger = undefined;
 };
 
 module.exports = deviceConnector;
