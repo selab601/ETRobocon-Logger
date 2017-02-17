@@ -14,12 +14,16 @@ function deviceConnector () {
           <div id="device-connector">
             <div class="device-connector-header">
               Devices
-              <div id="device-connector-update-button">更新</div>
             </div>
             <div class="device-connector-body">
               <ul id="device-connector-device-group">
                 <!-- デバイスが追加されていく -->
               </ul>
+            </div>
+            <div id="device-connector-body-footer">
+              <div id="device-connector-update-button">
+              <img src="resources/update_icon.png">
+              </div>
             </div>
             <div class="device-connector-footer">
               <div id="device-connector-connect-button">CONNECT</div>

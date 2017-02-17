@@ -29,43 +29,9 @@
   margin-bottom: 15px;
 }
 
-#device-connector-update-button {
-  position: absolute;
-  display: inline-block;
-  right: 10px;
-
-  padding: 6px;
-  height: 1.1em;
-  line-height: 1.1em;
-  font-size: 0.9em;
-  margin-top: 0.4em;
-  font-weight: normal;
-
-  border-radius: 5px;
-  text-decoration: none;
-  text-align: center;
-  vertical-align: middle;
-  cursor: pointer;
-  box-shadow: 0.5px 0.5px 0.5px 0.5px #999;
-
-  color: white;
-  background: rgb(0,93,183);
-}
-
-#device-connector-update-button:hover {
-  color: rgb(220,220,220);
-  background: rgb(0,50,100);
-}
-
-#device-connector-update-button.disabled {
-  color: rgb(: 2px;20,220,220);
-  background: rgb(0,50,100);
-  pointer-events: none;
-}
-
 .device-connector-body {
   margin: 0;
-  height: 195px;
+  height: 165px;
   width: calc( 100% - 40px );
   margin: 0 20px 0 20px;
   overflow: scroll;
@@ -76,6 +42,49 @@
 .device-connector-body > ul {
   margin: 0;
   padding: 0;
+}
+
+#device-connector-body-footer {
+  height: 20px;
+  width: calc( 100% - 40px );
+  margin: 0 20px 0 20px;
+  background-color: rgb(247, 247, 247);
+  border: 0.5px solid rgb(180,180,180);
+}
+
+#device-connector-update-button {
+  display: block;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  background-color: rgb(247, 247, 247);
+  border-left: 0.5px solid rgb(180,180,180);
+
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+#device-connector-update-button:hover {
+  background: rgb(180,180,180);
+}
+
+#device-connector-update-button.disabled {
+  background: rgb(180,180,180);
+  pointer-events: none;
+}
+
+#device-connector-update-button > img {
+  height: 15px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  padding-left: 2px;
+  padding-bottom: 1px;
 }
 
 .device-connector-device-name {
