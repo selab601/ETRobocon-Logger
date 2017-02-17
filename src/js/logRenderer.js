@@ -225,7 +225,7 @@ logRenderer.prototype.remove = function () {
     keymap.push(data.id);
   }.bind(this));
   this.graphRenderer = null;
-  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100 );
+  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100, "log-renderer-content-graph" );
   this.tableRenderer = null;
   this.tableRenderer = new TableRenderer( keymap, this.stateMap.render_value_keymap );
 };
