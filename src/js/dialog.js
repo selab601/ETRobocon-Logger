@@ -36,7 +36,9 @@ function dialog() {
  */
 dialog.prototype.onShowDialog = function ( title, body, style, duration ) {
   this.jqueryMap.$dialog_title.text(title);
-  this.jqueryMap.$dialog_body.text(body);
+  // WARNING: 改行文字(<br>)がエスケープされてしまうので，text() -> html() に変更
+  //          ただし，当然ながらエスケープされないくなるという問題がある
+  this.jqueryMap.$dialog_body.html(body);
 
   // ダイアログ非表示までのタイマーが既に設定されていた場合は，上書きのためにリセットする
   if ( this.timer != undefined ) {
