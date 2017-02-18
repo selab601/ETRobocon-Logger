@@ -43,11 +43,11 @@
 .file-input-form-text {
   position: absolute;
 
-  width: calc(100% - 21px - 55px);
+  width: calc(100% - 21px - 55px - 5px);
   height: 19px;
   line-height: 19px;
 
-  padding: 0;
+  padding: 0 0 0 5px;
   margin: 0;
 
   border: 0.5px solid rgb(180,180,180);

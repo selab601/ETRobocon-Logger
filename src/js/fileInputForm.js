@@ -14,11 +14,11 @@ function fileInputForm() {
           </div>
           <div class="file-input-form-file-form">
             <div class="file-input-form-label">Name :</div>
-            <input type="text" class="file-input-form-text"/>
+            <input type="text" class="file-input-form-text file"/>
           </div>
           <div class="file-input-form-directory-form">
             <div class="file-input-form-label">Folder :</div>
-            <input type="text" class="file-input-form-text"/>
+            <input type="text" class="file-input-form-text directory"/>
             <div class="file-input-form-search-button">
               <img src="resources/search_icon.png">
             </div>
@@ -61,8 +61,8 @@ fileInputForm.prototype.onInitLogFileName = function ( ev, message ) {
 
   // DOM 要素が描画前であれば，描画しない
   // この場合，DOM 要素描画時にログファイル名が描画される．
-  if ( this.jqueryMap.$file_input_form_text === undefined ) { return; }
-  this.jqueryMap.$file_input_form_text.val(message);
+  if ( this.jqueryMap.$input_form === undefined ) { return; }
+  this.jqueryMap.$input_form.val(message);
 };
 
 /****************************/
@@ -86,12 +86,12 @@ fileInputForm.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
-    $file_input_form_text : $append_target.parent().find("#file-input-form-text")
+    $input_form : $append_target.parent().find(".file-input-form-text.file")
   };
 
   // DOM 要素描画後，ログファイル名が設定されていれば初期化
   if ( this.stateMap.logFileName != undefined ) {
-    this.jqueryMap.$file_input_form_text.val(this.stateMap.logFileName);
+    this.jqueryMap.$input_form.val(this.stateMap.logFileName);
   }
 };
 
@@ -106,7 +106,7 @@ fileInputForm.prototype.init = function ( $append_target ) {
   this.setJqueryMap();
 
   // イベントハンドラを登録
-  this.jqueryMap.$file_input_form_text.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
+  this.jqueryMap.$input_form.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
   this.ipc.on('initLogFileName', this.onInitLogFileName.bind(this));
 };
 
