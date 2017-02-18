@@ -3,6 +3,10 @@
  * TODO: 保存先となるディレクトリを変更できるようにする
  */
 
+// ファイル選択のためのモジュール
+const remote = require('electron').remote;
+const Dialog = remote.dialog;
+
 function fileInputForm() {
   // 静的プロパティ
   this.configMap = {
@@ -28,6 +32,7 @@ function fileInputForm() {
   };
   // 動的プロパティ
   this.stateMap = {
+    logFileFolder  : undefined,
     logFileName    : undefined,
     $append_target : undefined
   };
@@ -72,7 +77,16 @@ fileInputForm.prototype.onInitLogFileName = function ( ev, message ) {
  * 選択したフォルダでテキスト領域を更新する．
  */
 fileInputForm.prototype.onSearchDirectory = function ( event ) {
-  console.log("clicked");
+  Dialog.showOpenDialog(null, {
+    properties: ['openDirectory'],
+    title: 'ログファイル出力先の選択',
+    defaultPath: '.'
+  }, function(directories){
+    // プロパティに保持
+    this.stateMap.logFileFolder = directories[0];
+    // DOM に描画
+    this.jqueryMap.$directory_form.val( directories[0] );
+  }.bind(this));
 };
 
 /****************************/
@@ -97,6 +111,7 @@ fileInputForm.prototype.setJqueryMap = function () {
   this.jqueryMap = {
     $append_target : $append_target,
     $input_form : $append_target.parent().find(".file-input-form-text.file"),
+    $directory_form : $append_target.parent().find(".file-input-form-text.directory"),
     $search_button : $append_target.parent().find(".file-input-form-search-button")
   };
 
