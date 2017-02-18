@@ -28,6 +28,10 @@ function logRenderer() {
               <div class="log-renderer-tab-header"></div>
               <div class="log-renderer-tab-body">Table</div>
             </div>
+            <div id="log-renderer-tab-map" class="log-renderer-tab">
+              <div class="log-renderer-tab-header"></div>
+              <div class="log-renderer-tab-body">Map</div>
+            </div>
           </nav>
           <div id="log-renderer-content-graph" class="log-renderer-content selected">
             <div id="log-renderer-list-box">
@@ -39,6 +43,7 @@ function logRenderer() {
             <div id="log-renderer-content-graph-box"></div>
           </div>
           <div id="log-renderer-content-table" class="log-renderer-content"></div>
+          <div id="log-renderer-content-map" class="log-renderer-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_base_html : (function () {
@@ -135,6 +140,10 @@ logRenderer.prototype.onSelectTab = function ( event ) {
     this.jqueryMap.$tab_graph.addClass("selected");
     this.jqueryMap.$content_graph.addClass("selected");
     break;
+  case "log-renderer-tab-map":
+    this.jqueryMap.$tab_map.addClass("selected");
+    this.jqueryMap.$content_map.addClass("selected");
+    break;
   }
 };
 
@@ -178,8 +187,10 @@ logRenderer.prototype.setJqueryMap = function () {
     $tab           : $append_target.find(".log-renderer-tab"),
     $tab_graph     : $append_target.find("#log-renderer-tab-graph"),
     $tab_table     : $append_target.find("#log-renderer-tab-table"),
+    $tab_map       : $append_target.find("#log-renderer-tab-map"),
     $content_graph : $append_target.find("#log-renderer-content-graph"),
-    $content_table : $append_target.find("#log-renderer-content-table")
+    $content_table : $append_target.find("#log-renderer-content-table"),
+    $content_map   : $append_target.find("#log-renderer-content-map")
   };
 };
 
