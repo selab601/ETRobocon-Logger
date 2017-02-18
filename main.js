@@ -49,7 +49,7 @@ function createWindow() {
   mainWindow.loadURL(`file://${__dirname}/src/index.html`);
 
   fileManager = new FileManager( mainWindow, app.getAppPath() );
-  fileManager.updateLogFilePath();
+  fileManager.updateLogFileName();
 
   dc = new deviceConnector( mainWindow, fileManager );
 

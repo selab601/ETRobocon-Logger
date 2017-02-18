@@ -61,13 +61,15 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
  * から適当なログファイル名を自動生成し，renderer プロセスに送信する．
  * このイベントハンドラでは，この時に受信したファイル名でフォームを初期化する．
  */
-fileInputForm.prototype.onInitLogFileName = function ( ev, message ) {
-  this.stateMap.logFileName = message;
+fileInputForm.prototype.onInitLogFilePath = function ( ev, message ) {
+  this.stateMap.logFileFolder = message.filder;
+  this.stateMap.logFileName = message.name;
 
   // DOM 要素が描画前であれば，描画しない
   // この場合，DOM 要素描画時にログファイル名が描画される．
   if ( this.jqueryMap.$input_form === undefined ) { return; }
-  this.jqueryMap.$input_form.val(message);
+  this.jqueryMap.$input_form.val(message.name);
+  this.jqueryMap.$directory_form.val(message.folder);
 };
 
 /**
@@ -118,6 +120,7 @@ fileInputForm.prototype.setJqueryMap = function () {
   // DOM 要素描画後，ログファイル名が設定されていれば初期化
   if ( this.stateMap.logFileName != undefined ) {
     this.jqueryMap.$input_form.val(this.stateMap.logFileName);
+    this.jqueryMap.$directory_form.val(this.stateMap.logFileFolder);
   }
 };
 
@@ -134,7 +137,7 @@ fileInputForm.prototype.init = function ( $append_target ) {
   // イベントハンドラを登録
   this.jqueryMap.$input_form.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
   this.jqueryMap.$search_button.bind( 'click', this.onSearchDirectory.bind(this) );
-  this.ipc.on('initLogFileName', this.onInitLogFileName.bind(this));
+  this.ipc.on('initLogFilePath', this.onInitLogFilePath.bind(this));
 };
 
 /**
@@ -151,7 +154,7 @@ fileInputForm.prototype.remove = function () {
   }
 
   // イベントハンドラの削除
-  this.ipc.removeAllListeners('initLogFileName');
+  this.ipc.removeAllListeners('initLogFilePath');
 
   // 動的プロパティ初期化
   this.stateMap = {
