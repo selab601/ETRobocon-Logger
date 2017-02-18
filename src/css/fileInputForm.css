@@ -53,6 +53,10 @@
   border: 0.5px solid rgb(180,180,180);
 }
 
+.file-input-form-text.directory {
+  pointer-events: none;
+}
+
 .file-input-form-label {
   text-align: right;
   margin-right: 5px;
@@ -79,6 +83,8 @@
   background-color: rgb(247,247,247);
 
   border: 0.5px solid rgb(180,180,180);
+
+  cursor: pointer;
 }
 
 .file-input-form-search-button > img {
