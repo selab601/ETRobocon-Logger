@@ -12,7 +12,17 @@ function fileInputForm() {
           <div class="file-input-form-title">
             Log file
           </div>
-          <input type="text" id="file-input-form-text"/>
+          <div class="file-input-form-file-form">
+            <div class="file-input-form-label">Name :</div>
+            <input type="text" class="file-input-form-text"/>
+          </div>
+          <div class="file-input-form-directory-form">
+            <div class="file-input-form-label">Folder :</div>
+            <input type="text" class="file-input-form-text"/>
+            <div class="file-input-form-search-button">
+              <img src="resources/search_icon.png">
+            </div>
+          </div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1]
   };
