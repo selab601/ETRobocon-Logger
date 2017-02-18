@@ -49,9 +49,13 @@ function fileInputForm() {
  * フォーム内で文字列が編集された際に呼び出されるイベントハンドラ
  *
  * 入力された文字列でメモリ上のファイル名を更新する
+ * TODO: テキスト編集ごとに送信しているので送信回数が多くなってしまう
  */
 fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
+  // プロパティに保持
   this.stateMap.logFileName = event.target.value;
+  // main プロセス側に送信
+  this.ipc.send('updateLogFileName', this.stateMap.logFileName);
 };
 
 /**
@@ -88,6 +92,8 @@ fileInputForm.prototype.onSearchDirectory = function ( event ) {
     this.stateMap.logFileFolder = directories[0];
     // DOM に描画
     this.jqueryMap.$directory_form.val( directories[0] );
+    // main プロセス側に送信
+    this.ipc.send('updateLogFileDirectory', this.stateMap.logFileFolder);
   }.bind(this));
 };
 
