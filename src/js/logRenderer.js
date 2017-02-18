@@ -20,8 +20,14 @@ function logRenderer() {
       /*
         <div id="log-renderer">
           <nav id="log-renderer-tabs">
-            <div id="log-renderer-tab-graph" class="log-renderer-tab selected">Graph</div>
-            <div id="log-renderer-tab-table" class="log-renderer-tab">Table</div>
+            <div id="log-renderer-tab-graph" class="log-renderer-tab selected">
+              <div class="log-renderer-tab-header"></div>
+              <div class="log-renderer-tab-body">Graph</div>
+            </div>
+            <div id="log-renderer-tab-table" class="log-renderer-tab">
+              <div class="log-renderer-tab-header"></div>
+              <div class="log-renderer-tab-body">Table</div>
+            </div>
           </nav>
           <div id="log-renderer-content-graph" class="log-renderer-content selected">
             <div id="log-renderer-list-box">
@@ -120,7 +126,7 @@ logRenderer.prototype.onSelectTab = function ( event ) {
   // TODO: 選択したタブ等は dom を参照するのではなくメモリ上に保存すべき
   this.jqueryMap.$append_target.find(".selected").removeClass("selected");
 
-  switch ( event.target.id ) {
+  switch ( event.currentTarget.id ) {
   case "log-renderer-tab-table":
     this.jqueryMap.$tab_table.addClass("selected");
     this.jqueryMap.$content_table.addClass("selected");
