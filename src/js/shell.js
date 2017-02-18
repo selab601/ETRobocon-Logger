@@ -85,7 +85,7 @@ shell.prototype.onDisconnectDevice = function () {
     this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
   );
   this.moduleMap.fileInputForm.init(
-    this.jqueryMap.$body.find(".device-connector-body")
+    this.jqueryMap.$body.find("#device-connector-body-footer")
   );
 
   this.enableTransition();
@@ -110,7 +110,7 @@ shell.prototype.onTransitionTo = function ( event ) {
       this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
     );
     this.moduleMap.fileInputForm.init(
-      this.jqueryMap.$body.find(".device-connector-body")
+      this.jqueryMap.$body.find("#device-connector-body-footer")
     );
     break;
   };
@@ -174,7 +174,7 @@ shell.prototype.initModule = function ( $container ) {
     this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
   );
   this.moduleMap.fileInputForm.init(
-    this.jqueryMap.$body.find(".device-connector-body")
+    this.jqueryMap.$body.find("#device-connector-body-footer")
   );
   this.moduleMap.dialog.init( this.jqueryMap.$container );
 

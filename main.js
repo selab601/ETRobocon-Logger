@@ -5,7 +5,7 @@
 const {app, BrowserWindow} = require('electron'),
       path = require('path'),
       url = require('url'),
-      is_fake = false,
+      is_fake = true,
       deviceConnector = is_fake ? require("./lib/fakeConnector.js") : require("./lib/deviceConnector.js"),
       FileManager = require('./lib/fileManager.js');
 
@@ -49,7 +49,7 @@ function createWindow() {
   mainWindow.loadURL(`file://${__dirname}/src/index.html`);
 
   fileManager = new FileManager( mainWindow, app.getAppPath() );
-  fileManager.updateLogFilePath();
+  fileManager.updateLogFileName();
 
   dc = new deviceConnector( mainWindow, fileManager );
 

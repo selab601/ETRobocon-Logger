@@ -19,18 +19,25 @@ function logRenderer() {
     main_html : (function () {
       /*
         <div id="log-renderer">
-          <div id="log-renderer-list-box">
-            <div class="log-renderer-list-header">
-              Render Graph
-            </div>
-            <div class="log-renderer-list"></div>
-          </div>
-
           <nav id="log-renderer-tabs">
-            <div id="log-renderer-tab-graph" class="log-renderer-tab selected">Graph</div>
-            <div id="log-renderer-tab-table" class="log-renderer-tab">Table</div>
+            <div id="log-renderer-tab-graph" class="log-renderer-tab selected">
+              <div class="log-renderer-tab-header"></div>
+              <div class="log-renderer-tab-body">Graph</div>
+            </div>
+            <div id="log-renderer-tab-table" class="log-renderer-tab">
+              <div class="log-renderer-tab-header"></div>
+              <div class="log-renderer-tab-body">Table</div>
+            </div>
           </nav>
-          <div id="log-renderer-content-graph" class="log-renderer-content selected"></div>
+          <div id="log-renderer-content-graph" class="log-renderer-content selected">
+            <div id="log-renderer-list-box">
+              <div class="log-renderer-list-header">
+                Render Graph
+              </div>
+              <div class="log-renderer-list"></div>
+            </div>
+            <div id="log-renderer-content-graph-box"></div>
+          </div>
           <div id="log-renderer-content-table" class="log-renderer-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
@@ -61,7 +68,7 @@ function logRenderer() {
     keymap.push(data.id);
   }.bind(this));
   // TODO: 描画範囲(現状は100)を動的に指定できるようにする
-  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100, "log-renderer-content-graph" );
+  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100, "log-renderer-content-graph-box");
   this.tableRenderer = new TableRenderer( keymap, this.stateMap.render_value_keymap );
 };
 
@@ -119,7 +126,7 @@ logRenderer.prototype.onSelectTab = function ( event ) {
   // TODO: 選択したタブ等は dom を参照するのではなくメモリ上に保存すべき
   this.jqueryMap.$append_target.find(".selected").removeClass("selected");
 
-  switch ( event.target.id ) {
+  switch ( event.currentTarget.id ) {
   case "log-renderer-tab-table":
     this.jqueryMap.$tab_table.addClass("selected");
     this.jqueryMap.$content_table.addClass("selected");
@@ -225,7 +232,7 @@ logRenderer.prototype.remove = function () {
     keymap.push(data.id);
   }.bind(this));
   this.graphRenderer = null;
-  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100, "log-renderer-content-graph" );
+  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100, "log-renderer-content-graph-box" );
   this.tableRenderer = null;
   this.tableRenderer = new TableRenderer( keymap, this.stateMap.render_value_keymap );
 };

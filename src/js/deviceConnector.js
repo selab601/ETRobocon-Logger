@@ -14,12 +14,16 @@ function deviceConnector () {
           <div id="device-connector">
             <div class="device-connector-header">
               Devices
-              <div id="device-connector-update-button">更新</div>
             </div>
             <div class="device-connector-body">
               <ul id="device-connector-device-group">
                 <!-- デバイスが追加されていく -->
               </ul>
+            </div>
+            <div id="device-connector-body-footer">
+              <div id="device-connector-update-button">
+              <img src="resources/update_icon.png">
+              </div>
             </div>
             <div class="device-connector-footer">
               <div id="device-connector-connect-button">CONNECT</div>
@@ -63,26 +67,24 @@ deviceConnector.prototype.onUpdateDevices = function () {
 };
 
 /**
- * Bluetooth デバイス一覧の取得に失敗したときに呼び出されるイベントハンドラ
+ * Bluetooth デバイス一覧の取得が完了したときに呼び出されるイベントハンドラ
  *
- * main プロセス側で取得に失敗した場合に呼び出される．
- * TODO: メッセージボックス等で失敗をユーザに通知
+ * main プロセス側で取得が完了した際に実行される
  */
-deviceConnector.prototype.onUpdateDevicesFailed = function ( ev, message ) {
+deviceConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
+  console.log(message);
   this.messenger( message.title, message.body );
   this.jqueryMap.$update_btn.removeClass('disabled');
   this.jqueryMap.$connect_btn.removeClass('disabled');
 };
 
 /**
- * Bluetooth デバイス群を main プロセスから受信した際に呼び出されるイベントハンドラ
+ * Bluetooth デバイスを main プロセスから受信した際に呼び出されるイベントハンドラ
  *
- * main プロセス側で Bluetooth デバイスの検索が終了し，その検索結果を受信した
- * 際に呼び出される．
- * 検索結果でビューを更新する．この時，すでに追加されているデバイスは追加しない．
+ * 取得したデバイス情報でビューを更新する．この時，すでに追加されているデバイスは追加しない．
  * デバイスはアドレスで一意に識別する．
  */
-deviceConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
+deviceConnector.prototype.onFoundDevice = function ( ev, message ) {
   var device = message;
 
   // リストに追加済みであったなら追加しない
@@ -103,9 +105,6 @@ deviceConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
       .addClass("device-connector-device-name")
       .text(device.name)
       .bind( 'click', device.address, this.onSelectDevice.bind(this) ));
-
-  this.jqueryMap.$update_btn.removeClass('disabled');
-  this.jqueryMap.$connect_btn.removeClass('disabled');
 };
 
 /**
@@ -213,7 +212,7 @@ deviceConnector.prototype.init = function ( $append_target, deviceMap, callback,
   this.jqueryMap.$connect_btn.bind( 'click', this.onConnectDevice.bind(this));
   // main プロセスからの通信に反応するイベントハンドラ
   this.ipc.on('updateDevicesComplete', this.onUpdateDevicesComplete.bind(this));
-  this.ipc.on('updateDevicesFailed', this.onUpdateDevicesFailed.bind(this));
+  this.ipc.on('foundDevice', this.onFoundDevice.bind(this));
   this.ipc.on('connectDeviceComplete', this.onConnectDeviceComplete.bind(this));
   this.ipc.on('connectDeviceFailed', this.onConnectDeviceFailed.bind(this));
 };
@@ -233,7 +232,7 @@ deviceConnector.prototype.remove = function () {
 
   // イベントハンドラの削除
   this.ipc.removeAllListeners('updateDevicesComplete');
-  this.ipc.removeAllListeners('updateDevicesFailed');
+  this.ipc.removeAllListeners('foundDevice');
   this.ipc.removeAllListeners('connectDeviceComplete');
   this.ipc.removeAllListeners('connectDeviceFailed');
 

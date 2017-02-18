@@ -1,26 +1,100 @@
 #file-input-form {
   width: calc( 100% - 40px );
-  height: 30px;
   text-center: align;
-  margin: 20px 20px 15px 20px;
+  margin: 20px 20px 0px 20px;
 }
 
 .file-input-form-title {
-  display: inline-block;
-  height: 30px;
-  line-height: 30px;
+  display: block;
+  height: 20px;
+  line-height: 20px;
   text-align: center;
-  width: 62px;
-  font-size: 15px;
+  width: 100%;
+  font-size: 16px;
   font-weight: bold;
+  margin-bottom: 5px;
 }
 
-#file-input-form-text {
-  display: inline;
-  border: none;
+/** フォームの配置 **/
+
+.file-input-form-file-form {
+  position: relative;
+  display: block;
+
+  width: 100%;
+  height: 20px;
+  line-height: 20px;
+  margin: 0 0 10px 0;
+
+  display: block;
+}
+
+.file-input-form-directory-form {
+  position: relative;
+  display: block;
+
+  width: 100%;
+  height: 20px;
+  line-height: 20px;
+}
+
+/** フォーム内部の配置 **/
+
+.file-input-form-text {
+  position: absolute;
+
+  width: calc(100% - 21px - 55px - 5px);
+  height: 19px;
+  line-height: 19px;
+
   padding: 0 0 0 5px;
-  height: 30px;
-  line-height: 30px;
-  width: calc(100% - 74px);
-  border: 0.5px solid rgb(161,161,161);
+  margin: 0;
+
+  border: 0.5px solid rgb(180,180,180);
+}
+
+.file-input-form-text.directory {
+  pointer-events: none;
+}
+
+.file-input-form-label {
+  text-align: right;
+  margin-right: 5px;
+  font-size: 14px;
+  display: inline-block;
+  height: 20px;
+  line-height: 20px;
+  width: 50px;
+}
+
+/** ボタン **/
+
+.file-input-form-search-button {
+  position: absolute;
+
+  width: 19px;
+  height: 19px;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin-left: auto;
+  background-color: rgb(247,247,247);
+
+  border: 0.5px solid rgb(180,180,180);
+
+  cursor: pointer;
+}
+
+.file-input-form-search-button > img {
+  height: 15px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  padding-left: 2px;
+  padding-bottom: 1px;
 }
