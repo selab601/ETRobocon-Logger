@@ -65,6 +65,16 @@ fileInputForm.prototype.onInitLogFileName = function ( ev, message ) {
   this.jqueryMap.$input_form.val(message);
 };
 
+/**
+ * ディレクトリの検索ボタンが押下されたら呼び出されるイベントハンドラ
+ *
+ * フォルダ選択画面を開きフォルダを選択させる．
+ * 選択したフォルダでテキスト領域を更新する．
+ */
+fileInputForm.prototype.onSearchDirectory = function ( event ) {
+  console.log("clicked");
+};
+
 /****************************/
 
 
@@ -86,7 +96,8 @@ fileInputForm.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
-    $input_form : $append_target.parent().find(".file-input-form-text.file")
+    $input_form : $append_target.parent().find(".file-input-form-text.file"),
+    $search_button : $append_target.parent().find(".file-input-form-search-button")
   };
 
   // DOM 要素描画後，ログファイル名が設定されていれば初期化
@@ -107,6 +118,7 @@ fileInputForm.prototype.init = function ( $append_target ) {
 
   // イベントハンドラを登録
   this.jqueryMap.$input_form.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
+  this.jqueryMap.$search_button.bind( 'click', this.onSearchDirectory.bind(this) );
   this.ipc.on('initLogFileName', this.onInitLogFileName.bind(this));
 };
 
