@@ -4,8 +4,7 @@ function Map ( $append_target_id, width, height, origin ) {
   this.width  = width;
   this.height = height;
   this.origin = origin;
-
-  this.dataSet = [];
+  this.preCor = null;
 
   // D3 オブジェクトキャッシュ用
   this.d3ObjectsMap = {};
@@ -38,8 +37,6 @@ Map.prototype.init = function () {
   var svg = this.d3.select("svg.map-chart-svg");
 
   this.d3ObjectsMap = { svg : svg };
-
-  this.dataSet = [];
 };
 
 /**
@@ -56,14 +53,19 @@ Map.prototype.render = function ( coordinate ) {
     x: coordinate.x + this.origin.x,
     y: coordinate.y + this.origin.y
   };
-  this.dataSet.push( adjustedCor );
 
-  // path要素で曲線を描く。
+  if ( this.preCor == null ) {
+    this.preCor = adjustedCor;
+    return;
+  }
+
   this.d3ObjectsMap.svg
     .append("path")
-    .datum(this.dataSet)
+    .datum([ this.preCor, adjustedCor ])
     .attr("class", "line")
     .attr("d", this.line);
+
+  this.preCor = adjustedCor;
 };
 
 /**
