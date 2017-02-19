@@ -1,0 +1,14 @@
+#maprenderer-box {
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  margin: 20px;
+  background-color: gray;
+
+  display: flex;           display: -webkit-flex;
+  align-items: center;     -webkit-align-items: center;
+  justify-content: center; -webkit-justify-content: center;
+}
+
+.map-chart-svg {
+  background-color: white;
+}
