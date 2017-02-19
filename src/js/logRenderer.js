@@ -102,6 +102,9 @@ logRenderer.prototype.onReceiveDataFromDevice = function ( ev, message ) {
     this.tableRenderer.update(key, data[key]);
   }.bind(this));
 
+  // Map の描画
+  this.mapRenderer.render( data["coordinate_x"]/10, data["coordinate_y"]/10 );
+
   // グラフの描画
   this.graphRenderer.renderAll(null, null, ["label", "focus"]);
 };

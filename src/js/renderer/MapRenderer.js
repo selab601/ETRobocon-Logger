@@ -29,6 +29,8 @@ MapRenderer.prototype.init = function ( $append_target ) {
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
   this.setJqueryMap();
+
+  this.map.init();
 };
 
 module.exports = MapRenderer;
