@@ -1,9 +1,9 @@
-function Map ( $append_target_id ) {
+function Map ( $append_target_id, width, height, origin ) {
   this.append_target_id = $append_target_id;
 
-  this.margin = {top: 10, right: 40, bottom: 40, left: 100};
-  this.width  = 1000 - this.margin.left - this.margin.right;
-  this.height = 1000 - this.margin.top - this.margin.bottom;
+  this.width  = width;
+  this.height = height;
+  this.origin = origin;
 
   this.dataSet = [];
   this.preTarget = null;
@@ -51,12 +51,23 @@ Map.prototype.init = function () {
  */
 Map.prototype.render = function ( target ) {
   if ( this.preTarget == null ) {
-    this.preTarget = target;
+    this.preTarget = {
+      x: target.x + this.origin.x,
+      y: target.y + this.origin.y
+    };
     return;
   }
   var source = this.preTarget;
 
-  this.dataSet.push( { source: source, target: target });
+  // 原点に合わせる
+  var adjustedTarget = {
+    x: target.x + this.origin.x,
+    y: target.y + this.origin.y
+  };
+
+  console.log( adjustedTarget.x +  ", " + adjustedTarget.y);
+
+  this.dataSet.push( { source: source, target: adjustedTarget });
 
   // path要素で曲線を描く。
   this.d3ObjectsMap.svg.selectAll("path")
@@ -79,7 +90,7 @@ Map.prototype.renderFromData = function ( data ) {
   this.init();
 
   this.d3ObjectsMap.svg.selectAll("path")
-    .data( parse(data) )
+    .data( parse(data,this.origin) )
     .enter()
     .append("path")
     .attr("fill", "none")
@@ -92,11 +103,20 @@ Map.prototype.renderFromData = function ( data ) {
  *
  * @param data 座標({x: <number>, y: <number>})の配列
  */
-function parse( data ) {
+function parse( data, origin ) {
   var result = [];
+  var adjustedData = [];
+
+  // 全座標を原点に合わせる
+  for ( var i = 0; i < data.length-1; i++) {
+    result.push( { source: data[i], target: data[i+1] } );
+    adjustedData.push( { x: data[i].x - origin.x, y: data[i].y - origin.y } );
+  }
+
   for ( var i = 0; i < data.length-1; i++) {
     result.push( { source: data[i], target: data[i+1] } );
   }
+
   return result;
 }
 

@@ -13,7 +13,7 @@ function MapRenderer () {
   };
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
-  this.map = new Map( "maprenderer-box" );
+  this.map = new Map( "maprenderer-box", 900, 500, { x: 100, y: 100 } );
 };
 
 MapRenderer.prototype.setJqueryMap = function () {
