@@ -6,15 +6,17 @@ function Map ( $append_target_id, width, height, origin ) {
   this.origin = origin;
 
   this.dataSet = [];
-  this.preTarget = null;
 
   // D3 オブジェクトキャッシュ用
   this.d3ObjectsMap = {};
 
   // D3.js
   this.d3 = require('../lib/d3.min.js');
-  // diagonalのpathジェネレータ設定。
-  this.diagonal = this.d3.svg.diagonal();
+  // path を生成するためのジェネレータの設定
+  this.line = this.d3.svg.line()
+    .x(function(d) {return d.x;})
+    .y(function(d) {return d.y;})
+    .interpolate("cardinal");
 
   // スケールの初期化
   this.xScale = this.d3.scale.linear()
@@ -37,7 +39,6 @@ Map.prototype.init = function () {
 
   this.d3ObjectsMap = { svg : svg };
 
-  this.preTarget = null;
   this.dataSet = [];
 };
 
@@ -47,38 +48,22 @@ Map.prototype.init = function () {
  * また，描画を開始する原点を setOrigin で事前に設定しておくこと
  * 引数として座標を与えると，前回与えた座標から今回与えた座標までの線分を描画する．
  *
- * @param target 次の座標({x:<number>,y:<number>})
+ * @param coordinate 次の座標({x:<number>,y:<number>})
  */
-Map.prototype.render = function ( target ) {
-  if ( this.preTarget == null ) {
-    this.preTarget = {
-      x: target.x + this.origin.x,
-      y: target.y + this.origin.y
-    };
-    return;
-  }
-  var source = this.preTarget;
-
+Map.prototype.render = function ( coordinate ) {
   // 原点に合わせる
-  var adjustedTarget = {
-    x: target.x + this.origin.x,
-    y: target.y + this.origin.y
+  var adjustedCor = {
+    x: coordinate.x + this.origin.x,
+    y: coordinate.y + this.origin.y
   };
-
-  console.log( adjustedTarget.x +  ", " + adjustedTarget.y);
-
-  this.dataSet.push( { source: source, target: adjustedTarget });
+  this.dataSet.push( adjustedCor );
 
   // path要素で曲線を描く。
-  this.d3ObjectsMap.svg.selectAll("path")
-    .data(this.dataSet)
-    .enter()
+  this.d3ObjectsMap.svg
     .append("path")
-    .attr("fill", "none")
-    .attr("stroke", "black")
-    .attr("d", this.diagonal);
-
-  this.preTarget = target;
+    .datum(this.dataSet)
+    .attr("class", "line")
+    .attr("d", this.line);
 };
 
 /**
@@ -90,34 +75,12 @@ Map.prototype.renderFromData = function ( data ) {
   this.init();
 
   this.d3ObjectsMap.svg.selectAll("path")
-    .data( parse(data,this.origin) )
+    .data( data )
     .enter()
     .append("path")
     .attr("fill", "none")
     .attr("stroke", "black")
     .attr("d", this.diagonal);
 };
-
-/**
- * 座標の配列を map 描画用の配列に変換する
- *
- * @param data 座標({x: <number>, y: <number>})の配列
- */
-function parse( data, origin ) {
-  var result = [];
-  var adjustedData = [];
-
-  // 全座標を原点に合わせる
-  for ( var i = 0; i < data.length-1; i++) {
-    result.push( { source: data[i], target: data[i+1] } );
-    adjustedData.push( { x: data[i].x - origin.x, y: data[i].y - origin.y } );
-  }
-
-  for ( var i = 0; i < data.length-1; i++) {
-    result.push( { source: data[i], target: data[i+1] } );
-  }
-
-  return result;
-}
 
 module.exports = Map;
