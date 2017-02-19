@@ -1,0 +1,118 @@
+#settings-wrapper {
+  width: 100%;
+  height: 100%;
+
+  display: flex;           display: -webkit-flex;
+  align-items: center;     -webkit-align-items: center;
+  justify-content: center; -webkit-justify-content: center;
+}
+
+#settings {
+  border-radius: 10px;
+  background-color: rgb(239, 239, 239);
+  border: 0.5px solid rgb(210,210,210);
+
+  width: 700px;
+
+  padding: 20px;
+}
+
+/* Map に関する設定 */
+
+.settings-map {
+  width: 100%;
+}
+
+.settings-map-title {
+  width: 100%;
+  font-weight: bold;
+  text-align: left;
+  text-size: 20p;
+  line-height: 25px;
+  border-bottom: 1px solid black;
+  margin-bottom: 10px;
+}
+
+.settings-map-image-form {
+  position: relative;
+  display: block;
+
+  width: 100%;
+  height: 25px;
+  line-height: 25px;
+}
+
+.settings-map-image-form-title {
+  text-align: right;
+  margin-right: 5px;
+  font-size: 14px;
+  display: inline-block;
+
+  width: 50px;
+  height: 25px;
+  line-height: 25px;
+}
+
+.settings-map-image-form-body {
+  position: absolute;
+
+  width: calc(100% - 55px - 5px - 2px - 25px);
+  height: calc(25px - 2px);
+  line-height: 24px;
+
+  padding: 0 0 0 5px;
+  margin: 0;
+
+  border: 1px solid rgb(180,180,180);
+}
+
+.settings-map-image-form-button {
+  position: absolute;
+
+  width: 23px;
+  height: 23px;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin-left: auto;
+  background-color: rgb(247,247,247);
+
+  border: 1px solid rgb(180,180,180);
+  border-left: none;
+
+  cursor: pointer;
+}
+
+.settings-map-image-form-button > img {
+  height: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+}
+
+/* プレビュー  */
+
+.settings-map-image-preview {
+  width: 100%;
+}
+
+.settings-map-image-preview-title {
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  height: 25px;
+  line-height: 25px;
+  padding-left: 2px;
+  margin-top: 5px;
+}
+
+.settings-map-image-preview-box {
+  width: 100%;
+  height: 350px;
+  background-color: gray;
+}

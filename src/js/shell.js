@@ -12,6 +12,7 @@ const DeviceDisconnector = require('./deviceDisconnector.js');
 const LogRenderer        = require('./logRenderer.js');
 const LogAnalyzer        = require('./logAnalyzer.js');
 const Dialog             = require('./dialog.js');
+const Settings           = require('./settings.js');
 
 function shell() {
   // 静的プロパティ
@@ -23,6 +24,7 @@ function shell() {
           <ul>
             <li class="header-element" id="connect-page">Connect</li>
             <li class="header-element" id="load-page">Load</li>
+            <li class="header-element" id="settings-page">Settings</li>
           </ul>
         </div>
         <div class="body"></div>
@@ -42,7 +44,8 @@ function shell() {
     deviceDisconnector : new DeviceDisconnector(),
     logRenderer        : new LogRenderer(),
     logAnalyzer        : new LogAnalyzer(),
-    dialog             : new Dialog()
+    dialog             : new Dialog(),
+    settings           : new Settings()
   };
   // jQuery オブジェクトのキャッシュ
   this.jqueryMap = {};
@@ -113,6 +116,11 @@ shell.prototype.onTransitionTo = function ( event ) {
       this.jqueryMap.$body.find("#device-connector-body-footer")
     );
     break;
+  case "settings-page":
+    // モジュール削除
+    this.removeAllModules();
+    // モジュール初期化
+    this.moduleMap.settings.init(this.jqueryMap.$body);
   };
 
   this.transitionTo( event.data );
@@ -153,7 +161,8 @@ shell.prototype.setJqueryMap = function () {
     $contents     : $container.find(".contents"),
     $body         : $container.find(".body"),
     $connect_page : $container.find("#connect-page"),
-    $load_page    : $container.find("#load-page")
+    $load_page    : $container.find("#load-page"),
+    $settings_page: $container.find("#settings-page")
   };
 };
 
@@ -181,6 +190,7 @@ shell.prototype.initModule = function ( $container ) {
   // イベントハンドラ登録
   this.jqueryMap.$connect_page.bind( 'click', "connect-page", this.onTransitionTo.bind(this) );
   this.jqueryMap.$load_page.bind( 'click', "load-page", this.onTransitionTo.bind(this) );
+  this.jqueryMap.$settings_page.bind( 'click', "settings-page", this.onTransitionTo.bind(this) );
 };
 
 module.exports = shell;
