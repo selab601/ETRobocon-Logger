@@ -41,7 +41,8 @@ function Settings () {
   this.stateMap = {
     $append_target : undefined,
     map_image_path : undefined,
-    map_image_scale : undefined
+    map_image_scale : undefined,
+    map_start_point : undefined
   };
   // jQuery オブジェクトのキャッシュ用
   this.jqueryMap = {};
@@ -94,6 +95,7 @@ Settings.prototype.onSelectImage = function ( event ) {
 Settings.prototype.onClickedImage = function ( event ) {
   var self = event.data.self;
   var offset = self.$(this).offset();
+  /*     クリック位置   要素位置   */
   var x = event.pageX - offset.left;
   var y = event.pageY - offset.top;
 
@@ -102,6 +104,10 @@ Settings.prototype.onClickedImage = function ( event ) {
   }
 
   // クリック位置をプロパティに保存
+  self.stateMap.map_start_point = {
+    x : x * 100/self.stateMap.map_image_scale,
+    y : y * 100/self.stateMap.map_image_scale
+  };
 
   // DOM に描画
   self.jqueryMap.$image_preview_img_point =
@@ -147,9 +153,6 @@ Settings.prototype.onAdjustScale = function ( scale ) {
     }
   });
 
-  console.log(this.jqueryMap.$image_preview_img[0].width);
-  console.log(this.jqueryMap.$image_preview[0].clientHeight);
-  console.log(this.jqueryMap.$image_preview[0].clientWidth);
   this.jqueryMap.$image_preview_imgwrapper
     .css("left", this.jqueryMap.$image_preview_img[0].width/2 - this.jqueryMap.$image_preview[0].clientWidth/2 + 5)
     .css("top", this.jqueryMap.$image_preview_img[0].height/2 - this.jqueryMap.$image_preview[0].clientHeight/2 + 5);
