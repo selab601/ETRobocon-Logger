@@ -1,3 +1,8 @@
+
+// ファイル選択のためのモジュール
+const remote = require('electron').remote;
+const Dialog = remote.dialog;
+
 function Settings () {
   // 静的プロパティ
   this.configMap = {
@@ -25,7 +30,8 @@ function Settings () {
   };
   // 動的プロパティ
   this.stateMap = {
-    $append_target : undefined
+    $append_target : undefined,
+    map_image_path : undefined
   };
   // jQuery オブジェクトのキャッシュ用
   this.jqueryMap = {};
@@ -39,6 +45,29 @@ function Settings () {
 
 
 /******* イベントハンドラ *******/
+
+Settings.prototype.onSelectImage = function ( event ) {
+  Dialog.showOpenDialog(null, {
+    properties: ['openFile'],
+    defaultPath: '.',
+    filters: [
+      {name: 'Image file', extensions: ['png', 'jpg', 'jpeg']}
+    ]
+  }, function(files){
+    // プロパティに保持
+    this.stateMap.map_image_path = files[0];
+    // DOM に描画
+    this.jqueryMap.$image_form.val( files[0] );
+    this.jqueryMap.$image_preview.append(
+      this.$('img')
+        .attr("src", files[0])
+        .css("max-height", "100%")
+        .css("max-width", "100%")
+    );
+  }.bind(this));
+};
+
+
 /********************************/
 
 /**
@@ -51,7 +80,10 @@ function Settings () {
 Settings.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
-    $append_target : $append_target
+    $append_target       : $append_target,
+    $image_search_button : $append_target.find(".settings-map-image-form-button"),
+    $image_preview       : $append_target.find(".settings-map-image-preview-box"),
+    $image_form          : $append_target.find(".settings-map-image-form-body")
   };
 };
 
@@ -64,6 +96,9 @@ Settings.prototype.init = function ( $append_target, deviceMap, callback, messen
   $append_target.append( this.configMap.main_html );
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
+
+  // イベントハンドラの登録
+  this.jqueryMap.$image_search_button.bind( "click", this.onSelectImage.bind(this) );
 };
 
 /**
