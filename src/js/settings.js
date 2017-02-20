@@ -58,15 +58,46 @@ Settings.prototype.onSelectImage = function ( event ) {
     this.stateMap.map_image_path = files[0];
     // DOM に描画
     this.jqueryMap.$image_form.val( files[0] );
-    this.jqueryMap.$image_preview.append(
-      this.$('img')
-        .attr("src", files[0])
-        .css("max-height", "100%")
-        .css("max-width", "100%")
-    );
+
+    // DOM 要素の用意
+    this.jqueryMap.$image_preview_imgwrapper =
+      this.$('<div></div>')
+      .attr("class", "settings-map-image-preview-imagewrapper");
+    this.jqueryMap.$image_preview_img =
+      this.$('<img>')
+      .attr("src", files[0]);
+
+    // DOM 要素の追加
+    this.jqueryMap.$image_preview.html(
+      this.jqueryMap.$image_preview_imgwrapper.append(
+        this.jqueryMap.$image_preview_img
+      ));
+
+    // イベントハンドラ登録
+    this.jqueryMap.$image_preview_img
+      .bind( "click", {self:this}, this.onClickedImage);
   }.bind(this));
 };
 
+Settings.prototype.onClickedImage = function ( event ) {
+  var self = event.data.self;
+  var offset = self.$(this).offset();
+  var x = event.pageX - offset.left;
+  var y = event.pageY - offset.top;
+
+  if ( self.jqueryMap.$image_preview_img_point != undefined ) {
+    self.jqueryMap.$image_preview_img_point.remove();
+  }
+
+  self.jqueryMap.$image_preview_img_point =
+    self.$("<div></div>")
+    .attr("id", "settings-map-image-preview-point")
+    .css("left", Math.round(x)+"px")
+    .css("top", Math.round(y)+"px");
+
+  self.jqueryMap.$image_preview_imgwrapper
+    .append( self.jqueryMap.$image_preview_img_point );
+};
 
 /********************************/
 

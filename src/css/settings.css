@@ -116,9 +116,27 @@
   height: 350px;
   background-color: gray;
 
-  overflow: hidden;
+  overflow: scroll;
 
   display: flex;           display: -webkit-flex;
   align-items: center;     -webkit-align-items: center;
   justify-content: center; -webkit-justify-content: center;
+}
+
+.settings-map-image-preview-imagewrapper {
+  position: relative;
+}
+
+.settings-map-image-preview-imagewrapper > img {
+  height: 100%;
+  width: 100%;
+}
+
+#settings-map-image-preview-point {
+  position: absolute;
+  display: inline;
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background-color: red;
 }
