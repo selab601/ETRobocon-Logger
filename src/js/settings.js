@@ -20,7 +20,15 @@ function Settings () {
                 </div>
               </div>
               <div class="settings-map-image-preview">
-                <div class="settings-map-image-preview-title">Preview</div>
+                <div class="settings-map-image-preview-title">
+                  Preview
+                  <div class="settings-map-image-form-scaleup-button">
+                    <img src="resources/scaleup_icon.png">
+                  </div>
+                  <div class="settings-map-image-form-scaledown-button">
+                    <img src="resources/scaledown_icon.png">
+                  </div>
+                </div>
                 <div class="settings-map-image-preview-box"></div>
               </div>
             </div>

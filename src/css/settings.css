@@ -102,7 +102,8 @@
 }
 
 .settings-map-image-preview-title {
-  width: 100%;
+  position: relative;
+  width: calc(100% - 2px);
   text-align: left;
   font-size: 14px;
   height: 25px;
@@ -110,6 +111,64 @@
   padding-left: 2px;
   margin-top: 5px;
 }
+
+.settings-map-image-form-scaleup-button {
+  position: absolute;
+
+  width: 23px;
+  height: 23px;
+
+  top: 0;
+  right: 25px;
+  bottom: 0;
+  left: 0;
+  margin-left: auto;
+  background-color: rgb(247,247,247);
+
+  border: 1px solid rgb(180,180,180);
+
+  cursor: pointer;
+}
+
+.settings-map-image-form-scaleup-button > img {
+  height: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+}
+
+.settings-map-image-form-scaledown-button {
+  position: absolute;
+
+  width: 23px;
+  height: 23px;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin-left: auto;
+  background-color: rgb(247,247,247);
+
+  border: 1px solid rgb(180,180,180);
+  border-left: none;
+
+  cursor: pointer;
+}
+
+.settings-map-image-form-scaledown-button > img {
+  height: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+}
+
 
 .settings-map-image-preview-box {
   width: 100%;
@@ -140,3 +199,4 @@
   border-radius: 3px;
   background-color: red;
 }
+
