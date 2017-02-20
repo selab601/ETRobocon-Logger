@@ -48,8 +48,8 @@ function Settings () {
   };
   // jQuery オブジェクトのキャッシュ用
   this.jqueryMap = {};
-  // ユーザへ通知を行うコールバック関数
-  this.messenger = undefined;
+  // 設定情報を渡すコールバック関数
+  this.callback = undefined;
   // main プロセスとの通信用モジュール
   this.ipc = require('electron').ipcRenderer;
   // jQuery
@@ -94,6 +94,12 @@ Settings.prototype.onSelectImage = function ( event ) {
         // 画像読み込み後に初回のスケールを設定する
         this.onAdjustScale( 100 );
       }.bind(this));
+
+    // コールバック実行
+    this.callback({
+      map_image_path : this.stateMap.map_image_path,
+      map_start_point : undefined
+    });
   }.bind(this));
 };
 
@@ -119,6 +125,11 @@ Settings.prototype.onClickedImage = function ( event ) {
     x : x * 100/self.stateMap.map_image_scale,
     y : y * 100/self.stateMap.map_image_scale
   };
+  // コールバック実行
+  self.callback({
+    map_image_path : self.stateMap.map_image_path,
+    map_start_point : self.stateMap.map_start_point
+  });
 
   // スタート地点をDOM に描画
   self.jqueryMap.$image_preview_img_point =
@@ -207,6 +218,48 @@ function getOriginalScale ( src ) {
   return { width: image.width, height: image.height };
 };
 
+Settings.prototype.initializeSettings = function ( settings ) {
+  if ( Object.keys(settings).length == 0 || settings === undefined ) { return; }
+
+  if ( settings.map_image_path != undefined ) {
+    // プロパティに保持
+    this.stateMap.map_image_path = settings.map_image_path;
+    // DOM 要素描画
+    this.jqueryMap.$image_form.val(this.stateMap.map_image_path);
+    // プレビュー画像描画
+    this.jqueryMap.$image_preview_imgwrapper =
+      this.$('<div></div>')
+      .attr("class", "settings-map-image-preview-imagewrapper");
+    this.jqueryMap.$image_preview_img =
+      this.$('<img>')
+      .attr("src", this.stateMap.map_image_path);
+    this.jqueryMap.$image_preview.html(
+      this.jqueryMap.$image_preview_imgwrapper.append(
+        this.jqueryMap.$image_preview_img
+      ));
+    // イベントハンドラ登録
+    this.jqueryMap.$image_preview_img
+      .bind( "click", {self:this}, this.onClickedImage)
+      .bind ("load", function () {
+        // 画像読み込み後に初回のスケールを設定する
+        this.onAdjustScale( 100 );
+      }.bind(this));
+  }
+
+  if ( settings.map_start_point != undefined ) {
+    // プロパティに保持
+    this.stateMap.map_start_point = settings.map_start_point;
+    // スタート地点をDOM に描画
+    this.jqueryMap.$image_preview_img_point =
+      this.$("<div></div>")
+      .attr("id", "settings-map-image-preview-point")
+      .css("left", this.stateMap.map_start_point.x+"px")
+      .css("top", this.stateMap.map_start_point.y+"px");
+    this.jqueryMap.$image_preview_imgwrapper
+      .append( this.jqueryMap.$image_preview_img_point );
+  }
+};
+
 /**
  * jQuery オブジェクトをキャッシュする
  *
@@ -230,12 +283,16 @@ Settings.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-Settings.prototype.init = function ( $append_target, deviceMap, callback, messenger ) {
+Settings.prototype.init = function ( $append_target, callback, settings ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
+
+  // 設定を更新するコールバック関数
+  this.callback = callback;
+  this.initializeSettings( settings );
 
   // イベントハンドラの登録
   this.jqueryMap.$image_search_button.bind( "click", this.onSelectImage.bind(this) );
@@ -260,6 +317,7 @@ Settings.prototype.remove = function () {
   this.stateMap = {
     $append_target : undefined
   };
+  this.callback = undefined;
 };
 
 module.exports = Settings;

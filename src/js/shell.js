@@ -36,7 +36,8 @@ function shell() {
     // 現在描画中の header-element の id
     rendered_page_id : undefined,
     logfile_name : undefined,
-    deviceMap : []
+    deviceMap : [],
+    settings : {}
   };
   // 機能モジュール
   this.moduleMap = {
@@ -102,7 +103,7 @@ shell.prototype.onTransitionTo = function ( event ) {
     );
     break;
   case "settings-page":
-    this.moduleMap.settings.init(this.jqueryMap.$body);
+    this.moduleMap.settings.init(this.jqueryMap.$body, this.setSettings.bind(this), this.stateMap.settings);
     break;
   case "logging-page":
     this.moduleMap.logRenderer.init(this.jqueryMap.$body);
@@ -136,6 +137,10 @@ shell.prototype.removeAllModules = function () {
     if ( key === "dialog" ) { return; }
     this[key].remove();
   }, this.moduleMap);
+};
+
+shell.prototype.setSettings = function ( settings ) {
+  this.stateMap.settings = settings;
 };
 
 /**
