@@ -81,12 +81,13 @@ Settings.prototype.onSelectImage = function ( event ) {
         this.jqueryMap.$image_preview_img
       ));
 
-    // プレビュー画像のスケールを調整
-    this.onAdjustScale( 10 );
-
     // イベントハンドラ登録
     this.jqueryMap.$image_preview_img
-      .bind( "click", {self:this}, this.onClickedImage);
+      .bind( "click", {self:this}, this.onClickedImage)
+      // 画像読み込み後に初期スケールを調整する
+      .bind ("load", function () {
+        this.onAdjustScale( 100 );
+      }.bind(this));
   }.bind(this));
 };
 
@@ -100,12 +101,14 @@ Settings.prototype.onClickedImage = function ( event ) {
     self.jqueryMap.$image_preview_img_point.remove();
   }
 
+  // クリック位置をプロパティに保存
+
+  // DOM に描画
   self.jqueryMap.$image_preview_img_point =
     self.$("<div></div>")
     .attr("id", "settings-map-image-preview-point")
     .css("left", Math.round(x)+"px")
     .css("top", Math.round(y)+"px");
-
   self.jqueryMap.$image_preview_imgwrapper
     .append( self.jqueryMap.$image_preview_img_point );
 };
