@@ -69,24 +69,20 @@ Settings.prototype.onSelectImage = function ( event ) {
     // DOM に描画
     this.jqueryMap.$image_form.val( files[0] );
 
-    // DOM 要素の用意
+    // プレビュー画像を描画する
     this.jqueryMap.$image_preview_imgwrapper =
       this.$('<div></div>')
       .attr("class", "settings-map-image-preview-imagewrapper");
     this.jqueryMap.$image_preview_img =
       this.$('<img>')
       .attr("src", files[0]);
-
-    // DOM 要素の追加
     this.jqueryMap.$image_preview.html(
       this.jqueryMap.$image_preview_imgwrapper.append(
         this.jqueryMap.$image_preview_img
       ));
 
-    // 縮尺
-    this.stateMap.map_image_scale = 10;
-    this.jqueryMap.$image_preview_img.css("zoom", "10%");
-    this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
+    // プレビュー画像のスケールを調整
+    this.onAdjustScale( 10 );
 
     // イベントハンドラ登録
     this.jqueryMap.$image_preview_img
@@ -116,31 +112,62 @@ Settings.prototype.onClickedImage = function ( event ) {
 
 Settings.prototype.onScaleupPreview = function ( event ) {
   if ( this.stateMap.map_image_scale >= 100 ) { return; }
-  this.stateMap.map_image_scale += 10;
-  this.onAdjustScale();
+  this.onAdjustScale( this.stateMap.map_image_scale + 10 );
 };
 
 Settings.prototype.onScaledownPreview = function ( event ) {
   if ( this.stateMap.map_image_scale <= 10 ) { return; }
-  this.stateMap.map_image_scale -= 10;
-  this.onAdjustScale();
+  this.onAdjustScale( this.stateMap.map_image_scale - 10 );
 };
 
 Settings.prototype.onScale = function ( event ) {
   var scale = event.target.value;
-  this.stateMap.map_image_scale = scale;
-  this.onAdjustScale();
+  this.onAdjustScale( scale );
 };
 
 /**
  * 画像のスケールを調整する
  */
-Settings.prototype.onAdjustScale = function () {
+Settings.prototype.onAdjustScale = function ( scale ) {
+  var originalScale = getOriginalScale( this.stateMap.map_image_path );
+  this.jqueryMap.$image_preview_img.css({
+    width: originalScale.width, height: originalScale.height
+  });
+
   this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
-  this.jqueryMap.$image_preview_img.css("zoom", this.stateMap.map_image_scale+"%");
+  this.jqueryMap.$image_preview_img.css({
+    width: function(index, value) {
+      return parseFloat(value) * scale/100;
+    },
+    height: function(index, value) {
+      return parseFloat(value) * scale/100;
+    }
+  });
+
+  // デバイスの初期位置の point を更新
+  if ( this.jqueryMap.$image_preview_img_point != undefined ) {
+    var s = ( scale / this.stateMap.map_image_scale );
+    this.jqueryMap.$image_preview_img_point.css({
+      left: function(index, value) {
+        return parseFloat(value) * s;
+      },
+      top: function(index, value) {
+        return parseFloat(value) * s;
+      }
+    });
+  }
+
+  this.stateMap.map_image_scale = scale;
+  this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
 };
 
 /********************************/
+
+function getOriginalScale ( src ) {
+  var image = new Image();
+  image.src = src;
+  return { width: image.width, height: image.height };
+};
 
 /**
  * jQuery オブジェクトをキャッシュする
