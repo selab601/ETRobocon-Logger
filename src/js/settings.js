@@ -1,4 +1,3 @@
-
 // ファイル選択のためのモジュール
 const remote = require('electron').remote;
 const Dialog = remote.dialog;
@@ -40,8 +39,11 @@ function Settings () {
   // 動的プロパティ
   this.stateMap = {
     $append_target : undefined,
+    // Map に設定した画像ファイルのパス
     map_image_path : undefined,
+    // プレビュー表示中の Map の現在のスケール
     map_image_scale : undefined,
+    // ロギング時に走行開始点とする Map 上の座標
     map_start_point : undefined
   };
   // jQuery オブジェクトのキャッシュ用
@@ -57,6 +59,9 @@ function Settings () {
 
 /******* イベントハンドラ *******/
 
+/**
+ * 画像選択ボタン押下時に呼び出されるイベントハンドラ
+ */
 Settings.prototype.onSelectImage = function ( event ) {
   Dialog.showOpenDialog(null, {
     properties: ['openFile'],
@@ -85,13 +90,18 @@ Settings.prototype.onSelectImage = function ( event ) {
     // イベントハンドラ登録
     this.jqueryMap.$image_preview_img
       .bind( "click", {self:this}, this.onClickedImage)
-      // 画像読み込み後に初期スケールを調整する
       .bind ("load", function () {
+        // 画像読み込み後に初回のスケールを設定する
         this.onAdjustScale( 100 );
       }.bind(this));
   }.bind(this));
 };
 
+/**
+ * 画像上でマウスクリックが行われた際に呼び出されるイベントハンドラ
+ *
+ * 画像の任意の箇所をクリックすることで，ロギング時に走行を開始する地点(スタート地点)が決定できる
+ */
 Settings.prototype.onClickedImage = function ( event ) {
   var self = event.data.self;
   var offset = self.$(this).offset();
@@ -99,17 +109,18 @@ Settings.prototype.onClickedImage = function ( event ) {
   var x = event.pageX - offset.left;
   var y = event.pageY - offset.top;
 
+  // 既にスタート地点が設定されている場合は削除
   if ( self.jqueryMap.$image_preview_img_point != undefined ) {
     self.jqueryMap.$image_preview_img_point.remove();
   }
 
-  // クリック位置をプロパティに保存
+  // スタート地点をプロパティに保存
   self.stateMap.map_start_point = {
     x : x * 100/self.stateMap.map_image_scale,
     y : y * 100/self.stateMap.map_image_scale
   };
 
-  // DOM に描画
+  // スタート地点をDOM に描画
   self.jqueryMap.$image_preview_img_point =
     self.$("<div></div>")
     .attr("id", "settings-map-image-preview-point")
@@ -119,23 +130,32 @@ Settings.prototype.onClickedImage = function ( event ) {
     .append( self.jqueryMap.$image_preview_img_point );
 };
 
+/**
+ * スケールアップボタン押下時に呼び出されるイベントハンドラ
+ */
 Settings.prototype.onScaleupPreview = function ( event ) {
   if ( this.stateMap.map_image_scale >= 100 ) { return; }
   this.onAdjustScale( this.stateMap.map_image_scale + 10 );
 };
 
+/**
+ * スケールダウンボタン押下時に呼び出されるイベントハンドラ
+ */
 Settings.prototype.onScaledownPreview = function ( event ) {
   if ( this.stateMap.map_image_scale <= 10 ) { return; }
   this.onAdjustScale( this.stateMap.map_image_scale - 10 );
 };
 
+/**
+ * テキストボックス内にスケールが入力され，フォーカスが外れた時に呼び出されるイベントハンドラ
+ */
 Settings.prototype.onScale = function ( event ) {
   var scale = event.target.value;
   this.onAdjustScale( scale );
 };
 
 /**
- * 画像のスケールを調整する
+ * 画像のスケールを調整時に呼び出されるイベントハンドラ
  */
 Settings.prototype.onAdjustScale = function ( scale ) {
   var originalScale = getOriginalScale( this.stateMap.map_image_path );
@@ -143,7 +163,8 @@ Settings.prototype.onAdjustScale = function ( scale ) {
     width: originalScale.width, height: originalScale.height
   });
 
-  this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
+  /* DOM に描画 */
+  // 画像サイズにスケールを適用
   this.jqueryMap.$image_preview_img.css({
     width: function(index, value) {
       return parseFloat(value) * scale/100;
@@ -152,12 +173,11 @@ Settings.prototype.onAdjustScale = function ( scale ) {
       return parseFloat(value) * scale/100;
     }
   });
-
+  // 画像全体をスクロール表示するために，画像の位置をずらす
   this.jqueryMap.$image_preview_imgwrapper
     .css("left", this.jqueryMap.$image_preview_img[0].width/2 - this.jqueryMap.$image_preview[0].clientWidth/2 + 5)
     .css("top", this.jqueryMap.$image_preview_img[0].height/2 - this.jqueryMap.$image_preview[0].clientHeight/2 + 5);
-
-  // デバイスの初期位置の point を更新
+  // スタート地点の描画位置の更新
   if ( this.jqueryMap.$image_preview_img_point != undefined ) {
     var s = ( scale / this.stateMap.map_image_scale );
     this.jqueryMap.$image_preview_img_point.css({
@@ -170,12 +190,17 @@ Settings.prototype.onAdjustScale = function ( scale ) {
     });
   }
 
+  // スケールをプロパティに保持
   this.stateMap.map_image_scale = scale;
   this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
 };
 
 /********************************/
 
+/**
+ * 画像の元々のサイズを取得する
+ * @param src 画像へのパス
+ */
 function getOriginalScale ( src ) {
   var image = new Image();
   image.src = src;
