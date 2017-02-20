@@ -1,5 +1,8 @@
 var Map = require("./Map.js");
 
+/**
+ * @param map_settings map_start_point，map_image_path をもつべき
+ */
 function MapRenderer () {
   this.configMap = {
     main_html : (function () {
@@ -13,7 +16,7 @@ function MapRenderer () {
   };
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
-  this.map = new Map( "maprenderer-box", 900, 500, { x: 100, y: 100 } );
+  this.map = undefined;
 };
 
 MapRenderer.prototype.setJqueryMap = function () {
@@ -22,15 +25,24 @@ MapRenderer.prototype.setJqueryMap = function () {
 };
 
 MapRenderer.prototype.render = function ( x, y ) {
+  if ( this.map === undefined ) { return; }
   this.map.render({x: x, y: y});
 };
 
-MapRenderer.prototype.init = function ( $append_target ) {
+MapRenderer.prototype.init = function ( $append_target, map_settings ) {
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
   this.setJqueryMap();
 
-  this.map.init();
+  // マップの初期化
+  // TODO: 設定がされていない場合には警告を出す
+  if ( map_settings != undefined ) {
+    var image = new Image();
+    image.src = map_settings.map_image_path;
+    var cor = { x: map_settings.map_start_point.x, y: map_settings.map_start_point.y };
+    this.map = new Map( "maprenderer-box", image.width, image.height, { x: cor.x, y: cor.y }, map_settings.map_image_path );
+    this.map.init();
+  }
 };
 
 module.exports = MapRenderer;

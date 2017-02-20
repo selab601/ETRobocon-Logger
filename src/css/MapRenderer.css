@@ -3,6 +3,7 @@
   height: calc(100% - 40px);
   margin: 20px;
   background-color: gray;
+  overflow: scroll;
 
   display: flex;           display: -webkit-flex;
   align-items: center;     -webkit-align-items: center;

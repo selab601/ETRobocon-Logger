@@ -203,7 +203,7 @@ logRenderer.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-logRenderer.prototype.init = function ( $append_target ) {
+logRenderer.prototype.init = function ( $append_target, map_settings ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
@@ -215,7 +215,7 @@ logRenderer.prototype.init = function ( $append_target ) {
 
   // レンダリングモジュールの初期化
   this.tableRenderer.initModule( this.jqueryMap.$content_table );
-  this.mapRenderer.init( this.jqueryMap.$content_map );
+  this.mapRenderer.init( this.jqueryMap.$content_map, map_settings );
 
   // イベントハンドラを登録
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
