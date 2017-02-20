@@ -116,23 +116,27 @@ Settings.prototype.onClickedImage = function ( event ) {
 
 Settings.prototype.onScaleupPreview = function ( event ) {
   if ( this.stateMap.map_image_scale >= 100 ) { return; }
-
   this.stateMap.map_image_scale += 10;
-  this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
-  this.jqueryMap.$image_preview_img.css("zoom", this.stateMap.map_image_scale+"%");
+  this.onAdjustScale();
 };
 
 Settings.prototype.onScaledownPreview = function ( event ) {
   if ( this.stateMap.map_image_scale <= 10 ) { return; }
-
   this.stateMap.map_image_scale -= 10;
-  this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
-  this.jqueryMap.$image_preview_img.css("zoom", this.stateMap.map_image_scale+"%");
+  this.onAdjustScale();
 };
 
 Settings.prototype.onScale = function ( event ) {
   var scale = event.target.value;
   this.stateMap.map_image_scale = scale;
+  this.onAdjustScale();
+};
+
+/**
+ * 画像のスケールを調整する
+ */
+Settings.prototype.onAdjustScale = function () {
+  this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
   this.jqueryMap.$image_preview_img.css("zoom", this.stateMap.map_image_scale+"%");
 };
 
