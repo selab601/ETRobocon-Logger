@@ -1,9 +1,10 @@
-function Map ( $append_target_id, width, height, origin ) {
+function Map ( $append_target_id, width, height, origin, image_src ) {
   this.append_target_id = $append_target_id;
 
   this.width  = width;
   this.height = height;
   this.origin = origin;
+  this.image_src = image_src;
   this.preCor = null;
 
   // D3 オブジェクトキャッシュ用
@@ -33,7 +34,8 @@ Map.prototype.init = function () {
     .append("svg")
     .attr('class', 'map-chart-svg')
     .attr("width", this.width)
-    .attr("height", this.height);
+    .attr("height", this.height)
+    .style("background-image", "url("+this.image_src+")");
   var svg = this.d3.select("svg.map-chart-svg");
 
   this.d3ObjectsMap = { svg : svg };
