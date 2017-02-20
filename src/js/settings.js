@@ -147,6 +147,13 @@ Settings.prototype.onAdjustScale = function ( scale ) {
     }
   });
 
+  console.log(this.jqueryMap.$image_preview_img[0].width);
+  console.log(this.jqueryMap.$image_preview[0].clientHeight);
+  console.log(this.jqueryMap.$image_preview[0].clientWidth);
+  this.jqueryMap.$image_preview_imgwrapper
+    .css("left", this.jqueryMap.$image_preview_img[0].width/2 - this.jqueryMap.$image_preview[0].clientWidth/2 + 5)
+    .css("top", this.jqueryMap.$image_preview_img[0].height/2 - this.jqueryMap.$image_preview[0].clientHeight/2 + 5);
+
   // デバイスの初期位置の point を更新
   if ( this.jqueryMap.$image_preview_img_point != undefined ) {
     var s = ( scale / this.stateMap.map_image_scale );
