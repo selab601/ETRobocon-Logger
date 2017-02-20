@@ -107,6 +107,14 @@ Settings.prototype.onClickedImage = function ( event ) {
     .append( self.jqueryMap.$image_preview_img_point );
 };
 
+Settings.prototype.onScaleupPreview = function ( event ) {
+  console.log("scaleup");
+};
+
+Settings.prototype.onScaledownPreview = function ( event ) {
+  console.log("scaledown");
+};
+
 /********************************/
 
 /**
@@ -122,7 +130,9 @@ Settings.prototype.setJqueryMap = function () {
     $append_target       : $append_target,
     $image_search_button : $append_target.find(".settings-map-image-form-button"),
     $image_preview       : $append_target.find(".settings-map-image-preview-box"),
-    $image_form          : $append_target.find(".settings-map-image-form-body")
+    $image_form          : $append_target.find(".settings-map-image-form-body"),
+    $image_scaleup_button : $append_target.find(".settings-map-image-form-scaleup-button"),
+    $image_scaledown_button : $append_target.find(".settings-map-image-form-scaledown-button")
   };
 };
 
@@ -138,6 +148,8 @@ Settings.prototype.init = function ( $append_target, deviceMap, callback, messen
 
   // イベントハンドラの登録
   this.jqueryMap.$image_search_button.bind( "click", this.onSelectImage.bind(this) );
+  this.jqueryMap.$image_scaleup_button.bind( "click", this.onScaleupPreview.bind(this) );
+  this.jqueryMap.$image_scaledown_button.bind( "click", this.onScaledownPreview.bind(this) );
 };
 
 /**
