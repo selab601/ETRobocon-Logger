@@ -35,6 +35,7 @@ function shell() {
     $container : undefined,
     // 現在描画中の header-element の id
     rendered_page_id : undefined,
+    logfile_name : undefined,
     deviceMap : []
   };
   // 機能モジュール
@@ -57,55 +58,39 @@ function shell() {
  * Bluetooth デバイスとの接続時の処理
  */
 shell.prototype.onConnectDevice = function () {
-  var logFileName = this.moduleMap.fileInputForm.getLogFileName();
+  // プロパティに情報を保持
+  this.stateMap.logfile_name = this.moduleMap.fileInputForm.getLogFileName();
+  this.stateMap.deviceMap    = this.moduleMap.deviceConnector.getDeviceMap();
 
-  // デバイス情報の保持
-  // TODO: 外部ファイルに保持しておくべき？
-  this.stateMap.deviceMap = this.moduleMap.deviceConnector.getDeviceMap();
-
-  // モジュール削除
-  this.removeAllModules();
-  // モジュール初期化
-  this.moduleMap.logRenderer.init(this.jqueryMap.$body);
-  this.moduleMap.deviceDisconnector.init(
-    this.jqueryMap.$body,
-    logFileName,
-    this.onDisconnectDevice.bind(this),
-    this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
-  );
-
-  this.disableTransition();
+  this.onTransitionTo( { data : "logging-page" } );
+  // ヘッダーのリンクを無効化
+  this.jqueryMap.$container.find(".header-element").addClass("disabled");
 };
 
+/**
+ * Bluetooth デバイスとの接続終了時の処理
+ */
 shell.prototype.onDisconnectDevice = function () {
-  // モジュール削除
-  this.removeAllModules();
-  // モジュール初期化
-  this.moduleMap.deviceConnector.init(
-    this.jqueryMap.$body,
-    this.stateMap.deviceMap,
-    this.onConnectDevice.bind(this),
-    this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
-  );
-  this.moduleMap.fileInputForm.init(
-    this.jqueryMap.$body.find("#device-connector-body-footer")
-  );
-
-  this.enableTransition();
+  this.onTransitionTo( { data : "connect-page" } );
+  // ヘッダーのリンクを有効化
+  this.jqueryMap.$container.find(".header-element").removeClass("disabled");
 };
 
+/**
+ * ページの遷移を行う
+ *
+ * 一度全ての機能モジュールを削除し，ページの ID に応じた機能モジュールのみをロードし直す
+ */
 shell.prototype.onTransitionTo = function ( event ) {
+  // 一度全ての機能モジュールを削除
+  this.removeAllModules();
+
+  // 機能モジュール初期化
   switch ( event.data ) {
   case "load-page":
-    // モジュール削除
-    this.removeAllModules();
-    // モジュール初期化
     this.moduleMap.logAnalyzer.init(this.jqueryMap.$body);
     break;
   case "connect-page":
-    // モジュール削除
-    this.removeAllModules();
-    // モジュール初期化
     this.moduleMap.deviceConnector.init(
       this.jqueryMap.$body,
       this.stateMap.deviceMap,
@@ -117,34 +102,34 @@ shell.prototype.onTransitionTo = function ( event ) {
     );
     break;
   case "settings-page":
-    // モジュール削除
-    this.removeAllModules();
-    // モジュール初期化
     this.moduleMap.settings.init(this.jqueryMap.$body);
+    break;
+  case "logging-page":
+    this.moduleMap.logRenderer.init(this.jqueryMap.$body);
+    this.moduleMap.deviceDisconnector.init(
+      this.jqueryMap.$body,
+      this.stateMap.logfile_name,
+      this.onDisconnectDevice.bind(this),
+      this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
+    );
+    break;
   };
 
-  this.transitionTo( event.data );
+  // プロパティに描画中のページを保持
+  this.stateMap.rendered_page_id = event.data;
+
+  // DOM 要素更新
+  var page_link = this.stateMap.$container.find("#"+event.data);
+  if ( page_link === undefined ) { return; }
+  page_link.addClass("isRendering");
+  this.jqueryMap.$container.find(".isRendering").removeClass("isRendering");
 };
 
 /****************************/
 
-shell.prototype.enableTransition = function () {
-  this.jqueryMap.$container.find(".header-element").removeClass("disabled");
-};
-
-shell.prototype.disableTransition = function () {
-  this.jqueryMap.$container.find(".header-element").addClass("disabled");
-};
-
-shell.prototype.transitionTo = function ( page_id ) {
-  var page_link = this.stateMap.$container.find("#"+page_id);
-  if ( ! page_link ) { return; }
-
-  this.jqueryMap.$container.find(".isRendering").removeClass("isRendering");
-  this.stateMap.rendered_page_id = page_id;
-  page_link.addClass("isRendering");
-};
-
+/**
+ * 全機能モジュールを削除する
+ */
 shell.prototype.removeAllModules = function () {
   Object.keys(this.moduleMap).forEach ( function ( key ) {
     // ダイアログは削除しない
@@ -153,7 +138,13 @@ shell.prototype.removeAllModules = function () {
   }, this.moduleMap);
 };
 
-// TODO: private
+/**
+ * jQuery オブジェクトをキャッシュする
+ *
+ * この機能モジュール内で使用する jQuery オブジェクトをキャッシュしておく
+ * これを行うことで，目的の DOM を取得するためにいちいち id や class で検索する
+ * 手間が省ける上に，パフォーマンスが向上する．
+ */
 shell.prototype.setJqueryMap = function () {
   var $container = this.stateMap.$container;
   this.jqueryMap = {
@@ -166,6 +157,9 @@ shell.prototype.setJqueryMap = function () {
   };
 };
 
+/**
+ * シェルの初期化
+ */
 shell.prototype.initModule = function ( $container ) {
   // DOM 要素の追加
   this.stateMap.$container = $container;
@@ -173,18 +167,9 @@ shell.prototype.initModule = function ( $container ) {
   // jQuery オブジェクトのキャッシュ
   this.setJqueryMap();
 
-  this.transitionTo( "connect-page" );
-
+  // ページ初期化
+  this.onTransitionTo( { data : "connect-page" } );
   // 機能モジュールの初期化
-  this.moduleMap.deviceConnector.init(
-    this.jqueryMap.$body,
-    this.stateMap.deviceMap,
-    this.onConnectDevice.bind(this),
-    this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
-  );
-  this.moduleMap.fileInputForm.init(
-    this.jqueryMap.$body.find("#device-connector-body-footer")
-  );
   this.moduleMap.dialog.init( this.jqueryMap.$container );
 
   // イベントハンドラ登録
