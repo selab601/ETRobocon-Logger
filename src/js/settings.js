@@ -25,6 +25,7 @@ function Settings () {
                   <div class="settings-map-image-form-scaleup-button">
                     <img src="resources/scaleup_icon.png">
                   </div>
+                  <input type="text" class="settings-map-image-form-scale"/>
                   <div class="settings-map-image-form-scaledown-button">
                     <img src="resources/scaledown_icon.png">
                   </div>
@@ -39,7 +40,8 @@ function Settings () {
   // 動的プロパティ
   this.stateMap = {
     $append_target : undefined,
-    map_image_path : undefined
+    map_image_path : undefined,
+    map_image_scale : undefined
   };
   // jQuery オブジェクトのキャッシュ用
   this.jqueryMap = {};
@@ -81,6 +83,11 @@ Settings.prototype.onSelectImage = function ( event ) {
         this.jqueryMap.$image_preview_img
       ));
 
+    // 縮尺
+    this.stateMap.map_image_scale = 10;
+    this.jqueryMap.$image_preview_img.css("zoom", "10%");
+    this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
+
     // イベントハンドラ登録
     this.jqueryMap.$image_preview_img
       .bind( "click", {self:this}, this.onClickedImage);
@@ -108,11 +115,25 @@ Settings.prototype.onClickedImage = function ( event ) {
 };
 
 Settings.prototype.onScaleupPreview = function ( event ) {
-  console.log("scaleup");
+  if ( this.stateMap.map_image_scale >= 100 ) { return; }
+
+  this.stateMap.map_image_scale += 10;
+  this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
+  this.jqueryMap.$image_preview_img.css("zoom", this.stateMap.map_image_scale+"%");
 };
 
 Settings.prototype.onScaledownPreview = function ( event ) {
-  console.log("scaledown");
+  if ( this.stateMap.map_image_scale <= 10 ) { return; }
+
+  this.stateMap.map_image_scale -= 10;
+  this.jqueryMap.$image_scale.val(this.stateMap.map_image_scale);
+  this.jqueryMap.$image_preview_img.css("zoom", this.stateMap.map_image_scale+"%");
+};
+
+Settings.prototype.onScale = function ( event ) {
+  var scale = event.target.value;
+  this.stateMap.map_image_scale = scale;
+  this.jqueryMap.$image_preview_img.css("zoom", this.stateMap.map_image_scale+"%");
 };
 
 /********************************/
@@ -131,6 +152,7 @@ Settings.prototype.setJqueryMap = function () {
     $image_search_button : $append_target.find(".settings-map-image-form-button"),
     $image_preview       : $append_target.find(".settings-map-image-preview-box"),
     $image_form          : $append_target.find(".settings-map-image-form-body"),
+    $image_scale         : $append_target.find(".settings-map-image-form-scale"),
     $image_scaleup_button : $append_target.find(".settings-map-image-form-scaleup-button"),
     $image_scaledown_button : $append_target.find(".settings-map-image-form-scaledown-button")
   };
@@ -148,6 +170,7 @@ Settings.prototype.init = function ( $append_target, deviceMap, callback, messen
 
   // イベントハンドラの登録
   this.jqueryMap.$image_search_button.bind( "click", this.onSelectImage.bind(this) );
+  this.jqueryMap.$image_scale.bind( "change", this.onScale.bind(this) );
   this.jqueryMap.$image_scaleup_button.bind( "click", this.onScaleupPreview.bind(this) );
   this.jqueryMap.$image_scaledown_button.bind( "click", this.onScaledownPreview.bind(this) );
 };
