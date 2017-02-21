@@ -116,6 +116,10 @@ imageViewer.prototype.adjustScale = function ( scale ) {
   // スケールをプロパティに保持
   this.stateMap.image_scale = scale;
   this.jqueryMap.$scale_form.val(this.stateMap.image_scale);
+
+  if ( this.scaleHandler != undefined ) {
+    this.scaleHandler( scale );
+  }
 };
 
 /**
@@ -210,6 +214,10 @@ imageViewer.prototype.getStateMap = function () {
     image_scale : this.stateMap.image_scale,
     start_point : this.stateMap.start_point
   };
+};
+
+imageViewer.prototype.setScaleEventHandler = function ( handler ) {
+  this.scaleHandler = handler;
 };
 
 /**

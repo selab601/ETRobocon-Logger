@@ -1,10 +1,9 @@
-function Map ( $append_target_id, width, height, origin, image_src ) {
+function Map ( $append_target_id, width, height, origin ) {
   this.append_target_id = $append_target_id;
 
   this.width  = width;
   this.height = height;
   this.origin = origin;
-  this.image_src = image_src;
   this.preCor = null;
 
   // D3 オブジェクトキャッシュ用
@@ -30,12 +29,11 @@ Map.prototype.init = function () {
     this.d3.select("svg.map-chart-svg").remove();
   }
 
-  this.d3.select("#"+this.append_target_id)
+  this.d3.select("."+this.append_target_id)
     .append("svg")
     .attr('class', 'map-chart-svg')
     .attr("width", this.width)
-    .attr("height", this.height)
-    .style("background-image", "url("+this.image_src+")");
+    .attr("height", this.height);
   var svg = this.d3.select("svg.map-chart-svg");
 
   // TODO: 原点 = スタート地点で良いか？
@@ -91,6 +89,15 @@ Map.prototype.renderFromData = function ( data ) {
     .attr("fill", "none")
     .attr("stroke", "black")
     .attr("d", this.diagonal);
+};
+
+/**
+ * マップを拡大縮小する
+ * @param scale 拡大縮小値．(0 ~ 100)
+ */
+Map.prototype.setScale = function ( scale ) {
+  this.d3ObjectsMap.svg
+    .style("zoom" , scale+"%");
 };
 
 module.exports = Map;

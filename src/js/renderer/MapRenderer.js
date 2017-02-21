@@ -1,4 +1,5 @@
 var Map = require("./Map.js");
+var ImageViewer = require("../imageViewer.js");
 
 /**
  * @param map_settings map_start_point，map_image_path をもつべき
@@ -17,6 +18,7 @@ function MapRenderer () {
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
   this.map = undefined;
+  this.imageViewer = new ImageViewer();
 };
 
 MapRenderer.prototype.setJqueryMap = function () {
@@ -37,11 +39,16 @@ MapRenderer.prototype.init = function ( $append_target, map_settings ) {
   // マップの初期化
   // TODO: 設定がされていない場合には警告を出す
   if ( map_settings != undefined ) {
+    this.imageViewer.init(this.stateMap.$append_target.find("#maprenderer-box"));
+    this.imageViewer.setImage(map_settings.map.image_path);
+
     var image = new Image();
-    image.src = map_settings.map_image_path;
-    var cor = { x: map_settings.map_start_point.x, y: map_settings.map_start_point.y };
-    this.map = new Map( "maprenderer-box", image.width, image.height, { x: cor.x, y: cor.y }, map_settings.map_image_path );
+    image.src = map_settings.map.image_path;
+    var cor = { x: map_settings.map.start_point.x, y: map_settings.map.start_point.y };
+    this.map = new Map( "imageviewer-image-wrapper", image.width, image.height, { x: cor.x, y: cor.y } );
     this.map.init();
+
+    this.imageViewer.setScaleEventHandler( this.map.setScale.bind(this.map) );
   }
 };
 

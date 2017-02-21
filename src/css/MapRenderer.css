@@ -2,7 +2,6 @@
   width: calc(100% - 40px);
   height: calc(100% - 40px);
   margin: 20px;
-  background-color: gray;
   overflow: scroll;
 
   display: flex;           display: -webkit-flex;
@@ -10,6 +9,14 @@
   justify-content: center; -webkit-justify-content: center;
 }
 
+#maprenderer-box > .imageviewer {
+  height: 100%;
+}
+
+#maprenderer-box > .imageviewer > .imageviewer-preview-box {
+  height: 100%;
+}
+
 .map-chart-svg {
-  background-color: white;
+  position: absolute;
 }
