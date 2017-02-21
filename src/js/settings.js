@@ -83,7 +83,17 @@ Settings.prototype.initializeSettings = function ( settings ) {
   }
 
   if ( settings.map.start_point != undefined ) {
-    this.imageViewer.setStartPoint( settings.map.start_point );
+    // start_point は，画像のサイズが 100% の時の画像上の座標を示している
+    // よって，まずはスケール 100% に対しスタート地点を描画し，その後
+    // 指定されたスケール(image_scale)にあわせた位置に描画を更新する
+    this.imageViewer.setStartPoint(
+      settings.map.start_point,
+      100
+    );
+    this.imageViewer.updateStartPoint(
+      settings.map.image_scale,
+      100
+    );
   }
 };
 

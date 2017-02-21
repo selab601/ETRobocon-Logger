@@ -80,11 +80,7 @@ imageViewer.prototype.onSetStartPoint = function ( event ) {
   var x = event.pageX - offset.left;
   var y = event.pageY - offset.top;
 
-  // スタート地点をプロパティに保存
-  self.setStartPoint({
-    x : x * 100/self.stateMap.image_scale,
-    y : y * 100/self.stateMap.image_scale
-  });
+  self.setStartPoint({ x : x, y : y });
 };
 
 /**
@@ -146,8 +142,12 @@ imageViewer.prototype.setScale = function ( scale ) {
  * スタート地点を描画する
  *
  * @param start_point スタート地点の座標．プロパティに x, y を持つこと
+ * @param scale       座標設定時の画像ののスケール．
+ *                    指定しなかった場合は地震の image_scale プロパティで初期化する
  */
-imageViewer.prototype.setStartPoint = function ( start_point ) {
+imageViewer.prototype.setStartPoint = function ( start_point, scale ) {
+  scale = scale === undefined ? this.stateMap.image_scale : scale;
+
   /*** DOM に描画 ***/
   // スタート地点は1つのみ指定できる．よって，既に描画されていた場合は削除する
   if ( this.jqueryMap.$start_point != undefined ) {
@@ -156,13 +156,16 @@ imageViewer.prototype.setStartPoint = function ( start_point ) {
   this.jqueryMap.$start_point =
     this.$("<div></div>")
     .attr("id", "imageviewer-startpoint")
-    .css("left", Math.round(start_point.x)+"px")
-    .css("top", Math.round(start_point.y)+"px");
+    .css("left", start_point.x+"px")
+    .css("top", start_point.y+"px");
   this.jqueryMap.$image_wrapper
     .append( this.jqueryMap.$start_point );
 
   /*** プロパティに保持 ***/
-  this.stateMap.start_point = start_point;
+  this.stateMap.start_point = {
+    x: Math.round(start_point.x * 100/scale),
+    y: Math.round(start_point.y * 100/scale)
+  };
 };
 
 /**
