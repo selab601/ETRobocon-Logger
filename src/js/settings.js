@@ -73,7 +73,6 @@ Settings.prototype.onSelectImage = function ( event ) {
  */
 Settings.prototype.initializeSettings = function ( settings ) {
   if ( Object.keys(settings).length == 0 || settings === undefined ) { return; }
-  console.log(settings);
 
   if ( settings.map.image_path != undefined ) {
     this.imageViewer.setImage(
