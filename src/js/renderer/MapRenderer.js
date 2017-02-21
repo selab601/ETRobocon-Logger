@@ -38,13 +38,17 @@ MapRenderer.prototype.init = function ( $append_target, map_settings ) {
 
   // マップの初期化
   // TODO: 設定がされていない場合には警告を出す
-  if ( map_settings != undefined ) {
+  if (
+    map_settings != undefined
+    && map_settings.image_path != undefined
+    && map_settings.start_point != undefined
+   ) {
     this.imageViewer.init(this.stateMap.$append_target.find("#maprenderer-box"));
-    this.imageViewer.setImage(map_settings.map.image_path);
+    this.imageViewer.setImage(map_settings.image_path);
 
     var image = new Image();
-    image.src = map_settings.map.image_path;
-    var cor = { x: map_settings.map.start_point.x, y: map_settings.map.start_point.y };
+    image.src = map_settings.image_path;
+    var cor = { x: map_settings.start_point.x, y: map_settings.start_point.y };
     this.map = new Map( "imageviewer-image-wrapper", image.width, image.height, { x: cor.x, y: cor.y } );
     this.map.init();
 

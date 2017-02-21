@@ -126,7 +126,7 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.moduleMap.settings.init(this.jqueryMap.$body, this.stateMap.settings);
     break;
   case "logging-page":
-    this.moduleMap.logRenderer.init(this.jqueryMap.$body, this.stateMap.settings);
+    this.moduleMap.logRenderer.init(this.jqueryMap.$body, this.stateMap.settings.map);
     this.moduleMap.deviceDisconnector.init(
       this.jqueryMap.$body,
       this.stateMap.logfile_name,
