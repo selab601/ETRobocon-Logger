@@ -123,19 +123,12 @@ imageViewer.prototype.getStartPoint = function () {
  * @param scale スケールする倍率 TODO: 値の検証
  */
 imageViewer.prototype.setScale = function ( scale ) {
-  var pre_scale = this.stateMap.image_scale;
-  var originalScale = getOriginalScale( this.stateMap.image_path );
+  var pre_scale  = this.stateMap.image_scale;
+  var scaledSize = calcScaledImageSize( this.stateMap.image_path, scale );
 
   /*** DOM に描画 ***/
   this.jqueryMap.$scale_form.val(this.stateMap.image_scale);
-  this.jqueryMap.$image.css({
-    width: function(index, value) {
-      return originalScale.width * scale/100;
-    },
-    height: function(index, value) {
-      return originalScale.height * scale/100;
-    }
-  });
+  this.jqueryMap.$image.css({ width: scaledSize.width, height: scaledSize.height });
 
   /*** プロパティに保持 ***/
   this.stateMap.image_scale = scale;
@@ -199,6 +192,9 @@ imageViewer.prototype.updateStartPoint = function ( scale, pre_scale ) {
  * @param scale 画像の初期スケール
  */
 imageViewer.prototype.setImage = function ( src, scale ) {
+  // スケールが未定義の場合は 100% として処理を進める
+  scale = scale == undefined ? 100 : scale;
+
   /*** DOM に描画 ***/
   // キャッシュ
   this.jqueryMap.$image_wrapper =
@@ -212,12 +208,20 @@ imageViewer.prototype.setImage = function ( src, scale ) {
     this.jqueryMap.$image_wrapper.append(
       this.jqueryMap.$image
     ));
-  // イベントハンドラ登録
+  // スケールの反映
+  this.jqueryMap.$scale_form.val(scale);
   this.jqueryMap.$image
+    .css({ display: "none" })
     .bind("load", function () {
-      // 画像読み込み後に初回のスケールを設定する
-      this.setScale( scale == undefined ? 100 : scale );
-    }.bind(this));
+      // 画像の読み込み終了後にサイズを設定する
+      // TODO: 実質二回読み込んでいるので頭が悪い．どうにかする
+      var image = new Image();
+      image.src = src;
+      image.onload = function () {
+        $(this).css({ display: "block", width: image.width * scale/100, height: image.height * scale/100 });
+      }.bind(this);
+    });
+  // イベントハンドラ登録
   // スタート地点を登録する場合には，そのためのイベントハンドラを設定する
   if ( this.flags.enableStartPointSetting ) {
     this.jqueryMap.$image
@@ -225,7 +229,8 @@ imageViewer.prototype.setImage = function ( src, scale ) {
   }
 
   /*** プロパティに保持 ***/
-  this.stateMap.image_path = src;
+  this.stateMap.image_path  = src;
+  this.stateMap.image_scale = scale;
 };
 
 /********************/
@@ -296,15 +301,22 @@ imageViewer.prototype.remove = function () {
 
 /***** ユーティリティメソッド *****/
 
+
 /**
- * 画像の元々のサイズを取得する
- * @param src 画像へのパス
+ * 元画像に対し，スケーリングされた画像サイズを計算し返す
+ *
+ * @param image_src スケーリングする対象画像のソース
+ * @param scale     スケーリングの倍率( 0~100 )
+ *                  設定されていない場合は，デフォルトで 100% の値を返す
  */
-function getOriginalScale ( src ) {
+function calcScaledImageSize ( image_src, scale ) {
   var image = new Image();
-  image.src = src;
-  return { width: image.width, height: image.height };
-};
+  image.src = image_src;
+  if ( scale === undefined || scale === null ) {
+    return { width : image.width, height: image.height };
+  }
+  return { width: image.width * scale/100, height: image.height * scale/100 };
+}
 
 /**********************************/
 
