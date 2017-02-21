@@ -66,7 +66,7 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
  * このイベントハンドラでは，この時に受信したファイル名でフォームを初期化する．
  */
 fileInputForm.prototype.onInitLogFilePath = function ( ev, message ) {
-  this.stateMap.logFileFolder = message.filder;
+  this.stateMap.logFileFolder = message.folder;
   this.stateMap.logFileName = message.name;
 
   // DOM 要素が描画前であれば，描画しない

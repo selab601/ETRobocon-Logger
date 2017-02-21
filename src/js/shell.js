@@ -62,7 +62,7 @@ function shell() {
 shell.prototype.onConnectDevice = function () {
   // プロパティに情報を保持
   this.stateMap.logfile_name   = this.moduleMap.fileInputForm.getLogFileName();
-  this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileName();
+  this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileFolder();
   this.stateMap.deviceMap      = this.moduleMap.deviceConnector.getDeviceMap();
 
   this.onTransitionTo( { data : "logging-page" } );
@@ -94,7 +94,7 @@ shell.prototype.onTransitionTo = function ( event ) {
   // 接続ページにいた場合は，設定を保存する
   if ( this.stateMap.rendered_page_id === "connect-page" ) {
     this.stateMap.logfile_name   = this.moduleMap.fileInputForm.getLogFileName();
-    this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileName();
+    this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileFolder();
     this.stateMap.deviceMap      = this.moduleMap.deviceConnector.getDeviceMap();
   }
 
