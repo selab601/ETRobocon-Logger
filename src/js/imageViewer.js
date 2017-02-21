@@ -108,10 +108,6 @@ imageViewer.prototype.adjustScale = function ( scale ) {
       return parseFloat(value) * scale/100;
     }
   });
-  // 画像全体をスクロール表示するために，画像の位置をずらす
-  this.jqueryMap.$image_wrapper
-    .css("left", this.jqueryMap.$image[0].width/2 - this.jqueryMap.$imageviewer[0].clientWidth/2 + 5)
-    .css("top", this.jqueryMap.$image[0].height/2 - this.jqueryMap.$imageviewer[0].clientHeight/2 + 5);
 
   if ( this.flags.enableStartPointSetting ) {
     this.updateStartPoint( scale, this.stateMap.image_scale);
