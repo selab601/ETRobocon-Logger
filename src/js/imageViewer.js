@@ -127,7 +127,7 @@ imageViewer.prototype.setScale = function ( scale ) {
   var scaledSize = calcScaledImageSize( this.stateMap.image_path, scale );
 
   /*** DOM に描画 ***/
-  this.jqueryMap.$scale_form.val(this.stateMap.image_scale);
+  this.jqueryMap.$scale_form.val(scale);
   this.jqueryMap.$image.css({ width: scaledSize.width, height: scaledSize.height });
 
   /*** プロパティに保持 ***/
