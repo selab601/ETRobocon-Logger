@@ -107,6 +107,10 @@ fileInputForm.prototype.getLogFileName = function () {
   return this.stateMap.logFileName;
 };
 
+fileInputForm.prototype.getLogFileFolder = function () {
+  return this.stateMap.logFileFolder;
+};
+
 /**
  * jQuery オブジェクトをキャッシュする
  *
@@ -133,12 +137,25 @@ fileInputForm.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-fileInputForm.prototype.init = function ( $append_target ) {
+fileInputForm.prototype.init = function ( $append_target, settings ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.after( this.configMap.main_html );
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
+
+  if ( settings.log_file_directory != undefined ) {
+    // ログファイルディレクトリ初期化
+    this.stateMap.logFileFolder = settings.log_file_directory;
+    this.jqueryMap.$directory_form.val(settings.log_file_directory);
+    this.ipc.send('updateLogFileDirectory', settings.log_file_directory);
+  }
+  if ( settings.log_file_name != undefined ) {
+    // ログファイル名初期化
+    this.stateMap.logFileName = settings.log_file_name;
+    this.jqueryMap.$input_form.val(settings.log_file_name);
+    this.ipc.send('updateLogFileName', settings.log_file_name);
+  }
 
   // イベントハンドラを登録
   this.jqueryMap.$input_form.bind( 'keyup', this.onUpdateLogFileName.bind(this) );

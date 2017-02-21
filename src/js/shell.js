@@ -36,6 +36,7 @@ function shell() {
     // 現在描画中の header-element の id
     rendered_page_id : undefined,
     logfile_name : undefined,
+    logfile_folder : undefined,
     deviceMap : [],
     settings : {}
   };
@@ -60,8 +61,9 @@ function shell() {
  */
 shell.prototype.onConnectDevice = function () {
   // プロパティに情報を保持
-  this.stateMap.logfile_name = this.moduleMap.fileInputForm.getLogFileName();
-  this.stateMap.deviceMap    = this.moduleMap.deviceConnector.getDeviceMap();
+  this.stateMap.logfile_name   = this.moduleMap.fileInputForm.getLogFileName();
+  this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileName();
+  this.stateMap.deviceMap      = this.moduleMap.deviceConnector.getDeviceMap();
 
   this.onTransitionTo( { data : "logging-page" } );
   // ヘッダーのリンクを無効化
@@ -83,15 +85,21 @@ shell.prototype.onDisconnectDevice = function () {
  * 一度全ての機能モジュールを削除し，ページの ID に応じた機能モジュールのみをロードし直す
  */
 shell.prototype.onTransitionTo = function ( event ) {
-  // 一度全ての機能モジュールを削除
-  this.removeAllModules();
-
   // 設定ページにいた場合は，設定を保存する
   if ( this.stateMap.rendered_page_id === "settings-page" ) {
     this.stateMap.settings = {
       map : this.moduleMap.settings.getMapState()
     };
   }
+  // 接続ページにいた場合は，設定を保存する
+  if ( this.stateMap.rendered_page_id === "connect-page" ) {
+    this.stateMap.logfile_name   = this.moduleMap.fileInputForm.getLogFileName();
+    this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileName();
+    this.stateMap.deviceMap      = this.moduleMap.deviceConnector.getDeviceMap();
+  }
+
+  // 一度全ての機能モジュールを削除
+  this.removeAllModules();
 
   // 機能モジュール初期化
   switch ( event.data ) {
@@ -106,7 +114,11 @@ shell.prototype.onTransitionTo = function ( event ) {
       this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
     );
     this.moduleMap.fileInputForm.init(
-      this.jqueryMap.$body.find("#device-connector-body-footer")
+      this.jqueryMap.$body.find("#device-connector-body-footer"),
+      {
+        log_file_name : this.stateMap.logfile_name,
+        log_file_directory : this.stateMap.logfile_folder
+      }
     );
     break;
   case "settings-page":
