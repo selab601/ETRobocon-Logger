@@ -38,6 +38,12 @@ Map.prototype.init = function () {
     .style("background-image", "url("+this.image_src+")");
   var svg = this.d3.select("svg.map-chart-svg");
 
+  // TODO: 原点 = スタート地点で良いか？
+  this.preCor = {
+    x: this.origin.x,
+    y: this.origin.y
+  };
+
   this.d3ObjectsMap = { svg : svg };
 };
 
