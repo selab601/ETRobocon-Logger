@@ -89,7 +89,11 @@ Settings.prototype.initializeSettings = function ( settings ) {
 };
 
 Settings.prototype.getMapState = function () {
-  return this.imageViewer.getStateMap();
+  return {
+    image_path  : this.imageViewer.getImagePath(),
+    image_scale : this.imageViewer.getImageScale(),
+    start_point : this.imageViewer.getStartPoint()
+  };
 };
 
 /**

@@ -93,11 +93,12 @@ Map.prototype.renderFromData = function ( data ) {
 
 /**
  * マップを拡大縮小する
- * @param scale 拡大縮小値．(0 ~ 100)
+ *
+ * @param scale 拡大縮小の倍率 (0 ~ 100)
  */
-Map.prototype.setScale = function ( scale ) {
+Map.prototype.scale = function ( value ) {
   this.d3ObjectsMap.svg
-    .style("zoom" , scale+"%");
+    .style("zoom" , value+"%");
 };
 
 module.exports = Map;

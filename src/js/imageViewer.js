@@ -27,6 +27,7 @@ function imageViewer () {
     $append_target : undefined,
     image_path     : undefined,
     image_scale    : undefined,
+    // デバイスの出発位置．マップ描画時に利用する
     start_point    : undefined
   };
   this.flags = {
@@ -46,7 +47,7 @@ function imageViewer () {
  */
 imageViewer.prototype.onScaleup = function ( event ) {
   if ( this.stateMap.image_scale >= 100 ) { return; }
-  this.adjustScale( this.stateMap.image_scale + 10 );
+  this.setScale( this.stateMap.image_scale + 10 );
 };
 
 /**
@@ -54,7 +55,7 @@ imageViewer.prototype.onScaleup = function ( event ) {
  */
 imageViewer.prototype.onScaledown = function ( event ) {
   if ( this.stateMap.image_scale <= 10 ) { return; }
-  this.adjustScale( this.stateMap.image_scale - 10 );
+  this.setScale( this.stateMap.image_scale - 10 );
 };
 
 /**
@@ -62,13 +63,14 @@ imageViewer.prototype.onScaledown = function ( event ) {
  */
 imageViewer.prototype.onScaleinput = function ( event ) {
   var scale = event.target.value;
-  this.adjustScale( scale );
+  this.setScale( scale );
 };
 
 /**
  * 画像上でマウスクリックが行われた際に呼び出されるイベントハンドラ
  *
  * 画像の任意の箇所をクリックすることで，ロギング時に走行を開始する地点(スタート地点)が決定できる
+ * WARNING: スタート地点登録フラグが有効の場合にのみ，このイベントハンドラを bind すべき
  */
 imageViewer.prototype.onSetStartPoint = function ( event ) {
   var self = event.data.self;
@@ -85,37 +87,62 @@ imageViewer.prototype.onSetStartPoint = function ( event ) {
   });
 };
 
+/**
+ * スケーリング時に実行するイベントハンドラを登録する
+ */
+imageViewer.prototype.setOnScaleHandler = function ( handler ) {
+  this.scaleHandler = handler;
+};
+
+
 /****************************/
 
 
-/**
- * 画像のスケールを調整時に呼び出されるイベントハンドラ
- */
-imageViewer.prototype.adjustScale = function ( scale ) {
-  // 画像の元々のスケールを取得
-  var originalScale = getOriginalScale( this.stateMap.image_path );
-  this.jqueryMap.$image.css({
-    width: originalScale.width, height: originalScale.height
-  });
+/***** ゲッター *****/
 
-  /* DOM に描画 */
-  // 画像サイズにスケールを適用
+imageViewer.prototype.getImagePath = function () {
+  return this.stateMap.image_path;
+};
+
+imageViewer.prototype.getImageScale = function () {
+  return this.stateMap.image_scale;
+};
+
+imageViewer.prototype.getStartPoint = function () {
+  return this.stateMap.start_point;
+};
+
+/********************/
+
+
+/***** セッター *****/
+
+/**
+ * 画像をスケーリングする
+ *
+ * @param scale スケールする倍率 TODO: 値の検証
+ */
+imageViewer.prototype.setScale = function ( scale ) {
+  var pre_scale = this.stateMap.image_scale;
+  var originalScale = getOriginalScale( this.stateMap.image_path );
+
+  /*** DOM に描画 ***/
+  this.jqueryMap.$scale_form.val(this.stateMap.image_scale);
   this.jqueryMap.$image.css({
     width: function(index, value) {
-      return parseFloat(value) * scale/100;
+      return originalScale.width * scale/100;
     },
     height: function(index, value) {
-      return parseFloat(value) * scale/100;
+      return originalScale.height * scale/100;
     }
   });
 
-  if ( this.flags.enableStartPointSetting ) {
-    this.updateStartPoint( scale, this.stateMap.image_scale);
-  }
-
-  // スケールをプロパティに保持
+  /*** プロパティに保持 ***/
   this.stateMap.image_scale = scale;
-  this.jqueryMap.$scale_form.val(this.stateMap.image_scale);
+
+  if ( this.flags.enableStartPointSetting ) {
+    this.updateStartPoint( scale, pre_scale );
+  }
 
   if ( this.scaleHandler != undefined ) {
     this.scaleHandler( scale );
@@ -128,12 +155,11 @@ imageViewer.prototype.adjustScale = function ( scale ) {
  * @param start_point スタート地点の座標．プロパティに x, y を持つこと
  */
 imageViewer.prototype.setStartPoint = function ( start_point ) {
-  // 既にスタート地点が設定されている場合は削除
+  /*** DOM に描画 ***/
+  // スタート地点は1つのみ指定できる．よって，既に描画されていた場合は削除する
   if ( this.jqueryMap.$start_point != undefined ) {
     this.jqueryMap.$start_point.remove();
   }
-
-  // スタート地点をDOM に描画
   this.jqueryMap.$start_point =
     this.$("<div></div>")
     .attr("id", "imageviewer-startpoint")
@@ -142,7 +168,7 @@ imageViewer.prototype.setStartPoint = function ( start_point ) {
   this.jqueryMap.$image_wrapper
     .append( this.jqueryMap.$start_point );
 
-  // プロパティに保存
+  /*** プロパティに保持 ***/
   this.stateMap.start_point = start_point;
 };
 
@@ -155,7 +181,7 @@ imageViewer.prototype.setStartPoint = function ( start_point ) {
 imageViewer.prototype.updateStartPoint = function ( scale, pre_scale ) {
   if ( this.jqueryMap.$start_point === undefined ) { return; }
 
-  // DOM に描画
+  /*** DOM に描画 ***/
   var s = ( scale / pre_scale );
   this.jqueryMap.$start_point.css({
     left: function(index, value) {
@@ -168,57 +194,42 @@ imageViewer.prototype.updateStartPoint = function ( scale, pre_scale ) {
 };
 
 /**
- * 画像の元々のサイズを取得する
- * @param src 画像へのパス
- */
-function getOriginalScale ( src ) {
-  var image = new Image();
-  image.src = src;
-  return { width: image.width, height: image.height };
-};
-
-/**
  * プレビュー表示部分に画像を新規に描画する
+ * @param src   画像のソース
+ * @param scale 画像の初期スケール
  */
 imageViewer.prototype.setImage = function ( src, scale ) {
-  this.stateMap.image_path = src;
-
+  /*** DOM に描画 ***/
+  // キャッシュ
   this.jqueryMap.$image_wrapper =
     this.$('<div></div>')
     .attr("class", "imageviewer-image-wrapper");
   this.jqueryMap.$image =
     this.$('<img>')
     .attr("src", src);
-
+  // 描画
   this.jqueryMap.$preview_box.html(
     this.jqueryMap.$image_wrapper.append(
       this.jqueryMap.$image
     ));
-
   // イベントハンドラ登録
   this.jqueryMap.$image
     .bind("load", function () {
       // 画像読み込み後に初回のスケールを設定する
-      this.adjustScale( scale == undefined ? 100 : scale );
+      this.setScale( scale == undefined ? 100 : scale );
     }.bind(this));
-
+  // スタート地点を登録する場合には，そのためのイベントハンドラを設定する
   if ( this.flags.enableStartPointSetting ) {
     this.jqueryMap.$image
       .bind( "click", {self:this}, this.onSetStartPoint );
   }
+
+  /*** プロパティに保持 ***/
+  this.stateMap.image_path = src;
 };
 
-imageViewer.prototype.getStateMap = function () {
-  return {
-    image_path  : this.stateMap.image_path,
-    image_scale : this.stateMap.image_scale,
-    start_point : this.stateMap.start_point
-  };
-};
+/********************/
 
-imageViewer.prototype.setScaleEventHandler = function ( handler ) {
-  this.scaleHandler = handler;
-};
 
 /**
  * jQuery オブジェクトをキャッシュする
@@ -281,5 +292,21 @@ imageViewer.prototype.remove = function () {
     start_point    : undefined
   };
 };
+
+
+/***** ユーティリティメソッド *****/
+
+/**
+ * 画像の元々のサイズを取得する
+ * @param src 画像へのパス
+ */
+function getOriginalScale ( src ) {
+  var image = new Image();
+  image.src = src;
+  return { width: image.width, height: image.height };
+};
+
+/**********************************/
+
 
 module.exports = imageViewer;

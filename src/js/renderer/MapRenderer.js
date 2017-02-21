@@ -48,7 +48,7 @@ MapRenderer.prototype.init = function ( $append_target, map_settings ) {
     this.map = new Map( "imageviewer-image-wrapper", image.width, image.height, { x: cor.x, y: cor.y } );
     this.map.init();
 
-    this.imageViewer.setScaleEventHandler( this.map.setScale.bind(this.map) );
+    this.imageViewer.setOnScaleHandler( this.map.scale.bind(this.map) );
   }
 };
 
