@@ -85,6 +85,7 @@ shell.prototype.onDisconnectDevice = function () {
  * 一度全ての機能モジュールを削除し，ページの ID に応じた機能モジュールのみをロードし直す
  */
 shell.prototype.onTransitionTo = function ( event ) {
+  // TODO: ページ遷移時にデータを引き継ぐのは頭悪い．モデルを切り離して管理したい
   // 設定ページにいた場合は，設定を保存する
   if ( this.stateMap.rendered_page_id === "settings-page" ) {
     this.stateMap.settings = {
