@@ -86,6 +86,13 @@ shell.prototype.onTransitionTo = function ( event ) {
   // 一度全ての機能モジュールを削除
   this.removeAllModules();
 
+  // 設定ページにいた場合は，設定を保存する
+  if ( this.stateMap.rendered_page_id === "settings-page" ) {
+    this.stateMap.settings = {
+      map : this.moduleMap.settings.getMapState()
+    };
+  }
+
   // 機能モジュール初期化
   switch ( event.data ) {
   case "load-page":
@@ -103,7 +110,7 @@ shell.prototype.onTransitionTo = function ( event ) {
     );
     break;
   case "settings-page":
-    this.moduleMap.settings.init(this.jqueryMap.$body, this.setSettings.bind(this), this.stateMap.settings);
+    this.moduleMap.settings.init(this.jqueryMap.$body, this.stateMap.settings);
     break;
   case "logging-page":
     this.moduleMap.logRenderer.init(this.jqueryMap.$body, this.stateMap.settings);
@@ -137,10 +144,6 @@ shell.prototype.removeAllModules = function () {
     if ( key === "dialog" ) { return; }
     this[key].remove();
   }, this.moduleMap);
-};
-
-shell.prototype.setSettings = function ( settings ) {
-  this.stateMap.settings = settings;
 };
 
 /**
