@@ -52,6 +52,8 @@ function shell() {
   };
   // jQuery オブジェクトのキャッシュ
   this.jqueryMap = {};
+  // main プロセスとの通信用
+  this.ipc = require('electron').ipcRenderer;
 };
 
 /***** イベントハンドラ *****/
@@ -91,6 +93,7 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.stateMap.settings = {
       map : this.moduleMap.settings.getMapState()
     };
+    this.ipc.send('updateSettings', this.stateMap.settings);
   }
   // 接続ページにいた場合は，設定を保存する
   if ( this.stateMap.rendered_page_id === "connect-page" ) {
