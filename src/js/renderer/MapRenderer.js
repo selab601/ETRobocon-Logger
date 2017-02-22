@@ -42,14 +42,18 @@ MapRenderer.prototype.init = function ( $append_target, map_settings ) {
     map_settings != undefined
     && map_settings.image_path != undefined
     && map_settings.start_point != undefined
+    && map_settings.original_image_size != undefined
    ) {
     this.imageViewer.init(this.stateMap.$append_target.find("#maprenderer-box"));
     this.imageViewer.setImage(map_settings.image_path);
 
-    var image = new Image();
-    image.src = map_settings.image_path;
     var cor = { x: map_settings.start_point.x, y: map_settings.start_point.y };
-    this.map = new Map( "imageviewer-image-wrapper", image.width, image.height, { x: cor.x, y: cor.y }, map_settings.draw_scale );
+    this.map = new Map(
+      "imageviewer-image-wrapper",
+      map_settings.original_image_size.width,
+      map_settings.original_image_size.height,
+      { x: cor.x, y: cor.y },
+      map_settings.draw_scale );
     this.map.init();
 
     this.imageViewer.setOnScaleHandler( this.map.scale.bind(this.map) );

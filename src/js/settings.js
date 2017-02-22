@@ -118,6 +118,7 @@ Settings.prototype.getMapState = function () {
     image_path  : this.imageViewer.getImagePath(),
     image_scale : this.imageViewer.getImageScale(),
     start_point : this.imageViewer.getStartPoint(),
+    original_image_size : this.imageViewer.getOrizinalImageSize(),
     draw_scale  : this.stateMap.draw_scale
   };
 };

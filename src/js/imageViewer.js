@@ -28,7 +28,8 @@ function imageViewer () {
     image_path     : undefined,
     image_scale    : undefined,
     // デバイスの出発位置．マップ描画時に利用する
-    start_point    : undefined
+    start_point    : undefined,
+    original_image_size  : undefined
   };
   this.flags = {
     enableStartPointSetting : false
@@ -106,6 +107,10 @@ imageViewer.prototype.getImageScale = function () {
 
 imageViewer.prototype.getStartPoint = function () {
   return this.stateMap.start_point;
+};
+
+imageViewer.prototype.getOrizinalImageSize = function () {
+  return this.stateMap.original_image_size;
 };
 
 /********************/
@@ -212,6 +217,7 @@ imageViewer.prototype.setImage = function ( src, scale ) {
       this.jqueryMap.$image
     ));
   // スケールの反映
+  var self = this;
   this.jqueryMap.$scale_form.val(scale);
   this.jqueryMap.$image
     .css({ display: "none" })
@@ -223,6 +229,7 @@ imageViewer.prototype.setImage = function ( src, scale ) {
       image.onload = function () {
         $(this).css({ display: "block", width: image.width * scale/100, height: image.height * scale/100 });
       }.bind(this);
+      self.stateMap.original_image_size = { width: image.width, height: image.height };
     });
   // イベントハンドラ登録
   // スタート地点を登録する場合には，そのためのイベントハンドラを設定する
