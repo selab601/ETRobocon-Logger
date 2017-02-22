@@ -7,6 +7,8 @@ const remote = require('electron').remote;
 const Dialog = remote.dialog;
 // グラフ描画用のモジュール
 const D3GraphRenderer = require('./renderer/D3GraphRenderer.js');
+// マップ描画用のモジュール
+const MapRenderer = require('./renderer/MapRenderer.js');
 
 function logAnalyzer() {
   // 静的なプロパティ
@@ -51,6 +53,7 @@ function logAnalyzer() {
     keymap.push(data.id);
   }.bind(this));
   this.graphRenderer = new D3GraphRenderer( keymap, keymap, null, "log-analyzer-graph" );
+  this.mapRenderer   = new MapRenderer();
 };
 
 
@@ -77,20 +80,21 @@ logAnalyzer.prototype.onSelectFile = function () {
     // TODO: ファイルパスが長いと見辛いので，どうにかする
     this.jqueryMap.$form.val(fileNames[0]);
 
+    // ログファイルの読み込みに失敗したら何もしない
+    // TODO: ユーザへのメッセージの描画
+    var values = this.getLogFileData();
+    if ( values === null ) { return; }
+
     // グラフの描画
-    this.onRenderGraphFromLogFile();
+    this.onRenderGraphFromLogFile( values );
+    this.onRenderMapFromLogFile( values );
   });
 };
 
 /**
  * ログファイル選択時に呼び出されるイベントハンドラ
  */
-logAnalyzer.prototype.onRenderGraphFromLogFile = function () {
-  // ログファイルの読み込みに失敗したら何もしない
-  // TODO: ユーザへのメッセージの描画
-  var values = this.getLogFileData();
-  if ( values === null ) { return; }
-
+logAnalyzer.prototype.onRenderGraphFromLogFile = function ( values ) {
   this.graphRenderer.initialize();
 
   for (var i=0; i<Object.keys(values).length; i++) {
@@ -101,6 +105,20 @@ logAnalyzer.prototype.onRenderGraphFromLogFile = function () {
   }
 
   this.graphRenderer.renderAll(null, null, ["brush", "focus", "mark"]);
+};
+
+/**
+ * マップ描画時に呼び出されるイベントハンドラ
+ */
+logAnalyzer.prototype.onRenderMapFromLogFile = function ( values ) {
+  if ( this.stateMap.logFileSettings == undefined ) { return; }
+
+  this.mapRenderer.init( this.jqueryMap.$content_map, this.stateMap.logFileSettings.map );
+
+  for (var i=0; i<Object.keys(values).length; i++) {
+    var obj = JSON.parse(values[i]);
+    this.mapRenderer.render( obj.coordinate_x/10, obj.coordinate_y/10 );
+  }
 };
 
 /**
