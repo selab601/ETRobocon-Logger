@@ -21,21 +21,21 @@ function logRenderer() {
     main_html : (function () {
       /*
         <div id="log-renderer">
-          <nav id="log-renderer-tabs">
-            <div id="log-renderer-tab-graph" class="log-renderer-tab selected">
-              <div class="log-renderer-tab-header"></div>
-              <div class="log-renderer-tab-body">Graph</div>
+          <nav class="tabs">
+            <div id="log-renderer-tab-graph" class="tab selected">
+              <div class="tab-header"></div>
+              <div class="tab-body">Graph</div>
             </div>
-            <div id="log-renderer-tab-table" class="log-renderer-tab">
-              <div class="log-renderer-tab-header"></div>
-              <div class="log-renderer-tab-body">Table</div>
+            <div id="log-renderer-tab-table" class="tab">
+              <div class="tab-header"></div>
+              <div class="tab-body">Table</div>
             </div>
-            <div id="log-renderer-tab-map" class="log-renderer-tab">
-              <div class="log-renderer-tab-header"></div>
-              <div class="log-renderer-tab-body">Map</div>
+            <div id="log-renderer-tab-map" class="tab">
+              <div class="tab-header"></div>
+              <div class="tab-body">Map</div>
             </div>
           </nav>
-          <div id="log-renderer-content-graph" class="log-renderer-content selected">
+          <div id="log-renderer-content-graph" class="tab-content selected">
             <div id="log-renderer-list-box">
               <div class="log-renderer-list-header">
                 Render Graph
@@ -44,8 +44,8 @@ function logRenderer() {
             </div>
             <div id="log-renderer-content-graph-box"></div>
           </div>
-          <div id="log-renderer-content-table" class="log-renderer-content"></div>
-          <div id="log-renderer-content-map" class="log-renderer-content"></div>
+          <div id="log-renderer-content-table" class="tab-content"></div>
+          <div id="log-renderer-content-map" class="tab-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_base_html : (function () {
@@ -190,7 +190,7 @@ logRenderer.prototype.setJqueryMap = function () {
   this.jqueryMap = {
     $append_target : $append_target,
     $list          : $append_target.find(".log-renderer-list"),
-    $tab           : $append_target.find(".log-renderer-tab"),
+    $tab           : $append_target.find(".tab"),
     $tab_graph     : $append_target.find("#log-renderer-tab-graph"),
     $tab_table     : $append_target.find("#log-renderer-tab-table"),
     $tab_map       : $append_target.find("#log-renderer-tab-map"),
