@@ -18,7 +18,18 @@ function logAnalyzer() {
             <input type="text" id="log-analyzer-form"/>
             <div id="log-analyzer-select-button">SELECT</div>
           </div>
-          <div id="log-analyzer-graph"></div>
+          <nav class="tabs">
+            <div id="log-analyzer-tab-graph" class="tab selected">
+              <div class="tab-header"></div>
+              <div class="tab-body">Graph</div>
+            </div>
+            <div id="log-analyzer-tab-map" class="tab">
+              <div class="tab-header"></div>
+              <div class="tab-body">Map</div>
+            </div>
+          </nav>
+          <div id="log-analyzer-graph" class="tab-content selected"></div>
+          <div id="log-analyzer-map" class="tab-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_map : require('./config/logged_values.js').values
@@ -92,6 +103,29 @@ logAnalyzer.prototype.onRenderGraphFromLogFile = function () {
   this.graphRenderer.renderAll(null, null, ["brush", "focus", "mark"]);
 };
 
+/**
+ * タブ選択時に呼び出されるコールバック関数
+ *
+ * 選択されたタブに応じて描画を切り替える．
+ */
+logAnalyzer.prototype.onSelectTab = function ( event ) {
+  // 既に選択済みのタブ等から選択を外す
+  // TODO: 選択したタブ等は dom を参照するのではなくメモリ上に保存すべき
+  this.jqueryMap.$append_target.find(".selected").removeClass("selected");
+
+  switch ( event.currentTarget.id ) {
+  case "log-analyzer-tab-graph":
+    this.jqueryMap.$tab_graph.addClass("selected");
+    this.jqueryMap.$content_graph.addClass("selected");
+    break;
+  case "log-analyzer-tab-map":
+    this.jqueryMap.$tab_map.addClass("selected");
+    this.jqueryMap.$content_map.addClass("selected");
+    break;
+  }
+};
+
+
 /****************************/
 
 
@@ -148,8 +182,13 @@ logAnalyzer.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
+    $tab           : $append_target.find(".tab"),
     $form          : $append_target.parent().find("#log-analyzer-form"),
-    $select_button : $append_target.parent().find("#log-analyzer-select-button")
+    $select_button : $append_target.parent().find("#log-analyzer-select-button"),
+    $tab_graph     : $append_target.find("#log-analyzer-tab-graph"),
+    $tab_map       : $append_target.find("#log-analyzer-tab-map"),
+    $content_graph : $append_target.find("#log-analyzer-graph"),
+    $content_map   : $append_target.find("#log-analyzer-map")
   };
 };
 
@@ -165,6 +204,7 @@ logAnalyzer.prototype.init = function ( $append_target ) {
 
   // イベントハンドラを登録
   this.jqueryMap.$select_button.bind( "click", this.onSelectFile.bind(this) );
+  this.jqueryMap.$tab.bind( 'click', this.onSelectTab.bind(this) );
 };
 
 /**
