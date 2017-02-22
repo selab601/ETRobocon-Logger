@@ -25,8 +25,9 @@ function logAnalyzer() {
   };
   // 動的なプロパティ
   this.stateMap = {
-    $append_target : undefined,
-    logFilePath    : undefined
+    $append_target  : undefined,
+    logFilePath     : undefined,
+    logFileSettings : undefined
   };
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
@@ -98,8 +99,12 @@ logAnalyzer.prototype.onRenderGraphFromLogFile = function () {
  * ログファイルからデータを取得する
  *
  * @return データの読み込みに成功した場合は，JSON 文字列が格納された配列を返す
- *         例) [ { / JSON / }, { / JSON / }, ... , { / JSON / }]
  *         読み込みに失敗した場合は null を返す
+ *         <ログファイルの形式について>
+ *         ログファイルは，header と body の2つからなる
+ *         また，header と body との間は `EOF` という文字列の行で区切られる
+ *         - header : ログファイル固有の設定情報．1行で表すものとする．
+ *         - body   : ログデータ
  */
 logAnalyzer.prototype.getLogFileData = function () {
   if ( this.stateMap.logFilePath === undefined ) { return null; }
@@ -109,12 +114,23 @@ logAnalyzer.prototype.getLogFileData = function () {
 
   // TODO: ファイルを開くのに失敗した場合のエラー処理
   var contents = fs.readFileSync(this.stateMap.logFilePath);
+
   var lines = contents
         .toString()
         .split('\n');
-  for (var i=0; i<lines.length; i++) {
+  // ヘッダー部分の読み込み
+  var i = 0;
+  for (; i<lines.length; i++) {
+    if ( lines[i] === "EOH" ) {
+      i++;
+      break;
+    }
+    this.stateMap.logFileSettings = JSON.parse(lines[i]);
+  }
+  for (; i<lines.length; i++) {
     values.push(lines[i]);
   }
+
   // 最後に余分な改行があるので削除
   values.pop();
 
