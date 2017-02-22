@@ -101,10 +101,10 @@ Map.prototype.render = function ( coordinate ) {
     // 円を描画
     .append("circle")
     .attr("index", this.index)
-    .attr("r", 3)
+    .attr("r", 4)
     .attr("cx", adjustedCor.x)
     .attr("cy", adjustedCor.y)
-    .attr("fill","rgb(255, 0, 0)")
+    .attr("fill","rgb(54, 128, 183)")
     .on("mouseover", function() { // マウスオーバー時にツールチップを表示
       self.toolTip
         .style("left", (adjustedCor.x) * self.zoom/100 + "px" )
@@ -125,7 +125,14 @@ Map.prototype.render = function ( coordinate ) {
       // 右クリック時の処理
       self.d3.event.preventDefault();
       if ( self.onSelectData != undefined ) {
+        // 既に選択済みのものがあれば選択を外す
+        if ( self.d3ObjectsMap.preSelectedValue != undefined ) {
+          self.d3ObjectsMap.preSelectedValue.attr("fill", "rgb(54, 128, 183)");
+        }
         self.onSelectData(self.$(this)[0].attributes.index.value);
+        self.$(this).attr("fill", "red");
+        // キャッシュ
+        self.d3ObjectsMap.preSelectedValue = $(this);
       }
     });
 
