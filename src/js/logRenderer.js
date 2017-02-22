@@ -12,6 +12,8 @@
 const D3GraphRenderer = require('./renderer/D3GraphRenderer.js');
 // テーブル描画用のモジュール
 const TableRenderer = require('./renderer/TableRenderer.js');
+// マップ描画用のモジュール
+const MapRenderer = require('./renderer/MapRenderer.js');
 
 function logRenderer() {
   // 静的なプロパティ
@@ -28,6 +30,10 @@ function logRenderer() {
               <div class="log-renderer-tab-header"></div>
               <div class="log-renderer-tab-body">Table</div>
             </div>
+            <div id="log-renderer-tab-map" class="log-renderer-tab">
+              <div class="log-renderer-tab-header"></div>
+              <div class="log-renderer-tab-body">Map</div>
+            </div>
           </nav>
           <div id="log-renderer-content-graph" class="log-renderer-content selected">
             <div id="log-renderer-list-box">
@@ -39,6 +45,7 @@ function logRenderer() {
             <div id="log-renderer-content-graph-box"></div>
           </div>
           <div id="log-renderer-content-table" class="log-renderer-content"></div>
+          <div id="log-renderer-content-map" class="log-renderer-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_base_html : (function () {
@@ -70,6 +77,7 @@ function logRenderer() {
   // TODO: 描画範囲(現状は100)を動的に指定できるようにする
   this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100, "log-renderer-content-graph-box");
   this.tableRenderer = new TableRenderer( keymap, this.stateMap.render_value_keymap );
+  this.mapRenderer   = new MapRenderer();
 };
 
 
@@ -93,6 +101,9 @@ logRenderer.prototype.onReceiveDataFromDevice = function ( ev, message ) {
     // テーブルの更新
     this.tableRenderer.update(key, data[key]);
   }.bind(this));
+
+  // Map の描画
+  this.mapRenderer.render( data["coordinate_x"]/10, data["coordinate_y"]/10 );
 
   // グラフの描画
   this.graphRenderer.renderAll(null, null, ["label", "focus"]);
@@ -134,6 +145,10 @@ logRenderer.prototype.onSelectTab = function ( event ) {
   case "log-renderer-tab-graph":
     this.jqueryMap.$tab_graph.addClass("selected");
     this.jqueryMap.$content_graph.addClass("selected");
+    break;
+  case "log-renderer-tab-map":
+    this.jqueryMap.$tab_map.addClass("selected");
+    this.jqueryMap.$content_map.addClass("selected");
     break;
   }
 };
@@ -178,15 +193,17 @@ logRenderer.prototype.setJqueryMap = function () {
     $tab           : $append_target.find(".log-renderer-tab"),
     $tab_graph     : $append_target.find("#log-renderer-tab-graph"),
     $tab_table     : $append_target.find("#log-renderer-tab-table"),
+    $tab_map       : $append_target.find("#log-renderer-tab-map"),
     $content_graph : $append_target.find("#log-renderer-content-graph"),
-    $content_table : $append_target.find("#log-renderer-content-table")
+    $content_table : $append_target.find("#log-renderer-content-table"),
+    $content_map   : $append_target.find("#log-renderer-content-map")
   };
 };
 
 /**
  * 機能モジュールの初期化
  */
-logRenderer.prototype.init = function ( $append_target ) {
+logRenderer.prototype.init = function ( $append_target, map_settings ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
@@ -198,6 +215,7 @@ logRenderer.prototype.init = function ( $append_target ) {
 
   // レンダリングモジュールの初期化
   this.tableRenderer.initModule( this.jqueryMap.$content_table );
+  this.mapRenderer.init( this.jqueryMap.$content_map, map_settings );
 
   // イベントハンドラを登録
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
@@ -235,6 +253,8 @@ logRenderer.prototype.remove = function () {
   this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100, "log-renderer-content-graph-box" );
   this.tableRenderer = null;
   this.tableRenderer = new TableRenderer( keymap, this.stateMap.render_value_keymap );
+  this.mapRenderer = null;
+  this.mapRenderer = new MapRenderer();
 };
 
 module.exports = logRenderer;

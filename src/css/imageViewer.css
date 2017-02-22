@@ -1,0 +1,113 @@
+.imageviewer {
+  width: 100%;
+}
+
+.imageviewer-title {
+  position: relative;
+  width: calc(100% - 2px);
+  text-align: left;
+  font-size: 14px;
+  height: 25px;
+  line-height: 25px;
+  padding-left: 2px;
+  margin-top: 5px;
+}
+
+.imageviewer-scale-form {
+  position: absolute;
+
+  width: 48px;
+  height: 21px;
+  line-height: 23px;
+  text-align: center;
+
+  top: 0;
+  right: 25px;
+  bottom: 0;
+  left: 0;
+  margin-left: auto;
+
+  border: 1px solid rgb(180,180,180);
+}
+
+.imageviewer-scaleup-button {
+  position: absolute;
+
+  width: 23px;
+  height: 23px;
+
+  top: 0;
+  right: calc(25px + 50px);
+  bottom: 0;
+  left: 0;
+  margin-left: auto;
+  background-color: rgb(247,247,247);
+
+  border: 1px solid rgb(180,180,180);
+
+  cursor: pointer;
+}
+
+.imageviewer-scaleup-button > img {
+  height: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+}
+
+.imageviewer-scaledown-button {
+  position: absolute;
+
+  width: 23px;
+  height: 23px;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin-left: auto;
+  background-color: rgb(247,247,247);
+
+  border: 1px solid rgb(180,180,180);
+  border-left: none;
+
+  cursor: pointer;
+}
+
+.imageviewer-scaledown-button > img {
+  height: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+}
+
+.imageviewer-preview-box {
+  width: 100%;
+  height: 400px;
+  background-color: gray;
+
+  overflow: scroll;
+}
+
+.imageviewer-image-wrapper {
+  position: relative;
+}
+
+.imageviewer-image-wrapper > img {
+  position: absolute;
+}
+
+#imageviewer-startpoint {
+  position: absolute;
+  display: inline;
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background-color: red;
+}

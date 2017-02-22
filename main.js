@@ -5,7 +5,7 @@
 const {app, BrowserWindow} = require('electron'),
       path = require('path'),
       url = require('url'),
-      is_fake = true,
+      is_fake = false,
       deviceConnector = is_fake ? require("./lib/fakeConnector.js") : require("./lib/deviceConnector.js"),
       FileManager = require('./lib/fileManager.js');
 
