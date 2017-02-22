@@ -26,12 +26,12 @@ MapRenderer.prototype.setJqueryMap = function () {
   this.jqueryMap = {};
 };
 
-MapRenderer.prototype.render = function ( x, y ) {
+MapRenderer.prototype.render = function ( x, y, clock ) {
   if ( this.map === undefined ) { return; }
-  this.map.render({x: x, y: y});
+  this.map.render({x: x, y: y}, clock);
 };
 
-MapRenderer.prototype.init = function ( $append_target, map_settings ) {
+MapRenderer.prototype.init = function ( $append_target, map_settings, onSelectData ) {
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
   this.setJqueryMap();
@@ -53,7 +53,9 @@ MapRenderer.prototype.init = function ( $append_target, map_settings ) {
       map_settings.original_image_size.width,
       map_settings.original_image_size.height,
       { x: cor.x, y: cor.y },
-      map_settings.draw_scale );
+      map_settings.draw_scale,
+      onSelectData
+    );
     this.map.init();
 
     this.imageViewer.setOnScaleHandler( this.map.scale.bind(this.map) );

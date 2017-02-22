@@ -1,4 +1,4 @@
-function Map ( $append_target_id, width, height, origin, drawScale ) {
+function Map ( $append_target_id, width, height, origin, drawScale, onSelectData ) {
   this.append_target_id = $append_target_id;
 
   this.width  = width;
@@ -6,12 +6,16 @@ function Map ( $append_target_id, width, height, origin, drawScale ) {
   this.origin = origin;
   this.drawScale  = drawScale;
   this.preCor = null;
+  this.index  = 0;
+  this.onSelectData = onSelectData;
 
   // D3 オブジェクトキャッシュ用
   this.d3ObjectsMap = {};
 
   // D3.js
   this.d3 = require('../lib/d3.min.js');
+  // jQuery
+  this.$ = require('../lib/jquery-3.1.0.min.js');
   // path を生成するためのジェネレータの設定
   this.line = this.d3.svg.line()
     .x(function(d) {return d.x;})
@@ -48,6 +52,8 @@ Map.prototype.init = function () {
     y: this.origin.y
   };
 
+  this.index = 0;
+
   this.d3ObjectsMap = { svg : svg };
 };
 
@@ -58,6 +64,8 @@ Map.prototype.init = function () {
  * 引数として座標を与えると，前回与えた座標から今回与えた座標までの線分を描画する．
  *
  * @param coordinate 次の座標({x:<number>,y:<number>})
+ * @param clock      ログデータを一意に識別可能なのは実質的には clock である
+ *                   したがって，他のデータとの紐付けを行いたい場合には clock も同時に渡す
  */
 Map.prototype.render = function ( coordinate ) {
   var adjustedCor = {
@@ -77,6 +85,7 @@ Map.prototype.render = function ( coordinate ) {
 
   if ( this.preCor == null ) {
     this.preCor = adjustedCor;
+    this.index++;
     return;
   }
 
@@ -90,6 +99,7 @@ Map.prototype.render = function ( coordinate ) {
   this.d3ObjectsMap.svg
     // 円を描画
     .append("circle")
+    .attr("index", this.index)
     .attr("r", 3)
     .attr("cx", adjustedCor.x)
     .attr("cy", adjustedCor.y)
@@ -99,13 +109,27 @@ Map.prototype.render = function ( coordinate ) {
         .style("left", adjustedCor.x + "px" )
         .style("top", adjustedCor.y - 23 + "px")
         .style("visibility","visible")
-        .text( parseInt(adjustedCor.x)  + ", " + parseInt(adjustedCor.y) );
+        .text( parseInt(coordinate.x*10)  + ", " + parseInt(coordinate.y*10) );
     })
     .on("mouseout", function(d) { // マウスアウトするとツールチップを非表示
       self.toolTip.style("visibility","hidden");
+    })
+    .on("mousedown", function() {
+      // 右クリックの時は動作を止める
+      if (this.d3.event.button === 2) {
+        this.d3.event.stopImmediatePropagation();
+      }
+    }.bind(this))
+    .on("contextmenu", function (d, i) {
+      // 右クリック時の処理
+      self.d3.event.preventDefault();
+      if ( self.onSelectData != undefined ) {
+        self.onSelectData(self.$(this)[0].attributes.index.value);
+      }
     });
 
   this.preCor = adjustedCor;
+  this.index++;
 };
 
 /**
