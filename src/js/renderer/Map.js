@@ -8,6 +8,7 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
   this.preCor = null;
   this.index  = 0;
   this.onSelectData = onSelectData;
+  this.zoom = 100;
 
   // D3 オブジェクトキャッシュ用
   this.d3ObjectsMap = {};
@@ -106,8 +107,8 @@ Map.prototype.render = function ( coordinate ) {
     .attr("fill","rgb(255, 0, 0)")
     .on("mouseover", function() { // マウスオーバー時にツールチップを表示
       self.toolTip
-        .style("left", adjustedCor.x + "px" )
-        .style("top", adjustedCor.y - 23 + "px")
+        .style("left", (adjustedCor.x) * self.zoom/100 + "px" )
+        .style("top", (adjustedCor.y - 23) * self.zoom/100 + "px")
         .style("visibility","visible")
         .text( parseInt(coordinate.x*10)  + ", " + parseInt(coordinate.y*10) );
     })
@@ -155,6 +156,7 @@ Map.prototype.renderFromData = function ( data ) {
  * @param scale 拡大縮小の倍率 (0 ~ 100)
  */
 Map.prototype.scale = function ( value ) {
+  this.zoom = value;
   this.d3ObjectsMap.svg
     .style("zoom" , value+"%");
 };
