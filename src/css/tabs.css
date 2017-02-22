@@ -1,0 +1,99 @@
+.tabs {
+  display: inline-block;
+
+  width: calc( 100% - 231px - 10px );
+  height: 27px;
+
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.tab {
+  display: inline-block;
+
+  width: 70px;
+  height: 27px;
+
+  margin-right: 3px;
+  cursor: pointer;
+  background-color: rgb(246,246,246);
+}
+
+.tab.selected {
+  background-color: white;
+  border-bottom: 1px solid white;
+  pointer-events: none;
+}
+
+/* タブ内部 */
+
+.tab-header {
+  width: 100%;
+  height: 5px;
+
+  border-radius: 3px 3px 0 0;
+  background-color: white;
+}
+
+.tab-body {
+  width: calc(100% - 2px);
+  height: calc(100% - 5px);
+
+  font-weight: normal;
+  font-size: 14px;
+  text-align: center;
+  line-height: 22px;
+
+  border-left: 1px solid rgb(204,204,204);
+  border-right: 1px solid rgb(204,204,204);
+  border-top: 1px solid rgb(204,204,204);
+  border-radius: 3px 3px 0 0;
+}
+
+/* タブ内部(押下時) */
+
+.tab.selected > .tab-header {
+  background-color: rgb(255, 163, 0);
+}
+
+.tab.selected > .tab-body {
+  border-top: 0px solid rgb(204,204,204);
+  border-radius: 0 0 0 0;
+}
+
+
+/* タブ要素内部 */
+
+.tab-content {
+  display: none;
+
+  width: calc( 100% - 2px - 20px );
+  height: calc( 100% - 40px - 2px - 10px );
+
+  margin: 0 10px 10px 10px;
+  padding: 0;
+
+  overflow: scroll;
+  border: 1px solid rgb(204,204,204);
+}
+
+.tab-content.selected {
+  display: inline-block;
+}
+
+/* タブ と タブ要素 の線を重ねないためのレイアウト */
+
+.tab {
+  posigion: relative;
+  z-index: 0;
+}
+
+.tab.selected {
+  position: relative;
+  z-index: 1;
+}
+
+.tab-content {
+  position:relative;
+  z-index: 0;
+}
