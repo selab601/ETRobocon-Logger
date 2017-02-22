@@ -49,7 +49,7 @@ MapRenderer.prototype.init = function ( $append_target, map_settings ) {
     var image = new Image();
     image.src = map_settings.image_path;
     var cor = { x: map_settings.start_point.x, y: map_settings.start_point.y };
-    this.map = new Map( "imageviewer-image-wrapper", image.width, image.height, { x: cor.x, y: cor.y } );
+    this.map = new Map( "imageviewer-image-wrapper", image.width, image.height, { x: cor.x, y: cor.y }, map_settings.draw_scale );
     this.map.init();
 
     this.imageViewer.setOnScaleHandler( this.map.scale.bind(this.map) );

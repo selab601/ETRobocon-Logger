@@ -19,6 +19,11 @@ function Settings () {
                   <img src="resources/search_icon.png">
                 </div>
               </div>
+              <div class="settings-map-scale-form">
+                <div class="settings-map-scale-form-title">Scale :</div>
+                <input type="text" class="settings-map-scale-form-body" value="1"/>
+                <span>px / cm</span>
+              </div>
             </div>
           </div>
         </div>
@@ -26,7 +31,8 @@ function Settings () {
   };
   // 動的プロパティ
   this.stateMap = {
-    $append_target : undefined
+    $append_target : undefined,
+    draw_scale : undefined
   };
   // jQuery オブジェクトのキャッシュ用
   this.jqueryMap = {};
@@ -59,6 +65,10 @@ Settings.prototype.onSelectImage = function ( event ) {
   }.bind(this));
 };
 
+Settings.prototype.onInputScale = function ( event ) {
+  this.stateMap.draw_scale = event.target.value;
+};
+
 /********************************/
 
 
@@ -70,6 +80,7 @@ Settings.prototype.onSelectImage = function ( event ) {
  *                     - image_path
  *                     - image_scale
  *                     - start_point
+ *                     - draw_scale
  */
 Settings.prototype.initializeSettings = function ( settings ) {
   if ( Object.keys(settings).length == 0 || settings === undefined ) { return; }
@@ -95,13 +106,19 @@ Settings.prototype.initializeSettings = function ( settings ) {
       100
     );
   }
+
+  if ( settings.map.draw_scale != undefined ) {
+    this.stateMap.draw_scale = settings.map.draw_scale;
+    this.jqueryMap.$image_scale_form.val(settings.map.draw_scale);
+  }
 };
 
 Settings.prototype.getMapState = function () {
   return {
     image_path  : this.imageViewer.getImagePath(),
     image_scale : this.imageViewer.getImageScale(),
-    start_point : this.imageViewer.getStartPoint()
+    start_point : this.imageViewer.getStartPoint(),
+    draw_scale  : this.stateMap.draw_scale
   };
 };
 
@@ -117,7 +134,8 @@ Settings.prototype.setJqueryMap = function () {
   this.jqueryMap = {
     $append_target       : $append_target,
     $image_search_button : $append_target.find(".settings-map-image-form-button"),
-    $image_input_form    : $append_target.find(".settings-map-image-form-body")
+    $image_input_form    : $append_target.find(".settings-map-image-form-body"),
+    $image_scale_form    : $append_target.find(".settings-map-scale-form-body")
   };
 };
 
@@ -139,6 +157,7 @@ Settings.prototype.init = function ( $append_target, settings ) {
 
   // イベントハンドラの登録
   this.jqueryMap.$image_search_button.bind( "click", this.onSelectImage.bind(this) );
+  this.jqueryMap.$image_scale_form.bind( "change", this.onInputScale.bind(this) );
 };
 
 /**

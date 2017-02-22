@@ -1,9 +1,10 @@
-function Map ( $append_target_id, width, height, origin ) {
+function Map ( $append_target_id, width, height, origin, drawScale ) {
   this.append_target_id = $append_target_id;
 
   this.width  = width;
   this.height = height;
   this.origin = origin;
+  this.drawScale  = drawScale;
   this.preCor = null;
 
   // D3 オブジェクトキャッシュ用
@@ -54,11 +55,20 @@ Map.prototype.init = function () {
  * @param coordinate 次の座標({x:<number>,y:<number>})
  */
 Map.prototype.render = function ( coordinate ) {
-  // 原点に合わせる
   var adjustedCor = {
-    x: coordinate.x + this.origin.x,
-    y: coordinate.y + this.origin.y
+    x: coordinate.x,
+    y: coordinate.y
   };
+
+  // スケールに合わせる
+  if ( this.drawScale != undefined ) {
+    adjustedCor.x /= this.drawScale;
+    adjustedCor.y /= this.drawScale;
+  }
+
+  // 原点に合わせる
+  adjustedCor.x += this.origin.x;
+  adjustedCor.y += this.origin.y;
 
   if ( this.preCor == null ) {
     this.preCor = adjustedCor;
