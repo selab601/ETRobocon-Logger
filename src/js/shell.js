@@ -142,8 +142,8 @@ shell.prototype.onTransitionTo = function ( event ) {
   // DOM 要素更新
   var page_link = this.stateMap.$container.find("#"+event.data);
   if ( page_link === undefined ) { return; }
-  page_link.addClass("isRendering");
   this.jqueryMap.$container.find(".isRendering").removeClass("isRendering");
+  page_link.addClass("isRendering");
 };
 
 /****************************/
