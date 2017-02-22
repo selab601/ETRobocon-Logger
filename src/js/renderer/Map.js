@@ -18,6 +18,11 @@ function Map ( $append_target_id, width, height, origin, drawScale ) {
     .y(function(d) {return d.y;})
     .interpolate("cardinal");
 
+  // グラフのツールチップ
+  this.toolTip = this.d3.select("."+this.append_target_id)
+    .append("div")
+    .attr("class", "map-chart-tooltip");
+
   // スケールの初期化
   this.xScale = this.d3.scale.linear()
     .range([0, this.width]);
@@ -76,10 +81,29 @@ Map.prototype.render = function ( coordinate ) {
   }
 
   this.d3ObjectsMap.svg
+    // 線を描画
     .append("path")
     .datum([ this.preCor, adjustedCor ])
     .attr("class", "line")
     .attr("d", this.line);
+  var self = this;
+  this.d3ObjectsMap.svg
+    // 円を描画
+    .append("circle")
+    .attr("r", 3)
+    .attr("cx", adjustedCor.x)
+    .attr("cy", adjustedCor.y)
+    .attr("fill","rgb(255, 0, 0)")
+    .on("mouseover", function() { // マウスオーバー時にツールチップを表示
+      self.toolTip
+        .style("left", adjustedCor.x + "px" )
+        .style("top", adjustedCor.y - 23 + "px")
+        .style("visibility","visible")
+        .text( parseInt(adjustedCor.x)  + ", " + parseInt(adjustedCor.y) );
+    })
+    .on("mouseout", function(d) { // マウスアウトするとツールチップを非表示
+      self.toolTip.style("visibility","hidden");
+    });
 
   this.preCor = adjustedCor;
 };
