@@ -48,7 +48,7 @@ function imageViewer () {
  */
 imageViewer.prototype.onScaleup = function ( event ) {
   if ( this.stateMap.image_scale >= 100 ) { return; }
-  this.setScale( this.stateMap.image_scale + 10 );
+  this.setScale( parseInt(this.stateMap.image_scale) + 10 );
 };
 
 /**
@@ -56,7 +56,7 @@ imageViewer.prototype.onScaleup = function ( event ) {
  */
 imageViewer.prototype.onScaledown = function ( event ) {
   if ( this.stateMap.image_scale <= 10 ) { return; }
-  this.setScale( this.stateMap.image_scale - 10 );
+  this.setScale( parseInt(this.stateMap.image_scale) - 10 );
 };
 
 /**
@@ -64,7 +64,11 @@ imageViewer.prototype.onScaledown = function ( event ) {
  */
 imageViewer.prototype.onScaleinput = function ( event ) {
   var scale = event.target.value;
-  this.setScale( scale );
+  if ( isNaN(scale) == false && scale != null ) {
+    this.setScale( scale );
+  } else {
+    this.jqueryMap.$scale_form.val(this.stateMap.image_scale);
+  }
 };
 
 /**
@@ -219,6 +223,8 @@ imageViewer.prototype.setImage = function ( src, scale ) {
   // スケールの反映
   var self = this;
   this.jqueryMap.$scale_form.val(scale);
+  this.jqueryMap.$scale_form
+    .css({ pointerEvents : "auto" });
   this.jqueryMap.$image
     .css({ display: "none" })
     .bind("load", function () {

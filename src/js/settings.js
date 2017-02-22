@@ -66,7 +66,12 @@ Settings.prototype.onSelectImage = function ( event ) {
 };
 
 Settings.prototype.onInputScale = function ( event ) {
-  this.stateMap.draw_scale = event.target.value;
+  var draw_scale = event.target.value;
+  if ( isNaN(draw_scale) == false && draw_scale != null ) {
+    this.stateMap.draw_scale = draw_scale;
+  } else {
+    this.jqueryMap.$image_scale_form.val(this.stateMap.draw_scale);
+  }
 };
 
 /********************************/
