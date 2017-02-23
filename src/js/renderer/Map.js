@@ -72,7 +72,8 @@ Map.prototype.init = function () {
 Map.prototype.render = function ( coordinate ) {
   var adjustedCor = {
     x: coordinate.x,
-    y: coordinate.y
+    // Y 軸の向きを 下 -> 上 にするために，-1 をかける
+    y: coordinate.y * -1
   };
 
   // スケールに合わせる
