@@ -37,7 +37,6 @@ function shell() {
     rendered_page_id : undefined,
     logfile_name : undefined,
     logfile_folder : undefined,
-    deviceMap : [],
     settings : {}
   };
   // 機能モジュール
@@ -65,7 +64,6 @@ shell.prototype.onConnectDevice = function () {
   // プロパティに情報を保持
   this.stateMap.logfile_name   = this.moduleMap.fileInputForm.getLogFileName();
   this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileFolder();
-  this.stateMap.deviceMap      = this.moduleMap.deviceConnector.getDeviceMap();
 
   this.onTransitionTo( { data : "logging-page" } );
   // ヘッダーのリンクを無効化
@@ -99,7 +97,6 @@ shell.prototype.onTransitionTo = function ( event ) {
   if ( this.stateMap.rendered_page_id === "connect-page" ) {
     this.stateMap.logfile_name   = this.moduleMap.fileInputForm.getLogFileName();
     this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileFolder();
-    this.stateMap.deviceMap      = this.moduleMap.deviceConnector.getDeviceMap();
   }
 
   // 一度全ての機能モジュールを削除
@@ -113,7 +110,6 @@ shell.prototype.onTransitionTo = function ( event ) {
   case "connect-page":
     this.moduleMap.deviceConnector.init(
       this.jqueryMap.$body,
-      this.stateMap.deviceMap,
       this.onConnectDevice.bind(this),
       this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
     );

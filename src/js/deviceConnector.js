@@ -99,6 +99,8 @@ deviceConnector.prototype.onFoundDevice = function ( ev, message ) {
 
   // プロパティに追加
   this.stateMap.deviceMap.push(device);
+  // モデルに追加
+  this.ipc.send('updateState', { key: "deviceMap", value: this.stateMap.deviceMap } );
   // DOM 要素に追加
   this.jqueryMap.$device_group.append(
     this.$('<li>')
@@ -158,11 +160,6 @@ deviceConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
 
 /********************************/
 
-
-deviceConnector.prototype.getDeviceMap = function () {
-  return this.stateMap.deviceMap;
-};
-
 /**
  * jQuery オブジェクトをキャッシュする
  *
@@ -183,7 +180,7 @@ deviceConnector.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-deviceConnector.prototype.init = function ( $append_target, deviceMap, callback, messenger ) {
+deviceConnector.prototype.init = function ( $append_target, callback, messenger ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
@@ -195,8 +192,8 @@ deviceConnector.prototype.init = function ( $append_target, deviceMap, callback,
   // メッセージ通知用のコールバック関数
   this.messenger = messenger;
 
-  // モジュール外部から Bluetooth デバイス一覧を更新
-  this.stateMap.deviceMap = deviceMap;
+  // モデルを読み込み，デバイス一覧を初期化する
+  this.stateMap.deviceMap = this.ipc.sendSync('getState', 'deviceMap');
   this.stateMap.deviceMap.forEach( function ( device ) {
     // DOM 要素に追加
     this.jqueryMap.$device_group.append(
