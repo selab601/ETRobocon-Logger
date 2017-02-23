@@ -1,18 +1,18 @@
 function Map ( $append_target_id, width, height, origin, drawScale, onSelectData, theta ) {
   this.append_target_id = $append_target_id;
 
-  this.width  = parseInt(width);
-  this.height = parseInt(height);
+  this.width  = parseFloat(width);
+  this.height = parseFloat(height);
   this.origin = {
-    x: parseInt(origin.x),
-    y: parseInt(origin.y)
+    x: parseFloat(origin.x),
+    y: parseFloat(origin.y)
   };
-  this.drawScale  = parseInt(drawScale);
+  this.drawScale  = parseFloat(drawScale);
   this.preCor = null;
   this.index  = 0;
   this.onSelectData = onSelectData;
   this.zoom = 100;
-  this.theta = isNaN(parseInt(theta)) ? 0 : parseInt(theta);
+  this.theta = isNaN(parseFloat(theta)) ? 0 : parseFloat(theta);
 
   // D3 オブジェクトキャッシュ用
   this.d3ObjectsMap = {};
@@ -74,9 +74,9 @@ Map.prototype.init = function () {
  */
 Map.prototype.render = function ( coordinate ) {
   var adjustedCor = {
-    x: parseInt(coordinate.x),
+    x: parseFloat(coordinate.x),
     // Y 軸の向きを 下 -> 上 にするために，-1 をかける
-    y: parseInt(coordinate.y) * -1
+    y: parseFloat(coordinate.y) * -1
   };
 
   // スケールに合わせる
@@ -118,7 +118,7 @@ Map.prototype.render = function ( coordinate ) {
         .style("left", (adjustedCor.x) * self.zoom/100 + "px" )
         .style("top", (adjustedCor.y - 23) * self.zoom/100 + "px")
         .style("visibility","visible")
-        .text( parseInt(coordinate.x*10)  + ", " + parseInt(coordinate.y*10) );
+        .text( parseFloat(coordinate.x*10)  + ", " + parseFloat(coordinate.y*10) );
     })
     .on("mouseout", function(d) { // マウスアウトするとツールチップを非表示
       self.toolTip.style("visibility","hidden");
