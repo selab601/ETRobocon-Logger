@@ -37,15 +37,14 @@ function Settings () {
   // 動的プロパティ
   this.stateMap = {
     $append_target : undefined,
-    draw_scale : undefined
+    draw_scale     : undefined,
+    rotate_value   : undefined
   };
   // jQuery オブジェクトのキャッシュ用
   this.jqueryMap = {};
-  // jQuery
-  this.$ = require('./lib/jquery-3.1.0.min.js');
   // main プロセスとの通信用モジュール
   this.ipc = require('electron').ipcRenderer;
-
+  // プレビュー画像表示のための機能モジュール
   this.imageViewer = new ImageViewer();
 };
 
@@ -87,6 +86,9 @@ Settings.prototype.onSelectImage = function ( event ) {
   }.bind(this));
 };
 
+/**
+ * 画像のスケール設定用のフォームに文字列が入力された際に呼び出されるイベントハンドラ
+ */
 Settings.prototype.onInputScale = function ( event ) {
   var draw_scale = event.target.value;
   if ( isNaN(draw_scale) == false && draw_scale != null ) {
@@ -94,10 +96,14 @@ Settings.prototype.onInputScale = function ( event ) {
     // モデルに保存
     this.ipc.send('updateState', { doc: "setting", key: "draw_scale", value: this.stateMap.draw_scale });
   } else {
+    // 数値以外が入力されたら，もともと入力されていた値に戻す
     this.jqueryMap.$image_scale_form.val(this.stateMap.draw_scale);
   }
 };
 
+/**
+ * スタート地点の方向設定用のフォームに文字列が入力された際に呼び出されるイベントハンドラ
+ */
 Settings.prototype.onInputRotate = function ( event ) {
   var rotate_value = event.target.value;
   if ( isNaN(rotate_value) == false && rotate_value != null ) {
@@ -106,6 +112,7 @@ Settings.prototype.onInputRotate = function ( event ) {
     // モデルに保存
     this.ipc.send('updateState', { doc: "setting", key: "draw_rotate", value: rotate_value });
   } else {
+    // 数値以外が入力されたら，もともと入力されていた値に戻す
     this.jqueryMap.$map_rotate_form.val(this.stateMap.rotate_value);
   }
 };
@@ -116,7 +123,7 @@ Settings.prototype.onInputRotate = function ( event ) {
 /**
  * 既存の設定情報で設定画面を初期化する
  */
-Settings.prototype.loadSetting = function () {
+Settings.prototype.load = function () {
   var image_path  = this.ipc.sendSync('getState', { doc: 'setting', key: 'image_path' });
   var image_scale = this.ipc.sendSync('getState', { doc: 'setting', key: 'image_scale' });
   var start_point = this.ipc.sendSync('getState', { doc: 'setting', key: 'start_point' });
@@ -187,7 +194,7 @@ Settings.prototype.init = function ( $append_target ) {
   });
 
   // 設定情報から設定画面を以前の設定が行われた状態に初期化する
-  this.loadSetting();
+  this.load();
 
   // イベントハンドラの登録
   this.jqueryMap.$image_search_button.bind( "click", this.onSelectImage.bind(this) );
@@ -209,7 +216,9 @@ Settings.prototype.remove = function () {
 
   // 動的プロパティの初期化
   this.stateMap = {
-    $append_target : undefined
+    $append_target : undefined,
+    draw_scale     : undefined,
+    rotate_value   : undefined
   };
 };
 
