@@ -1,15 +1,18 @@
 function Map ( $append_target_id, width, height, origin, drawScale, onSelectData, theta ) {
   this.append_target_id = $append_target_id;
 
-  this.width  = width;
-  this.height = height;
-  this.origin = origin;
-  this.drawScale  = drawScale;
+  this.width  = parseInt(width);
+  this.height = parseInt(height);
+  this.origin = {
+    x: parseInt(origin.x),
+    y: parseInt(origin.y)
+  };
+  this.drawScale  = parseInt(drawScale);
   this.preCor = null;
   this.index  = 0;
   this.onSelectData = onSelectData;
   this.zoom = 100;
-  this.theta = theta === undefined ? 0 : theta;
+  this.theta = isNaN(parseInt(theta)) ? 0 : parseInt(theta);
 
   // D3 オブジェクトキャッシュ用
   this.d3ObjectsMap = {};
@@ -71,13 +74,13 @@ Map.prototype.init = function () {
  */
 Map.prototype.render = function ( coordinate ) {
   var adjustedCor = {
-    x: coordinate.x,
+    x: parseInt(coordinate.x),
     // Y 軸の向きを 下 -> 上 にするために，-1 をかける
-    y: coordinate.y * -1
+    y: parseInt(coordinate.y) * -1
   };
 
   // スケールに合わせる
-  if ( this.drawScale != undefined ) {
+  if ( ! isNaN(this.drawScale) ) {
     adjustedCor.x /= this.drawScale;
     adjustedCor.y /= this.drawScale;
   }
