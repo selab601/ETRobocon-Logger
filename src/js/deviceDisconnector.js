@@ -81,7 +81,7 @@ deviceDisconnector.prototype.init = function ( $append_target, callback, messeng
   // ロギング結果を保存するログファイル名
   // 現状，main プロセス側は，最初は一時ファイルにデータを保存しているため，
   // これを指定したログファイル名にリネームする必要がある．
-  this.stateMap.logFileName = this.ipc.sendSync('getState', 'logFileName');
+  this.stateMap.logFileName = this.ipc.sendSync('getState', { doc: 'app', key: 'logFileName' });
   // 接続解除成功時に実行されるコールバック関数
   this.callback = callback;
   // ユーザへの通知用コールバック関数

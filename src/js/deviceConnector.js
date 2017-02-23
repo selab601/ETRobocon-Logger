@@ -100,7 +100,7 @@ deviceConnector.prototype.onFoundDevice = function ( ev, message ) {
   // プロパティに追加
   this.stateMap.deviceMap.push(device);
   // モデルに追加
-  this.ipc.send('updateState', { key: "deviceMap", value: this.stateMap.deviceMap } );
+  this.ipc.send('updateState', { doc: 'app', key: "deviceMap", value: this.stateMap.deviceMap } );
   // DOM 要素に追加
   this.jqueryMap.$device_group.append(
     this.$('<li>')
@@ -193,7 +193,7 @@ deviceConnector.prototype.init = function ( $append_target, callback, messenger 
   this.messenger = messenger;
 
   // モデルを読み込み，デバイス一覧を初期化する
-  this.stateMap.deviceMap = this.ipc.sendSync('getState', 'deviceMap');
+  this.stateMap.deviceMap = this.ipc.sendSync('getState', { doc: 'app', key: 'deviceMap' });
   this.stateMap.deviceMap.forEach( function ( device ) {
     // DOM 要素に追加
     this.jqueryMap.$device_group.append(

@@ -56,7 +56,7 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
   this.stateMap.logFileName = event.target.value;
   // main プロセス側に送信
   this.ipc.send('updateLogFileName', this.stateMap.logFileName);
-  this.ipc.send('updateState', { key: 'logFileName', value: this.stateMap.logFileName } );
+  this.ipc.send('updateState', { doc: 'app', key: 'logFileName', value: this.stateMap.logFileName } );
 };
 
 /**
@@ -77,8 +77,8 @@ fileInputForm.prototype.onInitLogFilePath = function ( ev, message ) {
   this.jqueryMap.$directory_form.val(message.folder);
 
   // モデルに保持する
-  this.ipc.send('updateState', { key: 'logFileName', value: this.stateMap.logFileName });
-  this.ipc.send('updateState', { key: 'logFileFolder', value: this.stateMap.logFileFolder });
+  this.ipc.send('updateState', { doc: 'app', key: 'logFileName', value: this.stateMap.logFileName });
+  this.ipc.send('updateState', { doc: 'app', key: 'logFileFolder', value: this.stateMap.logFileFolder });
 };
 
 /**
@@ -99,7 +99,7 @@ fileInputForm.prototype.onSearchDirectory = function ( event ) {
     this.jqueryMap.$directory_form.val( directories[0] );
     // main プロセス側に送信
     this.ipc.send('updateLogFileDirectory', this.stateMap.logFileFolder);
-    this.ipc.send('updateState', { key: 'logFileFolder', value: this.stateMap.logFileFolder });
+    this.ipc.send('updateState', { doc: 'app', key: 'logFileFolder', value: this.stateMap.logFileFolder });
   }.bind(this));
 };
 
@@ -139,7 +139,7 @@ fileInputForm.prototype.init = function ( $append_target ) {
   this.setJqueryMap();
 
   // ログファイルディレクトリ初期化
-  var fileName = this.ipc.sendSync('getState', 'logFileFolder');
+  var fileName = this.ipc.sendSync('getState', { doc: 'app', key: 'logFileFolder' });
   if ( fileName != '' ) {
     this.stateMap.logFileFolder = fileName;
     this.jqueryMap.$directory_form.val(fileName);
@@ -147,7 +147,7 @@ fileInputForm.prototype.init = function ( $append_target ) {
   }
 
   // ログファイル名初期化
-  var folderName = this.ipc.sendSync('getState', 'logFileName');
+  var folderName = this.ipc.sendSync('getState', { doc: 'app', key: 'logFileName' });
   if ( folderName != '' ) {
     this.stateMap.logFileName = folderName;
     this.jqueryMap.$input_form.val(folderName);
