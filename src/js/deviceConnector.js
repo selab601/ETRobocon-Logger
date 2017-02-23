@@ -34,16 +34,16 @@ function deviceConnector () {
   };
   // 動的プロパティ
   this.stateMap = {
-    $append_target : undefined,
-    deviceMap: [],
+    $append_target          : undefined,
+    deviceMap               : [],
     selected_device_address : undefined
   };
   // jQuery オブジェクトのキャッシュ用
   this.jqueryMap = {};
-  // Bluetooth デバイスとの接続成功時に実行されるコールバック関数
-  this.callback = undefined;
+  // Bluetooth デバイスとの接続成功後に実行されるコールバック関数
+  this.onConnectDeviceCompleted = undefined;
   // ユーザへ通知を行うコールバック関数
-  this.messenger = undefined;
+  this.onNotify = undefined;
   // main プロセスとの通信用モジュール
   this.ipc = require('electron').ipcRenderer;
   // jQuery
@@ -60,8 +60,7 @@ function deviceConnector () {
  * また，更新中は更新ボタン，接続ボタンを押下できないようにする．
  */
 deviceConnector.prototype.onUpdateDevices = function () {
-  this.ipc.send('updateDevices', '');
-
+  this.ipc.send('updateDevices');
   this.jqueryMap.$update_btn.addClass('disabled');
   this.jqueryMap.$connect_btn.addClass('disabled');
 };
@@ -72,8 +71,7 @@ deviceConnector.prototype.onUpdateDevices = function () {
  * main プロセス側で取得が完了した際に実行される
  */
 deviceConnector.prototype.onUpdateDevicesComplete = function ( ev, message ) {
-  console.log(message);
-  this.messenger( message.title, message.body );
+  this.onNotify( message.title, message.body );
   this.jqueryMap.$update_btn.removeClass('disabled');
   this.jqueryMap.$connect_btn.removeClass('disabled');
 };
@@ -88,14 +86,9 @@ deviceConnector.prototype.onFoundDevice = function ( ev, message ) {
   var device = message;
 
   // リストに追加済みであったなら追加しない
-  var isAlreadyAdded = false;
-  this.stateMap.deviceMap.forEach(function (d) {
-    if ( d.address === device.address ) {
-      isAlreadyAdded = true;
-      return;
-    }
-  });
-  if ( isAlreadyAdded ) { return; }
+  for ( var i=0; i < this.stateMap.deviceMap.length; i++ ) {
+    if ( this.stateMap.deviceMap[i].address === device.address ) { return; }
+  }
 
   // プロパティに追加
   this.stateMap.deviceMap.push(device);
@@ -116,10 +109,14 @@ deviceConnector.prototype.onFoundDevice = function ( ev, message ) {
  */
 deviceConnector.prototype.onSelectDevice = function ( event ) {
   // 既に別のデバイスが選択済みであったなら，選択を外す
-  this.jqueryMap.$device_group.find(".selected").removeClass("selected");
-
-  this.$(event.target).addClass("selected");
+  if ( this.jqueryMap.$selected_device != undefined ) {
+    this.jqueryMap.$selected_device.removeClass("selected");
+  }
+  // プロパティに追加
   this.stateMap.selected_device_address = event.data;
+  // DOM 要素に描画
+  this.jqueryMap.$selected_device = this.$(event.target);
+  this.jqueryMap.$selected_device.addClass("selected");
 };
 
 /**
@@ -143,8 +140,8 @@ deviceConnector.prototype.onConnectDevice = function ( event ) {
  * 登録されたコールバック関数を実行する．
  */
 deviceConnector.prototype.onConnectDeviceComplete = function ( ev, message ) {
-  this.messenger( message.title, message.body );
-  this.callback();
+  this.onNotify( message.title, message.body );
+  this.onConnectDeviceCompleted();
 };
 
 /**
@@ -153,12 +150,26 @@ deviceConnector.prototype.onConnectDeviceComplete = function ( ev, message ) {
  * TODO: メッセージをユーザに向けて表示
  */
 deviceConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
-  this.messenger( message.title, message.body );
+  this.onNotify( message.title, message.body );
   this.jqueryMap.$update_btn.removeClass('disabled');
   this.jqueryMap.$connect_btn.removeClass('disabled');
 };
 
 /********************************/
+
+/**
+ * モデルを読み込み，DOM 要素のデバイス一覧を初期化する
+ */
+deviceConnector.prototype.loadDevices = function () {
+  this.stateMap.deviceMap = this.ipc.sendSync('getState', { doc: 'app', key: 'deviceMap' });
+  this.stateMap.deviceMap.forEach( function ( device ) {
+    this.jqueryMap.$device_group.append(
+      this.$('<li>')
+        .addClass( "device-connector-device-name" )
+        .text( device.name )
+        .bind( 'click', device.address, this.onSelectDevice.bind(this) ));
+  }.bind(this));
+}
 
 /**
  * jQuery オブジェクトをキャッシュする
@@ -170,17 +181,18 @@ deviceConnector.prototype.onConnectDeviceFailed = function ( ev, message ) {
 deviceConnector.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
-    $append_target : $append_target,
-    $device_group  : $append_target.find("#device-connector-device-group"),
-    $update_btn    : $append_target.find("#device-connector-update-button"),
-    $connect_btn   : $append_target.find("#device-connector-connect-button")
+    $append_target  : $append_target,
+    $device_group   : $append_target.find("#device-connector-device-group"),
+    $update_btn     : $append_target.find("#device-connector-update-button"),
+    $connect_btn    : $append_target.find("#device-connector-connect-button"),
+    $slected_device : undefined
   };
 };
 
 /**
  * 機能モジュールの初期化
  */
-deviceConnector.prototype.init = function ( $append_target, callback, messenger ) {
+deviceConnector.prototype.init = function ( $append_target, onConnectDeviceCompleted, onNotify ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
@@ -188,20 +200,11 @@ deviceConnector.prototype.init = function ( $append_target, callback, messenger 
   this.setJqueryMap();
 
   // Bluetooth デバイスとの接続が完了したときに実行されるコールバック関数
-  this.callback = callback;
+  this.onConnectDeviceCompleted = onConnectDeviceCompleted;
   // メッセージ通知用のコールバック関数
-  this.messenger = messenger;
-
-  // モデルを読み込み，デバイス一覧を初期化する
-  this.stateMap.deviceMap = this.ipc.sendSync('getState', { doc: 'app', key: 'deviceMap' });
-  this.stateMap.deviceMap.forEach( function ( device ) {
-    // DOM 要素に追加
-    this.jqueryMap.$device_group.append(
-      this.$('<li>')
-        .addClass( "device-connector-device-name" )
-        .text( device.name )
-        .bind( 'click', device.address, this.onSelectDevice.bind(this) ));
-  }.bind(this));
+  this.onNotify = onNotify;
+  // デバイス群のロード
+  this.loadDevices();
 
   /***** イベントハンドラを登録 *****/
   // DOM 要素へのユーザ操作に反応するイベントハンドラ
@@ -235,12 +238,12 @@ deviceConnector.prototype.remove = function () {
 
   // 動的プロパティの初期化
   this.stateMap = {
-    $append_target : undefined,
-    deviceMap: [],
+    $append_target          : undefined,
+    deviceMap               : [],
     selected_device_address : undefined
   };
   this.callback = undefined;
-  this.messenger = undefined;
+  this.onNotify = undefined;
 };
 
 module.exports = deviceConnector;
