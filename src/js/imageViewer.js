@@ -163,10 +163,14 @@ imageViewer.prototype.setStartPoint = function ( start_point, scale ) {
     this.jqueryMap.$start_point.remove();
   }
   this.jqueryMap.$start_point =
-    this.$("<div></div>")
+    this.$("<img></img>")
     .attr("id", "imageviewer-startpoint")
-    .css("left", start_point.x+"px")
-    .css("top", start_point.y+"px");
+    .attr("src", "./resources/device_icon.png")
+    // WARNING: 画像の位置を調整する
+    //          画像の中心がスタート地点になるようにしているが，微妙にずれている
+    //          start_poing の座標の計算方法(マウスクリックからの座標の計算方法)にミスがあるかも...
+    .css("left", (parseInt(start_point.x)-5)+"px")
+    .css("top", (parseInt(start_point.y)-10)+"px");
   this.jqueryMap.$image_wrapper
     .append( this.jqueryMap.$start_point );
 

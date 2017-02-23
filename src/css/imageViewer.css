@@ -107,8 +107,7 @@
 #imageviewer-startpoint {
   position: absolute;
   display: inline;
-  width: 5px;
-  height: 5px;
-  border-radius: 3px;
-  background-color: red;
+  height: 16px;
+  width: 8px;
+  background-image: url("../resources/device_icon.png");
 }
