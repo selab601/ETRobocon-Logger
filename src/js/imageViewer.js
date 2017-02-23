@@ -24,11 +24,12 @@ function imageViewer () {
   };
   // 動的プロパティ
   this.stateMap = {
-    $append_target : undefined,
-    image_path     : undefined,
-    image_scale    : undefined,
+    $append_target     : undefined,
+    image_path         : undefined,
+    image_scale        : undefined,
     // デバイスの出発位置．マップ描画時に利用する
-    start_point    : undefined
+    start_point        : undefined,
+    start_point_rotate : undefined
   };
   this.flags = {
     enableStartPointSetting : false
@@ -157,6 +158,10 @@ imageViewer.prototype.setStartPoint = function ( start_point, scale ) {
     .css("top", (parseInt(start_point.y)-10)+"px");
   this.jqueryMap.$image_wrapper
     .append( this.jqueryMap.$start_point );
+  // 回転角度が指定されていたら反映する
+  if ( this.stateMap.start_point_rotate != undefined ) {
+    this.rotateStartPoint( this.stateMap.start_point_rotate );
+  }
 
   /*** プロパティに保持 ***/
   this.stateMap.start_point = {
@@ -245,8 +250,8 @@ imageViewer.prototype.setImage = function ( src, scale ) {
 imageViewer.prototype.rotateStartPoint = function ( rotate_value ) {
   this.jqueryMap.$start_point
     .css("transform", "rotate("+rotate_value+"deg)");
+  this.stateMap.start_point_rotate = rotate_value;
 };
-
 
 /**
  * jQuery オブジェクトをキャッシュする
