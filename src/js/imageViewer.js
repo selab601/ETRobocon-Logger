@@ -10,12 +10,12 @@ function imageViewer () {
         <div class="imageviewer">
           <div class="imageviewer-title">
             Preview
-            <div class="imageviewer-scaleup-button">
-              <img src="resources/scaleup_icon.png">
-            </div>
-            <input type="text" class="imageviewer-scale-form"/>
             <div class="imageviewer-scaledown-button">
               <img src="resources/scaledown_icon.png">
+            </div>
+            <input type="text" class="imageviewer-scale-form"/>
+            <div class="imageviewer-scaleup-button">
+              <img src="resources/scaleup_icon.png">
             </div>
           </div>
           <div class="imageviewer-preview-box"></div>
