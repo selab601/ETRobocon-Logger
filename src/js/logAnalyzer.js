@@ -7,6 +7,8 @@ const remote = require('electron').remote;
 const Dialog = remote.dialog;
 // グラフ描画用のモジュール
 const D3GraphRenderer = require('./renderer/D3GraphRenderer.js');
+// マップ描画用のモジュール
+const MapRenderer = require('./renderer/MapRenderer.js');
 
 function logAnalyzer() {
   // 静的なプロパティ
@@ -18,20 +20,30 @@ function logAnalyzer() {
             <input type="text" id="log-analyzer-form"/>
             <div id="log-analyzer-select-button">SELECT</div>
           </div>
-          <div id="log-analyzer-graph"></div>
+          <nav class="tabs">
+            <div id="log-analyzer-tab-graph" class="tab selected">
+              <div class="tab-header"></div>
+              <div class="tab-body">Graph</div>
+            </div>
+            <div id="log-analyzer-tab-map" class="tab">
+              <div class="tab-header"></div>
+              <div class="tab-body">Map</div>
+            </div>
+          </nav>
+          <div id="log-analyzer-graph" class="tab-content selected"></div>
+          <div id="log-analyzer-map" class="tab-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_map : require('./config/logged_values.js').values
   };
   // 動的なプロパティ
   this.stateMap = {
-    $append_target : undefined,
-    logFilePath    : undefined
+    $append_target  : undefined,
+    logFilePath     : undefined,
+    logFileSettings : undefined
   };
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
-  // jQuery
-  this.$ = require('./lib/jquery-3.1.0.min.js');
 
   // レンダリング用モジュールの初期化
   var keymap = [];
@@ -39,6 +51,7 @@ function logAnalyzer() {
     keymap.push(data.id);
   }.bind(this));
   this.graphRenderer = new D3GraphRenderer( keymap, keymap, null, "log-analyzer-graph" );
+  this.mapRenderer   = new MapRenderer();
 };
 
 
@@ -65,20 +78,21 @@ logAnalyzer.prototype.onSelectFile = function () {
     // TODO: ファイルパスが長いと見辛いので，どうにかする
     this.jqueryMap.$form.val(fileNames[0]);
 
+    // ログファイルの読み込みに失敗したら何もしない
+    // TODO: ユーザへのメッセージの描画
+    var values = this.getLogFileData();
+    if ( values === null ) { return; }
+
     // グラフの描画
-    this.onRenderGraphFromLogFile();
+    this.onRenderGraphFromLogFile( values );
+    this.onRenderMapFromLogFile( values );
   });
 };
 
 /**
- * ログファイル選択時に呼び出されるイベントハンドラ
+   * グラフ描画時に呼び出されるイベントハンドラ
  */
-logAnalyzer.prototype.onRenderGraphFromLogFile = function () {
-  // ログファイルの読み込みに失敗したら何もしない
-  // TODO: ユーザへのメッセージの描画
-  var values = this.getLogFileData();
-  if ( values === null ) { return; }
-
+logAnalyzer.prototype.onRenderGraphFromLogFile = function ( values ) {
   this.graphRenderer.initialize();
 
   for (var i=0; i<Object.keys(values).length; i++) {
@@ -91,6 +105,53 @@ logAnalyzer.prototype.onRenderGraphFromLogFile = function () {
   this.graphRenderer.renderAll(null, null, ["brush", "focus", "mark"]);
 };
 
+/**
+ * マップ描画時に呼び出されるイベントハンドラ
+ */
+logAnalyzer.prototype.onRenderMapFromLogFile = function ( values ) {
+  if ( this.stateMap.logFileSettings == undefined ) { return; }
+
+  this.mapRenderer.init( this.jqueryMap.$content_map, this.stateMap.logFileSettings, this.onSelectData.bind(this));
+
+  for (var i=0; i<Object.keys(values).length; i++) {
+    var obj = JSON.parse(values[i]);
+    this.mapRenderer.render( obj.coordinate_x/10, obj.coordinate_y/10 );
+  }
+};
+
+/**
+ * マップ上のデータ選択時に呼び出されるイベントハンドラ
+ */
+logAnalyzer.prototype.onSelectData = function ( index ) {
+  this.graphRenderer.onRenderMark(index);
+};
+
+/**
+ * タブ選択時に呼び出されるコールバック関数
+ *
+ * 選択されたタブに応じて描画を切り替える．
+ */
+logAnalyzer.prototype.onSelectTab = function ( event ) {
+  // 既に選択済みのタブ等から選択を外す
+  this.jqueryMap.$selected_tab.removeClass("selected");
+  this.jqueryMap.$selected_content.removeClass("selected");
+
+  switch ( event.currentTarget.id ) {
+  case "log-analyzer-tab-graph":
+    this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_graph;
+    this.jqueryMap.$selected_content = this.jqueryMap.$content_graph;
+    break;
+  case "log-analyzer-tab-map":
+    this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_map;
+    this.jqueryMap.$selected_content = this.jqueryMap.$content_map;
+    break;
+  }
+
+  this.jqueryMap.$selected_tab.addClass("selected");
+  this.jqueryMap.$selected_content.addClass("selected");
+};
+
+
 /****************************/
 
 
@@ -98,8 +159,12 @@ logAnalyzer.prototype.onRenderGraphFromLogFile = function () {
  * ログファイルからデータを取得する
  *
  * @return データの読み込みに成功した場合は，JSON 文字列が格納された配列を返す
- *         例) [ { / JSON / }, { / JSON / }, ... , { / JSON / }]
  *         読み込みに失敗した場合は null を返す
+ *         <ログファイルの形式について>
+ *         ログファイルは，header と body の2つからなる
+ *         また，header と body との間は `EOF` という文字列の行で区切られる
+ *         - header : ログファイル固有の設定情報．1行で表すものとする．
+ *         - body   : ログデータ
  */
 logAnalyzer.prototype.getLogFileData = function () {
   if ( this.stateMap.logFilePath === undefined ) { return null; }
@@ -109,12 +174,23 @@ logAnalyzer.prototype.getLogFileData = function () {
 
   // TODO: ファイルを開くのに失敗した場合のエラー処理
   var contents = fs.readFileSync(this.stateMap.logFilePath);
+
   var lines = contents
         .toString()
         .split('\n');
-  for (var i=0; i<lines.length; i++) {
+  // ヘッダー部分の読み込み
+  var i = 0;
+  for (; i<lines.length; i++) {
+    if ( lines[i] === "EOH" ) {
+      i++;
+      break;
+    }
+    this.stateMap.logFileSettings = JSON.parse(lines[i]);
+  }
+  for (; i<lines.length; i++) {
     values.push(lines[i]);
   }
+
   // 最後に余分な改行があるので削除
   values.pop();
 
@@ -132,8 +208,14 @@ logAnalyzer.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
     $append_target : $append_target,
+    $log_analyzer  : $append_target.find("#log-analyzer"),
+    $tab           : $append_target.find(".tab"),
     $form          : $append_target.parent().find("#log-analyzer-form"),
-    $select_button : $append_target.parent().find("#log-analyzer-select-button")
+    $select_button : $append_target.parent().find("#log-analyzer-select-button"),
+    $tab_graph     : $append_target.find("#log-analyzer-tab-graph"),
+    $tab_map       : $append_target.find("#log-analyzer-tab-map"),
+    $content_graph : $append_target.find("#log-analyzer-graph"),
+    $content_map   : $append_target.find("#log-analyzer-map")
   };
 };
 
@@ -147,8 +229,13 @@ logAnalyzer.prototype.init = function ( $append_target ) {
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
 
+  // タブ選択の初期化
+  this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_graph;
+  this.jqueryMap.$selected_content = this.jqueryMap.$content_graph;
+
   // イベントハンドラを登録
   this.jqueryMap.$select_button.bind( "click", this.onSelectFile.bind(this) );
+  this.jqueryMap.$tab.bind( 'click', this.onSelectTab.bind(this) );
 };
 
 /**
@@ -160,14 +247,15 @@ logAnalyzer.prototype.init = function ( $append_target ) {
 logAnalyzer.prototype.remove = function () {
   // DOM 要素削除
   if ( Object.keys(this.jqueryMap).length != 0 ) {
-    this.stateMap.$append_target.find("#log-analyzer").remove();
+    this.jqueryMap.$log_analyzer.remove();
     this.jqueryMap = {};
   }
 
   // 動的プロパティの初期化
   this.stateMap = {
-    $append_target : undefined,
-    logFilePath    : undefined
+    $append_target  : undefined,
+    logFilePath     : undefined,
+    logFileSettings : undefined
   };
 };
 

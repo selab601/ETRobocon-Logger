@@ -1,6 +1,5 @@
 /**
- * ファイル名の入力用フォームを提供する
- * TODO: 保存先となるディレクトリを変更できるようにする
+ * ログファイルの名前及びその保存先ディレクトリの入力用フォームを提供する
  */
 
 // ファイル選択のためのモジュール
@@ -49,13 +48,12 @@ function fileInputForm() {
  * フォーム内で文字列が編集された際に呼び出されるイベントハンドラ
  *
  * 入力された文字列でメモリ上のファイル名を更新する
- * TODO: テキスト編集ごとに送信しているので送信回数が多くなってしまう
  */
 fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
   // プロパティに保持
   this.stateMap.logFileName = event.target.value;
   // main プロセス側に送信
-  this.ipc.send('updateLogFileName', this.stateMap.logFileName);
+  this.ipc.send('updateState', { doc: 'app', key: 'logFileName', value: this.stateMap.logFileName } );
 };
 
 /**
@@ -67,13 +65,17 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
  */
 fileInputForm.prototype.onInitLogFilePath = function ( ev, message ) {
   this.stateMap.logFileFolder = message.folder;
-  this.stateMap.logFileName = message.name;
+  this.stateMap.logFileName   = message.name;
 
   // DOM 要素が描画前であれば，描画しない
   // この場合，DOM 要素描画時にログファイル名が描画される．
   if ( this.jqueryMap.$input_form === undefined ) { return; }
   this.jqueryMap.$input_form.val(message.name);
   this.jqueryMap.$directory_form.val(message.folder);
+
+  // モデルに保持する
+  this.ipc.send('updateState', { doc: 'app', key: 'logFileName', value: this.stateMap.logFileName });
+  this.ipc.send('updateState', { doc: 'app', key: 'logFileFolder', value: this.stateMap.logFileFolder });
 };
 
 /**
@@ -93,23 +95,11 @@ fileInputForm.prototype.onSearchDirectory = function ( event ) {
     // DOM に描画
     this.jqueryMap.$directory_form.val( directories[0] );
     // main プロセス側に送信
-    this.ipc.send('updateLogFileDirectory', this.stateMap.logFileFolder);
+    this.ipc.send('updateState', { doc: 'app', key: 'logFileFolder', value: this.stateMap.logFileFolder });
   }.bind(this));
 };
 
 /****************************/
-
-
-/**
- * ログファイル名の getter
- */
-fileInputForm.prototype.getLogFileName = function () {
-  return this.stateMap.logFileName;
-};
-
-fileInputForm.prototype.getLogFileFolder = function () {
-  return this.stateMap.logFileFolder;
-};
 
 /**
  * jQuery オブジェクトをキャッシュする
@@ -121,10 +111,10 @@ fileInputForm.prototype.getLogFileFolder = function () {
 fileInputForm.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
-    $append_target : $append_target,
-    $input_form : $append_target.parent().find(".file-input-form-text.file"),
+    $append_target  : $append_target,
+    $input_form     : $append_target.parent().find(".file-input-form-text.file"),
     $directory_form : $append_target.parent().find(".file-input-form-text.directory"),
-    $search_button : $append_target.parent().find(".file-input-form-search-button")
+    $search_button  : $append_target.parent().find(".file-input-form-search-button")
   };
 
   // DOM 要素描画後，ログファイル名が設定されていれば初期化
@@ -137,28 +127,29 @@ fileInputForm.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-fileInputForm.prototype.init = function ( $append_target, settings ) {
+fileInputForm.prototype.init = function ( $append_target ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.after( this.configMap.main_html );
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
 
-  if ( settings.log_file_directory != undefined ) {
-    // ログファイルディレクトリ初期化
-    this.stateMap.logFileFolder = settings.log_file_directory;
-    this.jqueryMap.$directory_form.val(settings.log_file_directory);
-    this.ipc.send('updateLogFileDirectory', settings.log_file_directory);
+  // ログファイルディレクトリ初期化
+  var fileName = this.ipc.sendSync('getState', { doc: 'app', key: 'logFileFolder' });
+  if ( fileName != '' ) {
+    this.stateMap.logFileFolder = fileName;
+    this.jqueryMap.$directory_form.val(fileName);
   }
-  if ( settings.log_file_name != undefined ) {
-    // ログファイル名初期化
-    this.stateMap.logFileName = settings.log_file_name;
-    this.jqueryMap.$input_form.val(settings.log_file_name);
-    this.ipc.send('updateLogFileName', settings.log_file_name);
+
+  // ログファイル名初期化
+  var folderName = this.ipc.sendSync('getState', { doc: 'app', key: 'logFileName' });
+  if ( folderName != '' ) {
+    this.stateMap.logFileName = folderName;
+    this.jqueryMap.$input_form.val(folderName);
   }
 
   // イベントハンドラを登録
-  this.jqueryMap.$input_form.bind( 'keyup', this.onUpdateLogFileName.bind(this) );
+  this.jqueryMap.$input_form.bind( 'change', this.onUpdateLogFileName.bind(this) );
   this.jqueryMap.$search_button.bind( 'click', this.onSearchDirectory.bind(this) );
   this.ipc.on('initLogFilePath', this.onInitLogFilePath.bind(this));
 };
@@ -181,8 +172,8 @@ fileInputForm.prototype.remove = function () {
 
   // 動的プロパティ初期化
   this.stateMap = {
-    logFileName: undefined,
-    $append_target: undefined
+    logFileName    : undefined,
+    $append_target : undefined
   };
 };
 

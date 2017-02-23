@@ -52,6 +52,14 @@
   background: rgb(0,50,100);
 }
 
-#log-analyzer-graph {
-  margin-top: 70px;
+#log-analyzer > .tabs {
+  margin-top: calc(50px + 10px);
+}
+
+#log-analyzer > .tab-content {
+  height: calc( 100% - 40px - 2px - 10px - 50px );
+}
+
+#log-analyzer > .tabs > .tab.selected > .tab-header {
+  background-color: rgb(0, 190, 24);
 }

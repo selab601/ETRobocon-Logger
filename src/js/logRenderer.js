@@ -21,21 +21,21 @@ function logRenderer() {
     main_html : (function () {
       /*
         <div id="log-renderer">
-          <nav id="log-renderer-tabs">
-            <div id="log-renderer-tab-graph" class="log-renderer-tab selected">
-              <div class="log-renderer-tab-header"></div>
-              <div class="log-renderer-tab-body">Graph</div>
+          <nav class="tabs">
+            <div id="log-renderer-tab-graph" class="tab selected">
+              <div class="tab-header"></div>
+              <div class="tab-body">Graph</div>
             </div>
-            <div id="log-renderer-tab-table" class="log-renderer-tab">
-              <div class="log-renderer-tab-header"></div>
-              <div class="log-renderer-tab-body">Table</div>
+            <div id="log-renderer-tab-table" class="tab">
+              <div class="tab-header"></div>
+              <div class="tab-body">Table</div>
             </div>
-            <div id="log-renderer-tab-map" class="log-renderer-tab">
-              <div class="log-renderer-tab-header"></div>
-              <div class="log-renderer-tab-body">Map</div>
+            <div id="log-renderer-tab-map" class="tab">
+              <div class="tab-header"></div>
+              <div class="tab-body">Map</div>
             </div>
           </nav>
-          <div id="log-renderer-content-graph" class="log-renderer-content selected">
+          <div id="log-renderer-content-graph" class="tab-content selected">
             <div id="log-renderer-list-box">
               <div class="log-renderer-list-header">
                 Render Graph
@@ -44,8 +44,8 @@ function logRenderer() {
             </div>
             <div id="log-renderer-content-graph-box"></div>
           </div>
-          <div id="log-renderer-content-table" class="log-renderer-content"></div>
-          <div id="log-renderer-content-map" class="log-renderer-content"></div>
+          <div id="log-renderer-content-table" class="tab-content"></div>
+          <div id="log-renderer-content-map" class="tab-content"></div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_base_html : (function () {
@@ -103,7 +103,7 @@ logRenderer.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   }.bind(this));
 
   // Map の描画
-  this.mapRenderer.render( data["coordinate_x"]/10, data["coordinate_y"]/10 );
+  this.mapRenderer.render( data["coordinate_x"]/10, data["coordinate_y"]/10, data["clock"] );
 
   // グラフの描画
   this.graphRenderer.renderAll(null, null, ["label", "focus"]);
@@ -134,23 +134,26 @@ logRenderer.prototype.onUpdateRenderValue = function ( event ) {
  */
 logRenderer.prototype.onSelectTab = function ( event ) {
   // 既に選択済みのタブ等から選択を外す
-  // TODO: 選択したタブ等は dom を参照するのではなくメモリ上に保存すべき
-  this.jqueryMap.$append_target.find(".selected").removeClass("selected");
+  this.jqueryMap.$selected_tab.removeClass("selected");
+  this.jqueryMap.$selected_content.removeClass("selected");
 
   switch ( event.currentTarget.id ) {
   case "log-renderer-tab-table":
-    this.jqueryMap.$tab_table.addClass("selected");
-    this.jqueryMap.$content_table.addClass("selected");
+    this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_table;
+    this.jqueryMap.$selected_content = this.jqueryMap.$content_table;
     break;
   case "log-renderer-tab-graph":
-    this.jqueryMap.$tab_graph.addClass("selected");
-    this.jqueryMap.$content_graph.addClass("selected");
+    this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_graph;
+    this.jqueryMap.$selected_content = this.jqueryMap.$content_graph;
     break;
   case "log-renderer-tab-map":
-    this.jqueryMap.$tab_map.addClass("selected");
-    this.jqueryMap.$content_map.addClass("selected");
+    this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_map;
+    this.jqueryMap.$selected_content = this.jqueryMap.$content_map;
     break;
   }
+
+  this.jqueryMap.$selected_tab.addClass("selected");
+  this.jqueryMap.$selected_content.addClass("selected");
 };
 
 /*********************/
@@ -190,7 +193,7 @@ logRenderer.prototype.setJqueryMap = function () {
   this.jqueryMap = {
     $append_target : $append_target,
     $list          : $append_target.find(".log-renderer-list"),
-    $tab           : $append_target.find(".log-renderer-tab"),
+    $tab           : $append_target.find(".tab"),
     $tab_graph     : $append_target.find("#log-renderer-tab-graph"),
     $tab_table     : $append_target.find("#log-renderer-tab-table"),
     $tab_map       : $append_target.find("#log-renderer-tab-map"),
@@ -203,7 +206,7 @@ logRenderer.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-logRenderer.prototype.init = function ( $append_target, map_settings ) {
+logRenderer.prototype.init = function ( $append_target ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
@@ -213,9 +216,19 @@ logRenderer.prototype.init = function ( $append_target, map_settings ) {
   // 描画する値の種類一覧をビューに描画する
   this.initGraphValuesList();
 
+  // タブ選択の初期化
+  this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_graph;
+  this.jqueryMap.$selected_content = this.jqueryMap.$content_graph;
+
   // レンダリングモジュールの初期化
   this.tableRenderer.initModule( this.jqueryMap.$content_table );
-  this.mapRenderer.init( this.jqueryMap.$content_map, map_settings );
+  this.mapRenderer.init( this.jqueryMap.$content_map, {
+    image_path          : this.ipc.sendSync('getState', { doc: 'setting', key: 'image_path'}),
+    image_original_size : this.ipc.sendSync('getState', { doc: 'setting', key: 'image_original_size'}),
+    start_point         : this.ipc.sendSync('getState', { doc: 'setting', key: 'start_point'}),
+    draw_scale          : this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_scale'}),
+    draw_rotate         : this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_rotate'})
+  });
 
   // イベントハンドラを登録
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
