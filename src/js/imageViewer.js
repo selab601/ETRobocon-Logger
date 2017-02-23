@@ -37,9 +37,6 @@ function imageViewer () {
   this.jqueryMap = {};
   // jQuery
   this.$ = require('./lib/jquery-3.1.0.min.js');
-  // main プロセスとの通信用モジュール
-  // TODO: このモジュール内で main プロセスと通信させたくない
-  this.ipc = require('electron').ipcRenderer;
 };
 
 
@@ -94,9 +91,15 @@ imageViewer.prototype.onSetStartPoint = function ( event ) {
  * スケーリング時に実行するイベントハンドラを登録する
  */
 imageViewer.prototype.setOnScaleHandler = function ( handler ) {
-  this.scaleHandler = handler;
+  this.onScaleHandler = handler;
 };
 
+/**
+ * スタート地点登録時に実行するイベントハンドラを登録する
+ */
+imageViewer.prototype.setOnSetStartPoint = function ( handler ) {
+  this.onSetStartPointHandler = handler;
+};
 
 /****************************/
 
@@ -123,14 +126,9 @@ imageViewer.prototype.setScale = function ( scale ) {
     this.updateStartPoint( scale, pre_scale );
   }
 
-  if ( this.scaleHandler != undefined ) {
-    this.scaleHandler( scale );
+  if ( this.onScaleHandler != undefined ) {
+    this.onScaleHandler( scale );
   }
-
-  // モデルに追加
-  // TODO: imageView 全体でスケールが共有されるのはおかしい
-  //       settings モジュール，あるいは imageViewer のインスタンス？毎に保持されるべきでは
-  this.ipc.send('updateState', { doc: 'setting', key: 'image_scale', value: scale });
 };
 
 /**
@@ -166,9 +164,9 @@ imageViewer.prototype.setStartPoint = function ( start_point, scale ) {
     y: Math.round(start_point.y * 100/scale)
   };
 
-  // モデルに送信
-  // TODO: settings モジュールで行うべきでは？
-  this.ipc.send('updateState', { doc: 'setting', key: 'start_point', value: this.stateMap.start_point });
+  if ( this.onSetStartPointHandler != undefined ) {
+    this.onSetStartPointHandler( this.stateMap.start_point );
+  }
 };
 
 /**

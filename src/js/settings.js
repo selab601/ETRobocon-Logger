@@ -171,7 +171,14 @@ Settings.prototype.init = function ( $append_target ) {
   this.setJqueryMap();
 
   // 機能モジュールの初期化
+  // imageViewer 内で各種値が変更された際には，モデルに設定画面の状態を保存する
   this.imageViewer.init($append_target.find(".settings-map"));
+  this.imageViewer.setOnScaleHandler(( scale ) => {
+    this.ipc.send('updateState', { doc: 'setting', key: 'image_scale', value: scale });
+  });
+  this.imageViewer.setOnSetStartPoint(( start_point ) => {
+    this.ipc.send('updateState', { doc: 'setting', key: 'start_point', value: start_point });
+  });
 
   // 設定情報から設定画面を以前の設定が行われた状態に初期化する
   this.loadSetting();
