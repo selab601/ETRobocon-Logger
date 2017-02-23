@@ -28,8 +28,7 @@ function imageViewer () {
     image_path     : undefined,
     image_scale    : undefined,
     // デバイスの出発位置．マップ描画時に利用する
-    start_point    : undefined,
-    original_image_size  : undefined
+    start_point    : undefined
   };
   this.flags = {
     enableStartPointSetting : false
@@ -38,6 +37,9 @@ function imageViewer () {
   this.jqueryMap = {};
   // jQuery
   this.$ = require('./lib/jquery-3.1.0.min.js');
+  // main プロセスとの通信用モジュール
+  // TODO: このモジュール内で main プロセスと通信させたくない
+  this.ipc = require('electron').ipcRenderer;
 };
 
 
@@ -99,27 +101,6 @@ imageViewer.prototype.setOnScaleHandler = function ( handler ) {
 /****************************/
 
 
-/***** ゲッター *****/
-
-imageViewer.prototype.getImagePath = function () {
-  return this.stateMap.image_path;
-};
-
-imageViewer.prototype.getImageScale = function () {
-  return this.stateMap.image_scale;
-};
-
-imageViewer.prototype.getStartPoint = function () {
-  return this.stateMap.start_point;
-};
-
-imageViewer.prototype.getOrizinalImageSize = function () {
-  return this.stateMap.original_image_size;
-};
-
-/********************/
-
-
 /***** セッター *****/
 
 /**
@@ -145,6 +126,11 @@ imageViewer.prototype.setScale = function ( scale ) {
   if ( this.scaleHandler != undefined ) {
     this.scaleHandler( scale );
   }
+
+  // モデルに追加
+  // TODO: imageView 全体でスケールが共有されるのはおかしい
+  //       settings モジュール，あるいは imageViewer のインスタンス？毎に保持されるべきでは
+  this.ipc.send('updateState', { doc: 'setting', key: 'image_scale', value: scale });
 };
 
 /**
@@ -179,6 +165,10 @@ imageViewer.prototype.setStartPoint = function ( start_point, scale ) {
     x: Math.round(start_point.x * 100/scale),
     y: Math.round(start_point.y * 100/scale)
   };
+
+  // モデルに送信
+  // TODO: settings モジュールで行うべきでは？
+  this.ipc.send('updateState', { doc: 'setting', key: 'start_point', value: this.stateMap.start_point });
 };
 
 /**
@@ -239,7 +229,6 @@ imageViewer.prototype.setImage = function ( src, scale ) {
       image.onload = function () {
         $(this).css({ display: "block", width: image.width * scale/100, height: image.height * scale/100 });
       }.bind(this);
-      self.stateMap.original_image_size = { width: image.width, height: image.height };
     });
   // イベントハンドラ登録
   // スタート地点を登録する場合には，そのためのイベントハンドラを設定する

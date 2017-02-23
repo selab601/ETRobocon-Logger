@@ -34,8 +34,7 @@ function shell() {
   this.stateMap = {
     $container : undefined,
     // 現在描画中の header-element の id
-    rendered_page_id : undefined,
-    settings : {}
+    rendered_page_id : undefined
   };
   // 機能モジュール
   this.moduleMap = {
@@ -79,15 +78,6 @@ shell.prototype.onDisconnectDevice = function () {
  * 一度全ての機能モジュールを削除し，ページの ID に応じた機能モジュールのみをロードし直す
  */
 shell.prototype.onTransitionTo = function ( event ) {
-  // TODO: ページ遷移時にデータを引き継ぐのは頭悪い．モデルを切り離して管理したい
-  // 設定ページにいた場合は，設定を保存する
-  if ( this.stateMap.rendered_page_id === "settings-page" ) {
-    this.stateMap.settings = {
-      map : this.moduleMap.settings.getMapState()
-    };
-    this.ipc.send('updateSettings', this.stateMap.settings);
-  }
-
   // 一度全ての機能モジュールを削除
   this.removeAllModules();
 
@@ -105,10 +95,10 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.moduleMap.fileInputForm.init(this.jqueryMap.$body.find("#device-connector-body-footer"));
     break;
   case "settings-page":
-    this.moduleMap.settings.init(this.jqueryMap.$body, this.stateMap.settings);
+    this.moduleMap.settings.init(this.jqueryMap.$body);
     break;
   case "logging-page":
-    this.moduleMap.logRenderer.init(this.jqueryMap.$body, this.stateMap.settings.map);
+    this.moduleMap.logRenderer.init(this.jqueryMap.$body);
     this.moduleMap.deviceDisconnector.init(
       this.jqueryMap.$body,
       this.onDisconnectDevice.bind(this),

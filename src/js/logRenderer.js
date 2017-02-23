@@ -103,7 +103,7 @@ logRenderer.prototype.onReceiveDataFromDevice = function ( ev, message ) {
   }.bind(this));
 
   // Map の描画
-  this.mapRenderer.render( data["coordinate_x"]/10, data["coordinate_y"]/10 );
+  this.mapRenderer.render( data["coordinate_x"]/10, data["coordinate_y"]/10, data["clock"] );
 
   // グラフの描画
   this.graphRenderer.renderAll(null, null, ["label", "focus"]);
@@ -203,7 +203,7 @@ logRenderer.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-logRenderer.prototype.init = function ( $append_target, map_settings ) {
+logRenderer.prototype.init = function ( $append_target ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
@@ -215,7 +215,13 @@ logRenderer.prototype.init = function ( $append_target, map_settings ) {
 
   // レンダリングモジュールの初期化
   this.tableRenderer.initModule( this.jqueryMap.$content_table );
-  this.mapRenderer.init( this.jqueryMap.$content_map, map_settings );
+  this.mapRenderer.init( this.jqueryMap.$content_map, {
+    image_path          : this.ipc.sendSync('getState', { doc: 'setting', key: 'image_path'}),
+    start_point         : this.ipc.sendSync('getState', { doc: 'setting', key: 'start_point'}),
+    draw_scale          : this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_scale'}),
+    draw_rotate         : this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_rotate'}),
+    original_image_size : this.ipc.sendSync('getState', { doc: 'setting', key: 'original_image_size'})
+  });
 
   // イベントハンドラを登録
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));

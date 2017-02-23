@@ -43,6 +43,8 @@ function Settings () {
   this.jqueryMap = {};
   // jQuery
   this.$ = require('./lib/jquery-3.1.0.min.js');
+  // main プロセスとの通信用モジュール
+  this.ipc = require('electron').ipcRenderer;
 
   this.imageViewer = new ImageViewer();
 };
@@ -67,6 +69,15 @@ Settings.prototype.onSelectImage = function ( event ) {
     this.jqueryMap.$image_input_form.val( files[0] );
     // ImageViewer モジュールで画像を描画
     this.imageViewer.setImage( files[0] );
+    // モデルに保存
+    this.ipc.send('updateState', { doc: "setting", key: "image_path", value: files[0] });
+    this.ipc.send('updateState', { doc: "setting", key: "image_scale", value: 100 });
+    // オリジナルの画像サイズを取得，保存
+    var image = new Image();
+    image.src = files[0];
+    image.onload = function () {
+      this.ipc.send('updateState', { doc: 'setting', key: 'original_image_size', value: {width:image.width, height:image.height}});
+    }.bind(this);
   }.bind(this));
 };
 
@@ -74,6 +85,8 @@ Settings.prototype.onInputScale = function ( event ) {
   var draw_scale = event.target.value;
   if ( isNaN(draw_scale) == false && draw_scale != null ) {
     this.stateMap.draw_scale = draw_scale;
+    // モデルに保存
+    this.ipc.send('updateState', { doc: "setting", key: "draw_scale", value: this.stateMap.draw_scale });
   } else {
     this.jqueryMap.$image_scale_form.val(this.stateMap.draw_scale);
   }
@@ -84,6 +97,8 @@ Settings.prototype.onInputRotate = function ( event ) {
   if ( isNaN(rotate_value) == false && rotate_value != null ) {
     this.stateMap.rotate_value = rotate_value;
     this.imageViewer.rotateStartPoint(rotate_value);
+    // モデルに保存
+    this.ipc.send('updateState', { doc: "setting", key: "draw_rotate", value: rotate_value });
   } else {
     this.jqueryMap.$map_rotate_form.val(this.stateMap.rotate_value);
   }
@@ -94,61 +109,37 @@ Settings.prototype.onInputRotate = function ( event ) {
 
 /**
  * 既存の設定情報で設定画面を初期化する
- *
- * @param settings 保持するプロパティは以下
- *                   - map
- *                     - image_path
- *                     - image_scale
- *                     - start_point
- *                     - draw_scale
- *                     - rotate_value
  */
-Settings.prototype.initializeSettings = function ( settings ) {
-  if ( Object.keys(settings).length == 0 || settings === undefined ) { return; }
+Settings.prototype.loadSetting = function () {
+  var image_path  = this.ipc.sendSync('getState', { doc: 'setting', key: 'image_path' });
+  var image_scale = this.ipc.sendSync('getState', { doc: 'setting', key: 'image_scale' });
+  var start_point = this.ipc.sendSync('getState', { doc: 'setting', key: 'start_point' });
+  var draw_scale  = this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_scale' });
+  var draw_rotate = this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_rotate' });
 
-  if ( settings.map.image_path != undefined ) {
-    this.imageViewer.setImage(
-      settings.map.image_path,
-      settings.map.image_scale
-    );
-    this.jqueryMap.$image_input_form.val(settings.map.image_path);
+  if ( image_path != '' ) {
+    this.imageViewer.setImage( image_path, image_scale );
+    this.jqueryMap.$image_input_form.val( image_path );
   }
 
-  if ( settings.map.start_point != undefined ) {
+  if ( start_point != '' ) {
     // start_point は，画像のサイズが 100% の時の画像上の座標を示している
     // よって，まずはスケール 100% に対しスタート地点を描画し，その後
     // 指定されたスケール(image_scale)にあわせた位置に描画を更新する
-    this.imageViewer.setStartPoint(
-      settings.map.start_point,
-      100
-    );
-    this.imageViewer.updateStartPoint(
-      settings.map.image_scale,
-      100
-    );
+    this.imageViewer.setStartPoint( start_point, 100 );
+    this.imageViewer.updateStartPoint( image_scale, 100 );
   }
 
-  if ( settings.map.draw_scale != undefined ) {
-    this.stateMap.draw_scale = settings.map.draw_scale;
-    this.jqueryMap.$image_scale_form.val(settings.map.draw_scale);
+  if ( draw_scale != '' ) {
+    this.stateMap.draw_scale = draw_scale;
+    this.jqueryMap.$image_scale_form.val(draw_scale);
   }
 
-  if ( settings.map.rotate_value != undefined ) {
-    this.stateMap.rotate_value = settings.map.rotate_value;
-    this.jqueryMap.$map_rotate_form.val(settings.map.rotate_value);
-    this.imageViewer.rotateStartPoint(settings.map.rotate_value);
+  if ( draw_rotate != '' ) {
+    this.stateMap.rotate_value = draw_rotate;
+    this.jqueryMap.$map_rotate_form.val(draw_rotate);
+    this.imageViewer.rotateStartPoint(draw_rotate);
   }
-};
-
-Settings.prototype.getMapState = function () {
-  return {
-    image_path  : this.imageViewer.getImagePath(),
-    image_scale : this.imageViewer.getImageScale(),
-    start_point : this.imageViewer.getStartPoint(),
-    original_image_size : this.imageViewer.getOrizinalImageSize(),
-    draw_scale  : this.stateMap.draw_scale,
-    rotate_value : this.stateMap.rotate_value
-  };
 };
 
 /**
@@ -172,7 +163,7 @@ Settings.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-Settings.prototype.init = function ( $append_target, settings ) {
+Settings.prototype.init = function ( $append_target ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
@@ -183,7 +174,7 @@ Settings.prototype.init = function ( $append_target, settings ) {
   this.imageViewer.init($append_target.find(".settings-map"));
 
   // 設定情報から設定画面を以前の設定が行われた状態に初期化する
-  this.initializeSettings( settings );
+  this.loadSetting();
 
   // イベントハンドラの登録
   this.jqueryMap.$image_search_button.bind( "click", this.onSelectImage.bind(this) );
