@@ -113,7 +113,7 @@ logAnalyzer.prototype.onRenderGraphFromLogFile = function ( values ) {
 logAnalyzer.prototype.onRenderMapFromLogFile = function ( values ) {
   if ( this.stateMap.logFileSettings == undefined ) { return; }
 
-  this.mapRenderer.init( this.jqueryMap.$content_map, this.stateMap.logFileSettings.map, this.onSelectData.bind(this) );
+  this.mapRenderer.init( this.jqueryMap.$content_map, this.stateMap.logFileSettings.map, this.onSelectData.bind(this), this.stateMap.logFileSettings.rotate_value );
 
   for (var i=0; i<Object.keys(values).length; i++) {
     var obj = JSON.parse(values[i]);
