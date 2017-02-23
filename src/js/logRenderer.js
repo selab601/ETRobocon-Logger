@@ -134,23 +134,26 @@ logRenderer.prototype.onUpdateRenderValue = function ( event ) {
  */
 logRenderer.prototype.onSelectTab = function ( event ) {
   // 既に選択済みのタブ等から選択を外す
-  // TODO: 選択したタブ等は dom を参照するのではなくメモリ上に保存すべき
-  this.jqueryMap.$append_target.find(".selected").removeClass("selected");
+  this.jqueryMap.$selected_tab.removeClass("selected");
+  this.jqueryMap.$selected_content.removeClass("selected");
 
   switch ( event.currentTarget.id ) {
   case "log-renderer-tab-table":
-    this.jqueryMap.$tab_table.addClass("selected");
-    this.jqueryMap.$content_table.addClass("selected");
+    this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_table;
+    this.jqueryMap.$selected_content = this.jqueryMap.$content_table;
     break;
   case "log-renderer-tab-graph":
-    this.jqueryMap.$tab_graph.addClass("selected");
-    this.jqueryMap.$content_graph.addClass("selected");
+    this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_graph;
+    this.jqueryMap.$selected_content = this.jqueryMap.$content_graph;
     break;
   case "log-renderer-tab-map":
-    this.jqueryMap.$tab_map.addClass("selected");
-    this.jqueryMap.$content_map.addClass("selected");
+    this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_map;
+    this.jqueryMap.$selected_content = this.jqueryMap.$content_map;
     break;
   }
+
+  this.jqueryMap.$selected_tab.addClass("selected");
+  this.jqueryMap.$selected_content.addClass("selected");
 };
 
 /*********************/
@@ -213,14 +216,18 @@ logRenderer.prototype.init = function ( $append_target ) {
   // 描画する値の種類一覧をビューに描画する
   this.initGraphValuesList();
 
+  // タブ選択の初期化
+  this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_graph;
+  this.jqueryMap.$selected_content = this.jqueryMap.$content_graph;
+
   // レンダリングモジュールの初期化
   this.tableRenderer.initModule( this.jqueryMap.$content_table );
   this.mapRenderer.init( this.jqueryMap.$content_map, {
     image_path          : this.ipc.sendSync('getState', { doc: 'setting', key: 'image_path'}),
+    image_original_size : this.ipc.sendSync('getState', { doc: 'setting', key: 'image_original_size'}),
     start_point         : this.ipc.sendSync('getState', { doc: 'setting', key: 'start_point'}),
     draw_scale          : this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_scale'}),
-    draw_rotate         : this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_rotate'}),
-    original_image_size : this.ipc.sendSync('getState', { doc: 'setting', key: 'original_image_size'})
+    draw_rotate         : this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_rotate'})
   });
 
   // イベントハンドラを登録

@@ -66,8 +66,18 @@ Settings.prototype.onSelectImage = function ( event ) {
   }, function(files){
     // 入力欄を更新
     this.jqueryMap.$image_input_form.val( files[0] );
-    // ImageViewer モジュールで画像を描画
-    this.imageViewer.setImage( files[0] );
+    // 画像の元サイズ計算のために読み込みを行う
+    var image = new Image();
+    image.src = files[0];
+    image.onload = function () {
+      var size = { width: image.width, height: image.height };
+
+      // ImageViewer モジュールで画像を描画
+      this.imageViewer.setImage( files[0], size, 100 );
+
+      // モデルに保存
+      this.ipc.send('updateState', { doc: 'setting', key: 'image_original_size', value: size });
+    }.bind(this);
 
     // 画像を張り替えた際には，スタート地点の情報等を初期化する
     this.ipc.send('updateState', { doc: "setting", key: "start_point", value: "" });
@@ -77,12 +87,6 @@ Settings.prototype.onSelectImage = function ( event ) {
 
     // モデルに保存
     this.ipc.send('updateState', { doc: "setting", key: "image_path", value: files[0] });
-    var image = new Image();
-    image.src = files[0];
-    image.onload = function () {
-      // オリジナルの画像サイズを取得する
-      this.ipc.send('updateState', { doc: 'setting', key: 'original_image_size', value: {width:image.width, height:image.height}});
-    }.bind(this);
   }.bind(this));
 };
 
@@ -124,14 +128,15 @@ Settings.prototype.onInputRotate = function ( event ) {
  * 既存の設定情報で設定画面を初期化する
  */
 Settings.prototype.load = function () {
-  var image_path  = this.ipc.sendSync('getState', { doc: 'setting', key: 'image_path' });
-  var image_scale = this.ipc.sendSync('getState', { doc: 'setting', key: 'image_scale' });
-  var start_point = this.ipc.sendSync('getState', { doc: 'setting', key: 'start_point' });
-  var draw_scale  = this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_scale' });
-  var draw_rotate = this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_rotate' });
+  var image_path          = this.ipc.sendSync('getState', { doc: 'setting', key: 'image_path' });
+  var image_scale         = this.ipc.sendSync('getState', { doc: 'setting', key: 'image_scale' });
+  var image_original_size = this.ipc.sendSync('getState', { doc: 'setting', key: 'image_original_size' });
+  var start_point         = this.ipc.sendSync('getState', { doc: 'setting', key: 'start_point' });
+  var draw_scale          = this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_scale' });
+  var draw_rotate         = this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_rotate' });
 
   if ( image_path != '' ) {
-    this.imageViewer.setImage( image_path, image_scale );
+    this.imageViewer.setImage( image_path, image_original_size, image_scale );
     this.jqueryMap.$image_input_form.val( image_path );
   }
 
@@ -186,10 +191,10 @@ Settings.prototype.init = function ( $append_target ) {
   // 機能モジュールの初期化
   // imageViewer 内で各種値が変更された際には，モデルに設定画面の状態を保存する
   this.imageViewer.init($append_target.find(".settings-map"));
-  this.imageViewer.setOnScaleHandler(( scale ) => {
+  this.imageViewer.setOnScaleCompleteHandler(( scale ) => {
     this.ipc.send('updateState', { doc: 'setting', key: 'image_scale', value: scale });
   });
-  this.imageViewer.setOnSetStartPoint(( start_point ) => {
+  this.imageViewer.setOnSetStartPointCompleteHandler(( start_point ) => {
     this.ipc.send('updateState', { doc: 'setting', key: 'start_point', value: start_point });
   });
 

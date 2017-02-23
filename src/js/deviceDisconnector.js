@@ -19,9 +19,9 @@ function deviceDisconnector () {
   // jQuery オブジェクトのキャッシュ用
   this.jqueryMap = {};
   // Bluetooth デバイスとの接続解除時に実行する callback 関数
-  this.callback = undefined;
+  this.onDisconnecteDeviceCompleted = undefined;
   // ユーザへ通知を行うコールバック関数
-  this.messenger = undefined;
+  this.onNotify = undefined;
   // main プロセスとの通信用モジュール
   this.ipc = require('electron').ipcRenderer;
 };
@@ -46,8 +46,8 @@ deviceDisconnector.prototype.onDisconnectDevice = function () {
  */
 deviceDisconnector.prototype.onDisconnectDeviceComplete = function ( ev, message ) {
   // 保存先を表示するため，ダイアログの表示時間を少し長くする
-  this.messenger( message.title, message.body, null, 10000 );
-  this.callback();
+  this.onNotify( message.title, message.body, null, 10000 );
+  this.onDisconnecteDeviceCompleted();
 };
 
 /****************************/
@@ -71,7 +71,7 @@ deviceDisconnector.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-deviceDisconnector.prototype.init = function ( $append_target, callback, messenger ) {
+deviceDisconnector.prototype.init = function ( $append_target, onDisconnecteDeviceCompleted, onNotify ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
@@ -83,9 +83,9 @@ deviceDisconnector.prototype.init = function ( $append_target, callback, messeng
   // これを指定したログファイル名にリネームする必要がある．
   this.stateMap.logFileName = this.ipc.sendSync('getState', { doc: 'app', key: 'logFileName' });
   // 接続解除成功時に実行されるコールバック関数
-  this.callback = callback;
+  this.onDisconnecteDeviceCompleted = onDisconnecteDeviceCompleted;
   // ユーザへの通知用コールバック関数
-  this.messenger = messenger;
+  this.onNotify = onNotify;
 
   // イベントハンドラを登録
   this.jqueryMap.$disconnect_btn.bind( 'click', this.onDisconnectDevice.bind(this));
@@ -114,7 +114,7 @@ deviceDisconnector.prototype.remove = function () {
     logFileName : undefined
   };
   this.callback = undefined;
-  this.messenger = undefined;
+  this.onNotify = undefined;
 };
 
 module.exports = deviceDisconnector;

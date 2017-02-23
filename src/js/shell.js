@@ -32,9 +32,7 @@ function shell() {
   };
   // 動的プロパティ
   this.stateMap = {
-    $container : undefined,
-    // 現在描画中の header-element の id
-    rendered_page_id : undefined
+    $container : undefined
   };
   // 機能モジュール
   this.moduleMap = {
@@ -50,6 +48,8 @@ function shell() {
   this.jqueryMap = {};
   // main プロセスとの通信用
   this.ipc = require('electron').ipcRenderer;
+  // ユーザへのメッセージ描画用のイベントハンドラ
+  this.onNotify = undefined;
 };
 
 /***** イベントハンドラ *****/
@@ -59,8 +59,7 @@ function shell() {
  */
 shell.prototype.onConnectDevice = function () {
   this.onTransitionTo( { data : "logging-page" } );
-  // ヘッダーのリンクを無効化
-  this.jqueryMap.$container.find(".header-element").addClass("disabled");
+  this.jqueryMap.$header_elements.addClass("disabled");
 };
 
 /**
@@ -68,8 +67,7 @@ shell.prototype.onConnectDevice = function () {
  */
 shell.prototype.onDisconnectDevice = function () {
   this.onTransitionTo( { data : "connect-page" } );
-  // ヘッダーのリンクを有効化
-  this.jqueryMap.$container.find(".header-element").removeClass("disabled");
+  this.jqueryMap.$header_elements.removeClass("disabled");
 };
 
 /**
@@ -87,34 +85,25 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.moduleMap.logAnalyzer.init(this.jqueryMap.$body);
     break;
   case "connect-page":
-    this.moduleMap.deviceConnector.init(
-      this.jqueryMap.$body,
-      this.onConnectDevice.bind(this),
-      this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
-    );
-    this.moduleMap.fileInputForm.init(this.jqueryMap.$body.find("#device-connector-body-footer"));
+    this.moduleMap.deviceConnector.init( this.jqueryMap.$body, this.onConnectDevice.bind(this), this.onNotify );
+    this.moduleMap.fileInputForm.init( this.jqueryMap.$body.find("#device-connector-body-footer") );
     break;
   case "settings-page":
-    this.moduleMap.settings.init(this.jqueryMap.$body);
+    this.moduleMap.settings.init( this.jqueryMap.$body );
     break;
   case "logging-page":
-    this.moduleMap.logRenderer.init(this.jqueryMap.$body);
-    this.moduleMap.deviceDisconnector.init(
-      this.jqueryMap.$body,
-      this.onDisconnectDevice.bind(this),
-      this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
-    );
+    this.moduleMap.logRenderer.init( this.jqueryMap.$body );
+    this.moduleMap.deviceDisconnector.init( this.jqueryMap.$body, this.onDisconnectDevice.bind(this), this.onNotify );
     break;
   };
 
-  // プロパティに描画中のページを保持
-  this.stateMap.rendered_page_id = event.data;
-
   // DOM 要素更新
-  var page_link = this.stateMap.$container.find("#"+event.data);
-  if ( page_link === undefined ) { return; }
-  this.jqueryMap.$container.find(".isRendering").removeClass("isRendering");
-  page_link.addClass("isRendering");
+  // 描画中のヘッダーリンクは押下できないようにする
+  if ( this.jqueryMap.$rendered_page != undefined ) {
+    this.jqueryMap.$rendered_page.removeClass("isRendering");
+  }
+  this.jqueryMap.$rendered_page = this.stateMap.$container.find("#"+event.data);
+  this.jqueryMap.$rendered_page.addClass("isRendering");
 };
 
 /****************************/
@@ -124,7 +113,7 @@ shell.prototype.onTransitionTo = function ( event ) {
  */
 shell.prototype.removeAllModules = function () {
   Object.keys(this.moduleMap).forEach ( function ( key ) {
-    // ダイアログは削除しない
+    // dialog モジュールは削除しない
     if ( key === "dialog" ) { return; }
     this[key].remove();
   }, this.moduleMap);
@@ -140,12 +129,13 @@ shell.prototype.removeAllModules = function () {
 shell.prototype.setJqueryMap = function () {
   var $container = this.stateMap.$container;
   this.jqueryMap = {
-    $container    : $container,
-    $contents     : $container.find(".contents"),
-    $body         : $container.find(".body"),
-    $connect_page : $container.find("#connect-page"),
-    $load_page    : $container.find("#load-page"),
-    $settings_page: $container.find("#settings-page")
+    $container       : $container,
+    $contents        : $container.find(".contents"),
+    $header_elements : $container.find(".header-element"),
+    $body            : $container.find(".body"),
+    $connect_page    : $container.find("#connect-page"),
+    $load_page       : $container.find("#load-page"),
+    $settings_page   : $container.find("#settings-page")
   };
 };
 
@@ -159,10 +149,16 @@ shell.prototype.initModule = function ( $container ) {
   // jQuery オブジェクトのキャッシュ
   this.setJqueryMap();
 
-  // ページ初期化
-  this.onTransitionTo( { data : "connect-page" } );
   // 機能モジュールの初期化
   this.moduleMap.dialog.init( this.jqueryMap.$container );
+  // ユーザへの通知用のイベントハンドラとして，dialog モジュール内のメソッドを保持しておく
+  // 他の機能モジュールに通知用イベントハンドラとして渡す
+  this.onNotify = this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog);
+
+  // ページ初期化
+  // WARNING: モジュールの初期化に dialog モジュールのイベントハンドラを使用しているため，
+  //          dialog モジュール初期化後に実行すること
+  this.onTransitionTo( { data : "connect-page" } );
 
   // イベントハンドラ登録
   this.jqueryMap.$connect_page.bind( 'click', "connect-page", this.onTransitionTo.bind(this) );

@@ -49,11 +49,10 @@ function createWindow() {
   });
   mainWindow.loadURL(`file://${__dirname}/src/index.html`);
 
-  fileManager = new FileManager( mainWindow, app.getAppPath() );
-  fileManager.updateLogFileName();
-
-  dc = new deviceConnector( mainWindow, fileManager );
   model = new Model( mainWindow );
+  fileManager = new FileManager( mainWindow, app.getAppPath(), model );
+  fileManager.updateLogFileName();
+  dc = new deviceConnector( mainWindow, fileManager );
 
   // ウインドウが閉じられた場合の処理
   mainWindow.on('closed', function() {

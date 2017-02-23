@@ -21,7 +21,7 @@ function dialog() {
   // 動的プロパティ
   this.stateMap = {
     $append_target : undefined,
-    timer : undefined
+    timer          : undefined
   };
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
@@ -48,9 +48,9 @@ dialog.prototype.onShowDialog = function ( title, body, style, duration ) {
   // ダイアログを表示する
   this.jqueryMap.$dialog.css("display", "inline-block");
 
+  // 指定時間後にダイアログを隠す
   var d = duration === undefined ? this.configMap.default_timeout : duration;
   this.timer = setTimeout(function () {
-    // 指定時間後にダイアログを隠す
     this.jqueryMap.$dialog.css("display","none");
   }.bind(this), d);
 };
@@ -78,10 +78,10 @@ dialog.prototype.onDeleteDialog = function () {
 dialog.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
-    $dialog       : $append_target.find("#dialog"),
-    $dialog_title : $append_target.find("#dialog-title"),
-    $dialog_delete_button: $append_target.find("#dialog-delete-button"),
-    $dialog_body  : $append_target.find("#dialog-body")
+    $dialog               : $append_target.find("#dialog"),
+    $dialog_title         : $append_target.find("#dialog-title"),
+    $dialog_delete_button : $append_target.find("#dialog-delete-button"),
+    $dialog_body          : $append_target.find("#dialog-body")
   };
 };
 

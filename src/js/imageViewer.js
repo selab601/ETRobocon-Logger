@@ -24,12 +24,13 @@ function imageViewer () {
   };
   // 動的プロパティ
   this.stateMap = {
-    $append_target     : undefined,
-    image_path         : undefined,
-    image_scale        : undefined,
+    $append_target      : undefined,
+    image_path          : undefined,
+    image_scale         : undefined,
+    image_original_size : undefined,
     // デバイスの出発位置．マップ描画時に利用する
-    start_point        : undefined,
-    start_point_rotate : undefined
+    start_point         : undefined,
+    start_point_rotate  : undefined
   };
   this.flags = {
     enableStartPointSetting : false
@@ -79,27 +80,25 @@ imageViewer.prototype.onScaleinput = function ( event ) {
  */
 imageViewer.prototype.onSetStartPoint = function ( event ) {
   var self = event.data.self;
-
   var offset = self.$(this).offset();
   /*     クリック位置   要素位置   */
   var x = event.pageX - offset.left;
   var y = event.pageY - offset.top;
-
   self.setStartPoint({ x : x, y : y });
 };
 
 /**
  * スケーリング時に実行するイベントハンドラを登録する
  */
-imageViewer.prototype.setOnScaleHandler = function ( handler ) {
-  this.onScaleHandler = handler;
+imageViewer.prototype.setOnScaleCompleteHandler = function ( handler ) {
+  this.onScaleComplete = handler;
 };
 
 /**
  * スタート地点登録時に実行するイベントハンドラを登録する
  */
-imageViewer.prototype.setOnSetStartPoint = function ( handler ) {
-  this.onSetStartPointHandler = handler;
+imageViewer.prototype.setOnSetStartPointCompleteHandler = function ( handler ) {
+  this.onSetStartPointComplete = handler;
 };
 
 /****************************/
@@ -113,8 +112,12 @@ imageViewer.prototype.setOnSetStartPoint = function ( handler ) {
  * @param scale スケールする倍率 TODO: 値の検証
  */
 imageViewer.prototype.setScale = function ( scale ) {
+  scale = scale === undefined || scale === null ? 100 : scale;
   var pre_scale  = this.stateMap.image_scale;
-  var scaledSize = calcScaledImageSize( this.stateMap.image_path, scale );
+  var scaledSize =  {
+    width  : this.stateMap.image_original_size.width * scale/100,
+    height : this.stateMap.image_original_size.height * scale/100
+  };
 
   /*** DOM に描画 ***/
   this.jqueryMap.$scale_form.val(scale);
@@ -127,8 +130,8 @@ imageViewer.prototype.setScale = function ( scale ) {
     this.updateStartPoint( scale, pre_scale );
   }
 
-  if ( this.onScaleHandler != undefined ) {
-    this.onScaleHandler( scale );
+  if ( this.onScaleComplete != undefined ) {
+    this.onScaleComplete( scale );
   }
 };
 
@@ -147,6 +150,7 @@ imageViewer.prototype.setStartPoint = function ( start_point, scale ) {
   if ( this.jqueryMap.$start_point != undefined ) {
     this.jqueryMap.$start_point.remove();
   }
+  // 追加する DOM 要素の準備
   this.jqueryMap.$start_point =
     this.$("<img></img>")
     .attr("id", "imageviewer-startpoint")
@@ -156,6 +160,7 @@ imageViewer.prototype.setStartPoint = function ( start_point, scale ) {
     //          start_poing の座標の計算方法(マウスクリックからの座標の計算方法)にミスがあるかも...
     .css("left", (parseInt(start_point.x)-5)+"px")
     .css("top", (parseInt(start_point.y)-10)+"px");
+  // 追加
   this.jqueryMap.$image_wrapper
     .append( this.jqueryMap.$start_point );
   // 回転角度が指定されていたら反映する
@@ -169,8 +174,9 @@ imageViewer.prototype.setStartPoint = function ( start_point, scale ) {
     y: Math.round(start_point.y * 100/scale)
   };
 
-  if ( this.onSetStartPointHandler != undefined ) {
-    this.onSetStartPointHandler( this.stateMap.start_point );
+  // スタート地点描画後のイベントハンドラが設定されていれば実行
+  if ( this.onSetStartPointComplete != undefined ) {
+    this.onSetStartPointComplete( this.stateMap.start_point );
   }
 };
 
@@ -197,10 +203,11 @@ imageViewer.prototype.updateStartPoint = function ( scale, pre_scale ) {
 
 /**
  * プレビュー表示部分に画像を新規に描画する
- * @param src   画像のソース
- * @param scale 画像の初期スケール
+ * @param src           画像のソース
+ * @param original_size 画像の元サイズ
+ * @param scale         画像の初期スケール
  */
-imageViewer.prototype.setImage = function ( src, scale ) {
+imageViewer.prototype.setImage = function ( src, original_size, scale ) {
   // スケールが未定義の場合は 100% として処理を進める
   scale = scale == undefined ? 100 : scale;
 
@@ -214,26 +221,14 @@ imageViewer.prototype.setImage = function ( src, scale ) {
     .attr("src", src);
   // 描画
   this.jqueryMap.$preview_box.html(
-    this.jqueryMap.$image_wrapper.append(
-      this.jqueryMap.$image
-    ));
+    this.jqueryMap.$image_wrapper.append( this.jqueryMap.$image ));
   // スケールの反映
   var self = this;
-  this.jqueryMap.$scale_form.val(scale);
   this.jqueryMap.$scale_form
+    .val(scale)
     .css({ pointerEvents : "auto" });
   this.jqueryMap.$image
-    .css({ display: "none" })
-    .bind("load", function () {
-      // 画像の読み込み終了後にサイズを設定する
-      // TODO: 実質二回読み込んでいるので頭が悪い．どうにかする
-      var image = new Image();
-      image.src = src;
-      image.onload = function () {
-        $(this).css({ display: "block", width: image.width * scale/100, height: image.height * scale/100 });
-      }.bind(this);
-    });
-  // イベントハンドラ登録
+    .css({ width: original_size.width * scale/100, height: original_size.height * scale/100 });
   // スタート地点を登録する場合には，そのためのイベントハンドラを設定する
   if ( this.flags.enableStartPointSetting ) {
     this.jqueryMap.$image
@@ -241,15 +236,24 @@ imageViewer.prototype.setImage = function ( src, scale ) {
   }
 
   /*** プロパティに保持 ***/
-  this.stateMap.image_path  = src;
-  this.stateMap.image_scale = scale;
+  this.stateMap.image_path          = src;
+  this.stateMap.image_scale         = scale;
+  this.stateMap.image_original_size = original_size;
 };
 
 /********************/
 
+/**
+ * スタート地点を回転する
+ * DOM への反映と，回転量のプロパティへの保持を行う
+ */
 imageViewer.prototype.rotateStartPoint = function ( rotate_value ) {
-  this.jqueryMap.$start_point
-    .css("transform", "rotate("+rotate_value+"deg)");
+  // DOM 要素に描画
+  if ( this.jqueryMap.$start_point != undefined ) {
+    this.jqueryMap.$start_point
+      .css("transform", "rotate("+rotate_value+"deg)");
+  }
+  // プロパティに保持
   this.stateMap.start_point_rotate = rotate_value;
 };
 
@@ -308,34 +312,13 @@ imageViewer.prototype.remove = function () {
 
   // 動的プロパティの初期化
   this.stateMap = {
-    $append_target : undefined,
-    image_path     : undefined,
-    image_scale    : undefined,
-    start_point    : undefined
+    $append_target      : undefined,
+    image_path          : undefined,
+    image_scale         : undefined,
+    image_original_size : undefined,
+    start_point         : undefined,
+    start_point_rotate  : undefined
   };
 };
-
-
-/***** ユーティリティメソッド *****/
-
-
-/**
- * 元画像に対し，スケーリングされた画像サイズを計算し返す
- *
- * @param image_src スケーリングする対象画像のソース
- * @param scale     スケーリングの倍率( 0~100 )
- *                  設定されていない場合は，デフォルトで 100% の値を返す
- */
-function calcScaledImageSize ( image_src, scale ) {
-  var image = new Image();
-  image.src = image_src;
-  if ( scale === undefined || scale === null ) {
-    return { width : image.width, height: image.height };
-  }
-  return { width: image.width * scale/100, height: image.height * scale/100 };
-}
-
-/**********************************/
-
 
 module.exports = imageViewer;
