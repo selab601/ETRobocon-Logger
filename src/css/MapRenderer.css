@@ -14,7 +14,7 @@
 }
 
 #maprenderer-box > .imageviewer > .imageviewer-preview-box {
-  height: 100%;
+  height: calc(100% - 30px);
 }
 
 .map-chart-svg {
