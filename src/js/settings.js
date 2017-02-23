@@ -24,6 +24,11 @@ function Settings () {
                 <input type="text" class="settings-map-scale-form-body" value="1"/>
                 <span>px / cm</span>
               </div>
+              <div class="settings-map-rotate-form">
+                <div class="settings-map-rotate-form-title">Rotate :</div>
+                <input type="text" class="settings-map-rotate-form-body" value="0"/>
+                <span>°</span>
+              </div>
             </div>
           </div>
         </div>
@@ -74,6 +79,16 @@ Settings.prototype.onInputScale = function ( event ) {
   }
 };
 
+Settings.prototype.onInputRotate = function ( event ) {
+  var rotate_value = event.target.value;
+  if ( isNaN(rotate_value) == false && rotate_value != null ) {
+    this.stateMap.rotate_value = rotate_value;
+    this.imageViewer.rotateStartPoint(rotate_value);
+  } else {
+    this.jqueryMap.$map_rotate_form.val(this.stateMap.rotate_value);
+  }
+};
+
 /********************************/
 
 
@@ -86,6 +101,7 @@ Settings.prototype.onInputScale = function ( event ) {
  *                     - image_scale
  *                     - start_point
  *                     - draw_scale
+ *                     - rotate_value
  */
 Settings.prototype.initializeSettings = function ( settings ) {
   if ( Object.keys(settings).length == 0 || settings === undefined ) { return; }
@@ -116,6 +132,12 @@ Settings.prototype.initializeSettings = function ( settings ) {
     this.stateMap.draw_scale = settings.map.draw_scale;
     this.jqueryMap.$image_scale_form.val(settings.map.draw_scale);
   }
+
+  if ( settings.map.rotate_value != undefined ) {
+    this.stateMap.rotate_value = settings.map.rotate_value;
+    this.jqueryMap.$map_rotate_form.val(settings.map.rotate_value);
+    this.imageViewer.rotateStartPoint(settings.map.rotate_value);
+  }
 };
 
 Settings.prototype.getMapState = function () {
@@ -124,7 +146,8 @@ Settings.prototype.getMapState = function () {
     image_scale : this.imageViewer.getImageScale(),
     start_point : this.imageViewer.getStartPoint(),
     original_image_size : this.imageViewer.getOrizinalImageSize(),
-    draw_scale  : this.stateMap.draw_scale
+    draw_scale  : this.stateMap.draw_scale,
+    rotate_value : this.stateMap.rotate_value
   };
 };
 
@@ -141,7 +164,8 @@ Settings.prototype.setJqueryMap = function () {
     $append_target       : $append_target,
     $image_search_button : $append_target.find(".settings-map-image-form-button"),
     $image_input_form    : $append_target.find(".settings-map-image-form-body"),
-    $image_scale_form    : $append_target.find(".settings-map-scale-form-body")
+    $image_scale_form    : $append_target.find(".settings-map-scale-form-body"),
+    $map_rotate_form     : $append_target.find(".settings-map-rotate-form-body")
   };
 };
 
@@ -164,6 +188,7 @@ Settings.prototype.init = function ( $append_target, settings ) {
   // イベントハンドラの登録
   this.jqueryMap.$image_search_button.bind( "click", this.onSelectImage.bind(this) );
   this.jqueryMap.$image_scale_form.bind( "change", this.onInputScale.bind(this) );
+  this.jqueryMap.$map_rotate_form.bind( "change", this.onInputRotate.bind(this) );
 };
 
 /**

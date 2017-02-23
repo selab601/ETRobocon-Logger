@@ -1,4 +1,4 @@
-function Map ( $append_target_id, width, height, origin, drawScale, onSelectData ) {
+function Map ( $append_target_id, width, height, origin, drawScale, onSelectData, theta ) {
   this.append_target_id = $append_target_id;
 
   this.width  = width;
@@ -9,6 +9,7 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
   this.index  = 0;
   this.onSelectData = onSelectData;
   this.zoom = 100;
+  this.theta = theta === undefined ? 0 : theta;
 
   // D3 オブジェクトキャッシュ用
   this.d3ObjectsMap = {};
@@ -83,6 +84,9 @@ Map.prototype.render = function ( coordinate ) {
   // 原点に合わせる
   adjustedCor.x += this.origin.x;
   adjustedCor.y += this.origin.y;
+
+  // 回転させる
+  adjustedCor = rotateCoordiante(adjustedCor, this.theta, this.origin);
 
   if ( this.preCor == null ) {
     this.preCor = adjustedCor;
@@ -166,6 +170,22 @@ Map.prototype.scale = function ( value ) {
   this.zoom = value;
   this.d3ObjectsMap.svg
     .style("zoom" , value+"%");
+};
+
+/**
+ * 座標の回転移動の一次変換を行う関数
+ *
+ * @param cor    回転対称の座標 { x: <number>, y: <number> }
+ * @param theta  回転角度
+ * @param origin 回転の起点
+ */
+function rotateCoordiante ( cor, theta, origin ) {
+  // rad に変換
+  theta = theta * (Math.PI / 180);
+  return {
+    x: (cor.x - origin.x) * Math.cos(theta) - (cor.y - origin.y) * Math.sin(theta) + origin.x,
+    y: (cor.x - origin.x) * Math.sin(theta) + (cor.y - origin.y) * Math.cos(theta) + origin.y
+  };
 };
 
 module.exports = Map;

@@ -54,7 +54,8 @@ MapRenderer.prototype.init = function ( $append_target, map_settings, onSelectDa
       map_settings.original_image_size.height,
       { x: cor.x, y: cor.y },
       map_settings.draw_scale,
-      onSelectData
+      onSelectData,
+      map_settings.rotate_value
     );
     this.map.init();
 

@@ -255,6 +255,11 @@ imageViewer.prototype.setImage = function ( src, scale ) {
 
 /********************/
 
+imageViewer.prototype.rotateStartPoint = function ( rotate_value ) {
+  this.jqueryMap.$start_point
+    .css("transform", "rotate("+rotate_value+"deg)");
+};
+
 
 /**
  * jQuery オブジェクトをキャッシュする
