@@ -24,8 +24,6 @@ function deviceDisconnector () {
   this.messenger = undefined;
   // main プロセスとの通信用モジュール
   this.ipc = require('electron').ipcRenderer;
-  // jQuery
-  this.$ = require('./lib/jquery-3.1.0.min.js');
 };
 
 
@@ -73,7 +71,7 @@ deviceDisconnector.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-deviceDisconnector.prototype.init = function ( $append_target, logFileName, callback, messenger ) {
+deviceDisconnector.prototype.init = function ( $append_target, callback, messenger ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
@@ -83,9 +81,7 @@ deviceDisconnector.prototype.init = function ( $append_target, logFileName, call
   // ロギング結果を保存するログファイル名
   // 現状，main プロセス側は，最初は一時ファイルにデータを保存しているため，
   // これを指定したログファイル名にリネームする必要がある．
-  // TODO: ファイル名指定時に指定したファイル名を main プロセス側に送信し，
-  //       ここで指定させない
-  this.stateMap.logFileName = logFileName;
+  this.stateMap.logFileName = this.ipc.sendSync('getState', 'logFileName');
   // 接続解除成功時に実行されるコールバック関数
   this.callback = callback;
   // ユーザへの通知用コールバック関数

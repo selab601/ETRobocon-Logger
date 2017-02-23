@@ -35,8 +35,6 @@ function shell() {
     $container : undefined,
     // 現在描画中の header-element の id
     rendered_page_id : undefined,
-    logfile_name : undefined,
-    logfile_folder : undefined,
     settings : {}
   };
   // 機能モジュール
@@ -61,10 +59,6 @@ function shell() {
  * Bluetooth デバイスとの接続時の処理
  */
 shell.prototype.onConnectDevice = function () {
-  // プロパティに情報を保持
-  this.stateMap.logfile_name   = this.moduleMap.fileInputForm.getLogFileName();
-  this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileFolder();
-
   this.onTransitionTo( { data : "logging-page" } );
   // ヘッダーのリンクを無効化
   this.jqueryMap.$container.find(".header-element").addClass("disabled");
@@ -93,11 +87,6 @@ shell.prototype.onTransitionTo = function ( event ) {
     };
     this.ipc.send('updateSettings', this.stateMap.settings);
   }
-  // 接続ページにいた場合は，設定を保存する
-  if ( this.stateMap.rendered_page_id === "connect-page" ) {
-    this.stateMap.logfile_name   = this.moduleMap.fileInputForm.getLogFileName();
-    this.stateMap.logfile_folder = this.moduleMap.fileInputForm.getLogFileFolder();
-  }
 
   // 一度全ての機能モジュールを削除
   this.removeAllModules();
@@ -113,13 +102,7 @@ shell.prototype.onTransitionTo = function ( event ) {
       this.onConnectDevice.bind(this),
       this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
     );
-    this.moduleMap.fileInputForm.init(
-      this.jqueryMap.$body.find("#device-connector-body-footer"),
-      {
-        log_file_name : this.stateMap.logfile_name,
-        log_file_directory : this.stateMap.logfile_folder
-      }
-    );
+    this.moduleMap.fileInputForm.init(this.jqueryMap.$body.find("#device-connector-body-footer"));
     break;
   case "settings-page":
     this.moduleMap.settings.init(this.jqueryMap.$body, this.stateMap.settings);
@@ -128,7 +111,6 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.moduleMap.logRenderer.init(this.jqueryMap.$body, this.stateMap.settings.map);
     this.moduleMap.deviceDisconnector.init(
       this.jqueryMap.$body,
-      this.stateMap.logfile_name,
       this.onDisconnectDevice.bind(this),
       this.moduleMap.dialog.onShowDialog.bind(this.moduleMap.dialog)
     );
