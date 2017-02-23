@@ -118,7 +118,7 @@ Map.prototype.render = function ( coordinate ) {
         .style("left", (adjustedCor.x) * self.zoom/100 + "px" )
         .style("top", (adjustedCor.y - 23) * self.zoom/100 + "px")
         .style("visibility","visible")
-        .text( parseFloat(coordinate.x*10)  + ", " + parseFloat(coordinate.y*10) );
+        .text( parseInt(coordinate.x*10)  + ", " + parseInt(coordinate.y*10) );
     })
     .on("mouseout", function(d) { // マウスアウトするとツールチップを非表示
       self.toolTip.style("visibility","hidden");
