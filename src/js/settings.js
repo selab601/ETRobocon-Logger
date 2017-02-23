@@ -69,13 +69,19 @@ Settings.prototype.onSelectImage = function ( event ) {
     this.jqueryMap.$image_input_form.val( files[0] );
     // ImageViewer モジュールで画像を描画
     this.imageViewer.setImage( files[0] );
+
+    // 画像を張り替えた際には，スタート地点の情報等を初期化する
+    this.ipc.send('updateState', { doc: "setting", key: "start_point", value: "" });
+    this.ipc.send('updateState', { doc: "setting", key: "draw_rotate", value: "" });
+    this.ipc.send('updateState', { doc: "setting", key: "image_scale", value: 100 });
+    this.jqueryMap.$map_rotate_form.val("0");
+
     // モデルに保存
     this.ipc.send('updateState', { doc: "setting", key: "image_path", value: files[0] });
-    this.ipc.send('updateState', { doc: "setting", key: "image_scale", value: 100 });
-    // オリジナルの画像サイズを取得，保存
     var image = new Image();
     image.src = files[0];
     image.onload = function () {
+      // オリジナルの画像サイズを取得する
       this.ipc.send('updateState', { doc: 'setting', key: 'original_image_size', value: {width:image.width, height:image.height}});
     }.bind(this);
   }.bind(this));
