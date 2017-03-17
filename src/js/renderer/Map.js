@@ -68,16 +68,17 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
     }
     var deg = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).rotate;
 
-    var pre_rad = Math.atan2(self.d3.event.x+self.d3.event.dx - self.origin.x, self.d3.event.y+self.d3.event.dy - self.origin.y);
-    var rad = Math.atan2(self.d3.event.x - self.origin.x, self.d3.event.y - self.origin.y);
+    var pre_rad = Math.atan2(self.d3.event.x+self.d3.event.dx - (self.origin.x + x), self.d3.event.y+self.d3.event.dy - (self.origin.y + y));
+    var rad = Math.atan2(self.d3.event.x - (self.origin.x + x), self.d3.event.y - (self.origin.y + y));
     deg += ( (rad - pre_rad) * 180 / Math.PI );
 
     self.d3ObjectsMap.svg.attr("transform", function(d,i){
-      return "translate(" + [ 0, 0 ] + ")rotate(" + deg + "," + self.origin.x + "," + self.origin.y + ")";
+      return "translate(" + [ x, y ] + ")rotate(" + deg + "," + self.origin.x + "," + self.origin.y + ")";
     });
   };
   this.dragHandler = this.d3.behavior.drag()
       .on("drag", this.translateHandler);
+  this.dragBehaviorFlag = true;
 };
 
 Map.prototype.init = function () {
@@ -92,6 +93,30 @@ Map.prototype.init = function () {
     .attr("height", this.height)
     .append("g");
   var svg = this.d3.select("svg.map-chart-svg>g");
+
+  // ドラッグの挙動を切り替えるためのボタンを配置
+  var self = this;
+  this.d3.select("svg.map-chart-svg")
+    .append("circle")
+    .attr("r", 20)
+    .attr("cx", 30)
+    .attr("cy", 30)
+    .attr("fill","blue")
+    .on("mousedown", function() {
+      if ( self.d3.event.button == 0 ) {
+        if ( self.dragBehaviorFlag ) {
+          self.d3ObjectsMap.svg.call(self.d3.behavior.drag()
+                                     .on("drag", self.rotateHandler));
+          self.$(this).attr("fill", "red");
+          self.dragBehaviorFlag = false;
+        } else {
+          self.d3ObjectsMap.svg.call(self.d3.behavior.drag()
+                                     .on("drag", self.translateHandler));
+          self.$(this).attr("fill", "blue");
+          self.dragBehaviorFlag = true;
+        }
+      }
+    });
 
   // TODO: 原点 = スタート地点で良いか？
   this.preCor = {
