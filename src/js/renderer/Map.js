@@ -40,7 +40,7 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
 
   // グラフドラッグ時の処理
   var self = this;
-  var translateHandler = function() {
+  this.translateHandler = function() {
     var x = 0;
     var y = 0;
     var str = self.d3.select(this).attr("transform");
@@ -57,7 +57,7 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
       return "translate(" + [ x, y ] + ")rotate(" + deg + "," + self.origin.x + "," + self.origin.y + ")";
     });
   };
-  var rotateHandler = function() {
+  this.rotateHandler = function() {
     var x = 0;
     var y = 0;
     var str = self.d3.select(this).attr("transform");
@@ -77,7 +77,7 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
     });
   };
   this.dragHandler = this.d3.behavior.drag()
-      .on("drag", translateHandler);
+      .on("drag", this.translateHandler);
 };
 
 Map.prototype.init = function () {
