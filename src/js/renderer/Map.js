@@ -48,8 +48,9 @@ Map.prototype.init = function () {
     .append("svg")
     .attr('class', 'map-chart-svg')
     .attr("width", this.width)
-    .attr("height", this.height);
-  var svg = this.d3.select("svg.map-chart-svg");
+    .attr("height", this.height)
+    .append("g");
+  var svg = this.d3.select("svg.map-chart-svg>g");
 
   // TODO: 原点 = スタート地点で良いか？
   this.preCor = {
