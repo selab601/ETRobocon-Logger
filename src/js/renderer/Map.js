@@ -256,6 +256,19 @@ Map.prototype.render = function ( coordinate ) {
   this.index++;
 };
 
+Map.prototype.mark = function ( index ) {
+  var c = this.$("circle[index='"+index+"']");
+  console.log(c);
+
+  // 既に選択済みのものがあれば選択を外す
+  if ( this.d3ObjectsMap.preSelectedValue != undefined ) {
+    this.d3ObjectsMap.preSelectedValue.attr("fill", "rgb(54, 128, 183)");
+  }
+  c.attr("fill", "rgb(236, 51, 35)");
+  // キャッシュ
+  this.d3ObjectsMap.preSelectedValue = c;
+};
+
 /**
  * 1まとまりのデータを Map として描画する
  *

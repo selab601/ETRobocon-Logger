@@ -86,6 +86,9 @@ logAnalyzer.prototype.onSelectFile = function () {
     // グラフの描画
     this.onRenderGraphFromLogFile( values );
     this.onRenderMapFromLogFile( values );
+
+    // グラフ側でマークを追加した時に、マップへそれを反映するためのイベントハンドラを登録しておく
+    this.graphRenderer.setOnMark( this.mapRenderer.map.mark.bind(this.mapRenderer.map) );
   });
 };
 

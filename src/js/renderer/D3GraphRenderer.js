@@ -15,6 +15,10 @@ function D3GraphRenderer ( all_keymap, render_value_keymap, maxXValueLength, app
   }.bind(this));
 };
 
+D3GraphRenderer.prototype.setOnMark = function ( onMark ) {
+  this.onMark = onMark;
+};
+
 /**
  * 全グラフの初期化
  *
@@ -139,6 +143,10 @@ D3GraphRenderer.prototype.onRenderMark = function ( mark_index ) {
   // 描画すべきグラフについては，マークを描画する
   for (var i=0; i<this.render_value_keymap.length; i++) {
     this.graphMap[this.render_value_keymap[i]].renderMark();
+  }
+
+  if ( this.onMark != undefined ) {
+    this.onMark( mark_index );
   }
 };
 
