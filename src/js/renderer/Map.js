@@ -126,7 +126,10 @@ Map.prototype.init = function () {
 
   this.index = 0;
 
-  this.d3ObjectsMap = { svg : svg };
+  this.d3ObjectsMap = {
+    svg : svg,
+    s : this.d3.select("svg.map-chart-svg")
+  };
 };
 
 /**
@@ -257,7 +260,7 @@ Map.prototype.renderFromData = function ( data ) {
  */
 Map.prototype.scale = function ( value ) {
   this.zoom = value;
-  this.d3ObjectsMap.svg
+  this.d3ObjectsMap.s
     .style("zoom" , value+"%");
 };
 
