@@ -78,7 +78,7 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
   };
   this.dragHandler = this.d3.behavior.drag()
       .on("drag", this.translateHandler);
-  this.dragBehaviorFlag = true;
+  this.nextDragBehavior = "rotate";
 };
 
 Map.prototype.init = function () {
@@ -96,24 +96,25 @@ Map.prototype.init = function () {
 
   // ドラッグの挙動を切り替えるためのボタンを配置
   var self = this;
-  this.d3.select("svg.map-chart-svg")
-    .append("circle")
-    .attr("r", 20)
-    .attr("cx", 30)
-    .attr("cy", 30)
+  this.d3.select("."+this.append_target_id)
+    .append("div")
+    .attr("id", "map-chart-dragbehavior-button")
     .attr("fill","blue")
     .on("mousedown", function() {
       if ( self.d3.event.button == 0 ) {
-        if ( self.dragBehaviorFlag ) {
+        switch ( self.nextDragBehavior ) {
+        case "rotate":
           self.d3ObjectsMap.svg.call(self.d3.behavior.drag()
                                      .on("drag", self.rotateHandler));
-          self.$(this).attr("fill", "red");
-          self.dragBehaviorFlag = false;
-        } else {
+          self.$(this).attr("class", "map-chart-dragbehavior-rotate");
+          self.nextDragBehavior = "translate";
+          break;
+        case "translate":
           self.d3ObjectsMap.svg.call(self.d3.behavior.drag()
                                      .on("drag", self.translateHandler));
-          self.$(this).attr("fill", "blue");
-          self.dragBehaviorFlag = true;
+          self.$(this).attr("class", "map-chart-dragbehavior-translate");
+          self.nextDragBehavior = "rotate";
+          break;
         }
       }
     });
@@ -125,6 +126,9 @@ Map.prototype.init = function () {
   };
 
   this.index = 0;
+
+  this.$("div#map-chart-dragbehavior-button")
+    .attr("class", "map-chart-dragbehavior-translate");
 
   this.d3ObjectsMap = {
     svg : svg,

@@ -98,6 +98,8 @@
 
 .imageviewer-image-wrapper {
   position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .imageviewer-image-wrapper > img {

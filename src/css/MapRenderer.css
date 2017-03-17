@@ -43,3 +43,37 @@
   align-items: center;     -webkit-align-items: center;
   justify-content: center; -webkit-justify-content: center;
 }
+
+#map-chart-dragbehavior-button {
+  position: absolute;
+  z-index:10000;
+  top: 20px;
+  right: 20px;
+
+  border-radius: 3px;
+  box-shadow:-3px 3px 2px -1px rgba(0, 0, 0, 0.5);
+
+  width:64px;
+  height:64px;
+
+  cursor: pointer;
+}
+
+#map-chart-dragbehavior-button:hover::before {
+  background-color: rgba(0,0,0,0.3);
+  border-radius: 3px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  content: ' ';
+}
+
+.map-chart-dragbehavior-rotate {
+  background-color: red;
+}
+
+.map-chart-dragbehavior-translate {
+  background-color: blue;
+}
