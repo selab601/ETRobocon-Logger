@@ -37,6 +37,32 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
     .range([0, this.width]);
   this.yScale = this.d3.scale.linear()
     .range([this.height, 0]);
+
+  // グラフドラッグ時の処理
+  var self = this;
+  var translateHandler = function() {
+    var x = self.d3.transform(self.d3.select(this).attr("transform")).translate[0];
+    var y = self.d3.transform(self.d3.select(this).attr("transform")).translate[1];
+    var deg = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).rotate;
+    x += self.d3.event.dx;
+    y += self.d3.event.dy;
+    self.d3ObjectsMap.svg.attr("transform", function(d,i){
+      return "translate(" + [ x, y ] + ")rotate(" + deg + "," + self.origin.x + "," + self.origin.y + ")";
+    });
+  };
+  var rotateHandler = function() {
+    var deg = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).rotate;
+
+    var pre_rad = Math.atan2(self.d3.event.x+self.d3.event.dx - self.origin.x, self.d3.event.y+self.d3.event.dy - self.origin.y);
+    var rad = Math.atan2(self.d3.event.x - self.origin.x, self.d3.event.y - self.origin.y);
+    deg += ( (rad - pre_rad) * 180 / Math.PI );
+
+    self.d3ObjectsMap.svg.attr("transform", function(d,i){
+      return "translate(" + [ 0, 0 ] + ")rotate(" + deg + "," + self.origin.x + "," + self.origin.y + ")";
+    });
+  };
+  this.dragHandler = this.d3.behavior.drag()
+      .on("drag", rotateHandler);
 };
 
 Map.prototype.init = function () {
@@ -147,17 +173,7 @@ Map.prototype.render = function ( coordinate ) {
       }
     });
 
-  var drag = this.d3.behavior.drag()
-        .on("drag", function(d,i) {
-          var x = self.d3.transform(self.d3.select(this).attr("transform")).translate[0];
-          var y = self.d3.transform(self.d3.select(this).attr("transform")).translate[1];
-          x += self.d3.event.dx;
-          y += self.d3.event.dy;
-          self.d3ObjectsMap.svg.attr("transform", function(d,i){
-            return "translate(" + [ x, y ] + ")";
-          });
-        });
-  this.d3ObjectsMap.svg.call(drag);
+  this.d3ObjectsMap.svg.call(this.dragHandler);
 
   this.preCor = adjustedCor;
   this.index++;
