@@ -201,13 +201,33 @@ Map.prototype.render = function ( coordinate ) {
       };
       var cor = rotateCoordiante({x:x,y:y}, svg_deg, origin);
       self.toolTip
-        .style("left", cor.x + "px" )
-        .style("top", cor.y + "px")
+        .style("left", cor.x + 3 + "px" )
+        .style("top", cor.y - 2 + "px")
         .style("visibility","visible")
         .text( parseInt(coordinate.x*10)  + ", " + parseInt(coordinate.y*10) );
+
+      // フォーカスを色で表す
+      if ( self.d3ObjectsMap.preSelectedValue != undefined
+           && self.d3ObjectsMap.preSelectedValue.is(self.$(this))) {
+        // 選択されいてる場合
+        self.$(this).attr("fill", "rgb(149, 27, 3)");
+      } else {
+        // 選択されていない場合
+        self.$(this).attr("fill", "rgb(5, 52, 98)");
+      }
     })
     .on("mouseout", function(d) { // マウスアウトするとツールチップを非表示
       self.toolTip.style("visibility","hidden");
+
+      // フォーカスを色で表す
+      if ( self.d3ObjectsMap.preSelectedValue != undefined
+           && self.d3ObjectsMap.preSelectedValue.is(self.$(this))) {
+        // 選択されている場合
+        self.$(this).attr("fill", "rgb(236, 51, 35)");
+      } else {
+        // 選択されていない場合
+        self.$(this).attr("fill", "rgb(54, 128, 183)");
+      }
     })
     .on("mousedown", function() {
       // 右クリックの時は動作を止める
@@ -224,7 +244,7 @@ Map.prototype.render = function ( coordinate ) {
           self.d3ObjectsMap.preSelectedValue.attr("fill", "rgb(54, 128, 183)");
         }
         self.onSelectData(self.$(this)[0].attributes.index.value);
-        self.$(this).attr("fill", "red");
+        self.$(this).attr("fill", "rgb(149, 27, 3)");
         // キャッシュ
         self.d3ObjectsMap.preSelectedValue = $(this);
       }
