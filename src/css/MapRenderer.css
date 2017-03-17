@@ -51,12 +51,17 @@
   right: 20px;
 
   border-radius: 3px;
+  background-color: rgb(241, 241, 241);
   box-shadow:-3px 3px 2px -1px rgba(0, 0, 0, 0.5);
 
   width:64px;
   height:64px;
 
   cursor: pointer;
+
+  display: flex;           display: -webkit-flex;
+  align-items: center;     -webkit-align-items: center;
+  justify-content: center; -webkit-justify-content: center;
 }
 
 #map-chart-dragbehavior-button:hover::before {
@@ -70,10 +75,22 @@
   content: ' ';
 }
 
-.map-chart-dragbehavior-rotate {
-  background-color: red;
+div.map-chart-dragbehavior-rotate > img {
+  content: url("../resources/rotate_icon.png");
+  width: 50px; /*or your image's width*/
+  height: 50px; /*or your image's height*/
 }
 
-.map-chart-dragbehavior-translate {
-  background-color: blue;
+div.map-chart-dragbehavior-translate > img {
+  content: url("../resources/move_icon.png");
+  width: 50px; /*or your image's width*/
+  height: 50px; /*or your image's height*/
+}
+
+g.map-chart-dragbehavior-rotate > circle {
+  cursor: move;
+}
+
+g.map-chart-dragbehavior-translate > circle {
+  cursor: move;
 }

@@ -106,18 +106,21 @@ Map.prototype.init = function () {
         case "rotate":
           self.d3ObjectsMap.svg.call(self.d3.behavior.drag()
                                      .on("drag", self.rotateHandler));
+          self.d3ObjectsMap.svg.attr("class", "map-chart-dragbehavior-rotate");
           self.$(this).attr("class", "map-chart-dragbehavior-rotate");
           self.nextDragBehavior = "translate";
           break;
         case "translate":
           self.d3ObjectsMap.svg.call(self.d3.behavior.drag()
                                      .on("drag", self.translateHandler));
+          self.d3ObjectsMap.svg.attr("class", "map-chart-dragbehavior-translate");
           self.$(this).attr("class", "map-chart-dragbehavior-translate");
           self.nextDragBehavior = "rotate";
           break;
         }
       }
-    });
+    })
+    .append("img");
 
   // TODO: 原点 = スタート地点で良いか？
   this.preCor = {
@@ -129,6 +132,7 @@ Map.prototype.init = function () {
 
   this.$("div#map-chart-dragbehavior-button")
     .attr("class", "map-chart-dragbehavior-translate");
+  svg.attr("class", "map-chart-dragbehavior-translate");
 
   this.d3ObjectsMap = {
     svg : svg,
