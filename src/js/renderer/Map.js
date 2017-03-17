@@ -115,9 +115,11 @@ Map.prototype.render = function ( coordinate ) {
     .attr("cy", adjustedCor.y)
     .attr("fill","rgb(54, 128, 183)")
     .on("mouseover", function() { // マウスオーバー時にツールチップを表示
+      var svg_x = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).translate[0];
+      var svg_y = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).translate[1];
       self.toolTip
-        .style("left", (adjustedCor.x) * self.zoom/100 + "px" )
-        .style("top", (adjustedCor.y - 23) * self.zoom/100 + "px")
+        .style("left", (adjustedCor.x) * self.zoom/100 + svg_x + "px" )
+        .style("top", (adjustedCor.y - 23) * self.zoom/100 + svg_y + "px")
         .style("visibility","visible")
         .text( parseInt(coordinate.x*10)  + ", " + parseInt(coordinate.y*10) );
     })
@@ -144,6 +146,18 @@ Map.prototype.render = function ( coordinate ) {
         self.d3ObjectsMap.preSelectedValue = $(this);
       }
     });
+
+  var drag = this.d3.behavior.drag()
+        .on("drag", function(d,i) {
+          var x = self.d3.transform(self.d3.select(this).attr("transform")).translate[0];
+          var y = self.d3.transform(self.d3.select(this).attr("transform")).translate[1];
+          x += self.d3.event.dx;
+          y += self.d3.event.dy;
+          self.d3ObjectsMap.svg.attr("transform", function(d,i){
+            return "translate(" + [ x, y ] + ")";
+          });
+        });
+  this.d3ObjectsMap.svg.call(drag);
 
   this.preCor = adjustedCor;
   this.index++;
