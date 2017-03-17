@@ -23,10 +23,10 @@ const GRAPH_WIDTH        = SVG_ELEMENT_WIDTH - (PADDING_LEFT+PADDING_RIGHT);
  *                         追加されようとした場合，古いデータから抜け落ちてゆく
  *                         制限したくない場合は，null を指定する
  * @param append_target_id グラフを追加する対象の DOM の ID
- * @param onRenderMark     マーク付加イベントが発生した際に，全てのグラフにマークの描画
- *                         を支持するためのコールバック関数
+ * @param onRenderMarkOnOtherGraphs     マーク付加イベントが発生した際に，全てのグラフにマークの描画
+ *                                      を支持するためのコールバック関数
  */
-function D3Graph( key, maxXValueLength, append_target_id, onRenderMark ) {
+function D3Graph( key, maxXValueLength, append_target_id, onRenderMarkOnOtherGraphs ) {
   /*** レイアウト値 ***/
   this.svgElementHeight = SVG_ELEMENT_HEIGHT;
   this.svgElementWidth  = SVG_ELEMENT_WIDTH;
@@ -41,7 +41,8 @@ function D3Graph( key, maxXValueLength, append_target_id, onRenderMark ) {
   this.maxXValueLength  = maxXValueLength;
   this.key              = key;
   this.append_target_id = append_target_id;
-  this.onRenderMark  = onRenderMark;
+  this.onRenderMarkOnOtherGraphs = onRenderMarkOnOtherGraphs;
+  this.onRenderMarkOnMap = undefined;
 
   // グラフの描画に関係する値
   this.xValues          = [];
@@ -241,7 +242,7 @@ D3Graph.prototype.render = function () {
     .call(this.yAxis);
 
   // マークの描画
-  this.renderMark();
+  this.onRenderMark();
 };
 
 /**
@@ -315,7 +316,7 @@ function onBrushed () {
   // 再描画
   // TODO: 再描画の設定は描画ごとに異なるため，ここは別処理に切り出したい．
   this.render();
-  this.renderMark();
+  this.onRenderMark();
   this.addBrush();
   // 背景の rect を返す
   // サイズは SVG 要素と同じになっているみたい
@@ -465,7 +466,14 @@ D3Graph.prototype.addMarkEvent = function ( target_rect ) {
           rightSideXData = self.xScale[leftSideIndex],
           index          = mouseXPos - leftSideXData > rightSideXData - mouseXPos ? leftSideIndex-1 : leftSideIndex;
 
+      // マークを描画する
       self.onRenderMark( index );
+      // 他の全グラフにもマークを描画する
+      self.onRenderMarkOnOtherGraphs( index );
+      // マップにもマークを描画する
+      if ( self.onRenderMarkOnMap != undefined ) {
+        self.onRenderMarkOnMap( index );
+      }
     });
 };
 
@@ -494,7 +502,7 @@ D3Graph.prototype.setMark = function (mark) {
  *   .y(function(d){return d;}.bind(this))
  *   .interpolate("linear");
  */
-D3Graph.prototype.renderMark = function () {
+D3Graph.prototype.onRenderMark = function () {
   var svg = this.d3ObjectsMap.svg;
   if ( svg === undefined ) { return; }
 
@@ -507,5 +515,13 @@ D3Graph.prototype.renderMark = function () {
     .attr("stroke", "red")
     .attr("fill", "none");
 };
+
+/**
+ * マップにマークを反映させるためのイベントハンドラを設定する
+ */
+D3Graph.prototype.setOnRenderMarkOnMap = function ( handler ) {
+  this.onRenderMarkOnMap = handler;
+};
+
 
 module.exports = D3Graph;

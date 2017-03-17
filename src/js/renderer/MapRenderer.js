@@ -61,4 +61,15 @@ MapRenderer.prototype.init = function ( $append_target, map_settings, onSelectDa
   }
 };
 
+/**
+ * マークが描画された際に実行されるイベントハンドラ
+ * マップ以外の場所(グラフ上)で値がマークされた場合に呼び出されるイベントハンドラ
+ * マップにマークを描画する。
+ *
+ * @param index マーク対象の値のインデックス
+ */
+MapRenderer.prototype.onRenderMark = function ( index ) {
+  this.map.onRenderMark( index, false );
+};
+
 module.exports = MapRenderer;

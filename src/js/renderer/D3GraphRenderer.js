@@ -15,19 +15,18 @@ function D3GraphRenderer ( all_keymap, render_value_keymap, maxXValueLength, app
   }.bind(this));
 };
 
-D3GraphRenderer.prototype.setOnMark = function ( onMark ) {
-  this.onMark = onMark;
-};
-
 /**
  * 全グラフの初期化
  *
  * 全グラフのデータのリセットと，スタイルのリセット
+ *
+ * @param onRenderMarkOnMap マップにマークを反映させるためのイベントハンドラ
  */
-D3GraphRenderer.prototype.initialize = function () {
+D3GraphRenderer.prototype.initialize = function ( onRenderMarkOnMap ) {
   Object.keys( this.graphMap ).forEach( function ( key ) {
     this.graphMap[key].clearData();
     this.graphMap[key].resetStyle();
+    this.graphMap[key].setOnRenderMarkOnMap( onRenderMarkOnMap );
   }.bind(this));
   this.removeAll();
 };
@@ -98,7 +97,7 @@ function renderGraph ( graph, xScope, yScope, options ) {
      */
     if (options.indexOf("mark") != -1) {
       graph.addMarkEvent(brush_rect);
-      graph.renderMark();
+      graph.onRenderMark();
     }
 
     /**
@@ -142,11 +141,7 @@ D3GraphRenderer.prototype.onRenderMark = function ( mark_index ) {
 
   // 描画すべきグラフについては，マークを描画する
   for (var i=0; i<this.render_value_keymap.length; i++) {
-    this.graphMap[this.render_value_keymap[i]].renderMark();
-  }
-
-  if ( this.onMark != undefined ) {
-    this.onMark( mark_index );
+    this.graphMap[this.render_value_keymap[i]].onRenderMark();
   }
 };
 

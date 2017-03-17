@@ -86,17 +86,14 @@ logAnalyzer.prototype.onSelectFile = function () {
     // グラフの描画
     this.onRenderGraphFromLogFile( values );
     this.onRenderMapFromLogFile( values );
-
-    // グラフ側でマークを追加した時に、マップへそれを反映するためのイベントハンドラを登録しておく
-    this.graphRenderer.setOnMark( this.mapRenderer.map.mark.bind(this.mapRenderer.map) );
   });
 };
 
 /**
-   * グラフ描画時に呼び出されるイベントハンドラ
+ * グラフ描画時に呼び出されるイベントハンドラ
  */
 logAnalyzer.prototype.onRenderGraphFromLogFile = function ( values ) {
-  this.graphRenderer.initialize();
+  this.graphRenderer.initialize( this.onRenderMarkOnMap.bind(this) );
 
   for (var i=0; i<Object.keys(values).length; i++) {
     var obj = JSON.parse(values[i]);
@@ -114,7 +111,7 @@ logAnalyzer.prototype.onRenderGraphFromLogFile = function ( values ) {
 logAnalyzer.prototype.onRenderMapFromLogFile = function ( values ) {
   if ( this.stateMap.logFileSettings == undefined ) { return; }
 
-  this.mapRenderer.init( this.jqueryMap.$content_map, this.stateMap.logFileSettings, this.onSelectData.bind(this));
+  this.mapRenderer.init( this.jqueryMap.$content_map, this.stateMap.logFileSettings, this.onRenderMarkOnGraph.bind(this));
 
   for (var i=0; i<Object.keys(values).length; i++) {
     var obj = JSON.parse(values[i]);
@@ -122,11 +119,12 @@ logAnalyzer.prototype.onRenderMapFromLogFile = function ( values ) {
   }
 };
 
-/**
- * マップ上のデータ選択時に呼び出されるイベントハンドラ
- */
-logAnalyzer.prototype.onSelectData = function ( index ) {
+logAnalyzer.prototype.onRenderMarkOnGraph = function ( index ) {
   this.graphRenderer.onRenderMark(index);
+};
+
+logAnalyzer.prototype.onRenderMarkOnMap = function ( index ) {
+  this.mapRenderer.onRenderMark(index);
 };
 
 /**

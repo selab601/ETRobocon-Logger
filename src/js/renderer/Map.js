@@ -1,4 +1,4 @@
-function Map ( $append_target_id, width, height, origin, drawScale, onSelectData, theta ) {
+function Map ( $append_target_id, width, height, origin, drawScale, onRenderMarkOnGraph, theta ) {
   this.append_target_id = $append_target_id;
 
   this.width  = parseFloat(width);
@@ -10,7 +10,7 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
   this.drawScale  = parseFloat(drawScale);
   this.preCor = null;
   this.index  = 0;
-  this.onSelectData = onSelectData;
+  this.onRenderMarkOnGraph = onRenderMarkOnGraph;
   this.zoom = 100;
   this.theta = isNaN(parseFloat(theta)) ? 0 : parseFloat(theta);
 
@@ -246,15 +246,16 @@ Map.prototype.render = function ( coordinate ) {
     .on("contextmenu", function (d, i) {
       // 右クリック時の処理
       self.d3.event.preventDefault();
-      if ( self.onSelectData != undefined ) {
-        // 既に選択済みのものがあれば選択を外す
-        if ( self.d3ObjectsMap.preSelectedValue != undefined ) {
-          self.d3ObjectsMap.preSelectedValue.attr("fill", "rgb(54, 128, 183)");
-        }
-        self.onSelectData(self.$(this)[0].attributes.index.value);
-        self.$(this).attr("fill", "rgb(149, 27, 3)");
-        // キャッシュ
-        self.d3ObjectsMap.preSelectedValue = $(this);
+
+      var index = self.$(this)[0].attributes.index.value;
+      if ( self.onRenderMarkOnGraph != undefined ) {
+        // マーク描画時のイベントハンドラの実行
+        // マップ以外(全グラフ)に、マップ上のどの値がマークされたか通知する
+        self.onRenderMarkOnGraph( index );
+        // マークの描画
+        // マップ上で直接マークする場合にはマウスカーソルがマーク対象に重なっている
+        // はずなので、isFocused は true にする
+        self.onRenderMark( index, true );
       }
     });
 
@@ -264,15 +265,31 @@ Map.prototype.render = function ( coordinate ) {
   this.index++;
 };
 
-Map.prototype.mark = function ( index ) {
+/**
+ * マークを描画する
+ * マークはグラフ/マップ上の特定の値を選択すると、その選択状態が全グラフ/マップ
+ * 上で共有される機能。
+ * グラフ/マップ上のデータはその index で一意に識別されるため、index を指定する。
+ * また、マップの場合、マウスオーバーしているかそうでないかによってマーク時の色
+ * が異なるため、その状態を明示的に指定する必要がある。
+ *
+ * @param index     マーク対象のデータの index
+ * @param isFocused マーク対象にマウスオーバーしているかどうか
+ */
+Map.prototype.onRenderMark = function ( index, isFocused ) {
   var c = this.$("circle[index='"+index+"']");
-  console.log(c);
 
   // 既に選択済みのものがあれば選択を外す
   if ( this.d3ObjectsMap.preSelectedValue != undefined ) {
     this.d3ObjectsMap.preSelectedValue.attr("fill", "rgb(54, 128, 183)");
   }
-  c.attr("fill", "rgb(236, 51, 35)");
+
+  if ( isFocused ) {
+    c.attr("fill", "rgb(149, 27, 3)");
+  } else {
+    c.attr("fill", "rgb(236, 51, 35)");
+  }
+
   // キャッシュ
   this.d3ObjectsMap.preSelectedValue = c;
 };
