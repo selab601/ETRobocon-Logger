@@ -41,9 +41,16 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
   // グラフドラッグ時の処理
   var self = this;
   var translateHandler = function() {
-    var x = self.d3.transform(self.d3.select(this).attr("transform")).translate[0];
-    var y = self.d3.transform(self.d3.select(this).attr("transform")).translate[1];
+    var x = 0;
+    var y = 0;
+    var str = self.d3.select(this).attr("transform");
+    if (str != null) {
+      var translate = str.substring(str.indexOf("(")+1, str.indexOf(")")).split(",");
+      x = parseInt(translate[0]);
+      y = parseInt(translate[1]);
+    }
     var deg = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).rotate;
+
     x += self.d3.event.dx;
     y += self.d3.event.dy;
     self.d3ObjectsMap.svg.attr("transform", function(d,i){
@@ -51,6 +58,14 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
     });
   };
   var rotateHandler = function() {
+    var x = 0;
+    var y = 0;
+    var str = self.d3.select(this).attr("transform");
+    if (str != null) {
+      var translate = str.substring(str.indexOf("(")+1, str.indexOf(")")).split(",");
+      x = parseInt(translate[0]);
+      y = parseInt(translate[1]);
+    }
     var deg = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).rotate;
 
     var pre_rad = Math.atan2(self.d3.event.x+self.d3.event.dx - self.origin.x, self.d3.event.y+self.d3.event.dy - self.origin.y);
@@ -62,7 +77,7 @@ function Map ( $append_target_id, width, height, origin, drawScale, onSelectData
     });
   };
   this.dragHandler = this.d3.behavior.drag()
-      .on("drag", rotateHandler);
+      .on("drag", translateHandler);
 };
 
 Map.prototype.init = function () {
@@ -141,11 +156,25 @@ Map.prototype.render = function ( coordinate ) {
     .attr("cy", adjustedCor.y)
     .attr("fill","rgb(54, 128, 183)")
     .on("mouseover", function() { // マウスオーバー時にツールチップを表示
-      var svg_x = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).translate[0];
-      var svg_y = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).translate[1];
+      var svg_x = 0;
+      var svg_y = 0;
+      var str = self.d3ObjectsMap.svg.attr("transform");
+      if (str != null) {
+        var translate = str.substring(str.indexOf("(")+1, str.indexOf(")")).split(",");
+        svg_x = parseInt(translate[0]);
+        svg_y = parseInt(translate[1]);
+      }
+      var svg_deg = self.d3.transform(self.d3ObjectsMap.svg.attr("transform")).rotate;
+      var x = (adjustedCor.x) * self.zoom/100 + svg_x;
+      var y = (adjustedCor.y-23) * self.zoom/100 + svg_y;
+      var origin = {
+        x: self.origin.x * self.zoom/100 + svg_x,
+        y: (self.origin.y-23) * self.zoom/100 + svg_y
+      };
+      var cor = rotateCoordiante({x:x,y:y}, svg_deg, origin);
       self.toolTip
-        .style("left", (adjustedCor.x) * self.zoom/100 + svg_x + "px" )
-        .style("top", (adjustedCor.y - 23) * self.zoom/100 + svg_y + "px")
+        .style("left", cor.x + "px" )
+        .style("top", cor.y + "px")
         .style("visibility","visible")
         .text( parseInt(coordinate.x*10)  + ", " + parseInt(coordinate.y*10) );
     })
