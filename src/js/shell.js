@@ -12,7 +12,7 @@ const DeviceDisconnector = require('./deviceDisconnector.js');
 const LogRenderer        = require('./logRenderer.js');
 const LogAnalyzer        = require('./logAnalyzer.js');
 const Dialog             = require('./dialog.js');
-const Settings           = require('./settings.js');
+const Settings           = require('./settings/settings.js');
 
 function shell() {
   // 静的プロパティ
