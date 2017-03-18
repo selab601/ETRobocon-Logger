@@ -77,6 +77,7 @@ function D3Graph( key, maxXValueLength, append_target_id, onRenderMarkOnOtherGra
   //** マーク **//
   this.markLine     = this.d3.svg.line();
   this.mark_index   = null;
+  this.isMarkable   = false;
   // スケール設定
   this.markLine
     .x(function(d,i){return this.xScale(this.xValues[this.mark_index]);}.bind(this))
@@ -457,6 +458,8 @@ D3Graph.prototype.addMarkEvent = function ( target_rect ) {
       // 右クリック時の処理
       self.d3.event.preventDefault();
 
+      if ( ! self.isMarkable ) { return; }
+
       // マークを付加する場所の決定
       // クリック地点から一番近いX座標を index として保持し，
       // それをもってして全グラフに描画を促す
@@ -470,8 +473,8 @@ D3Graph.prototype.addMarkEvent = function ( target_rect ) {
       self.onRenderMark( index );
       // 他の全グラフにもマークを描画する
       self.onRenderMarkOnOtherGraphs( index );
-      // マップにもマークを描画する
       if ( self.onRenderMarkOnMap != undefined ) {
+        // マップにもマークを描画する
         self.onRenderMarkOnMap( index );
       }
     });
@@ -514,6 +517,14 @@ D3Graph.prototype.onRenderMark = function () {
     .attr("d", this.markLine([this.svgElementHeight - this.paddingBottom, this.paddingTop + this.titleSpaceHeight]))
     .attr("stroke", "red")
     .attr("fill", "none");
+};
+
+D3Graph.prototype.enableMark = function () {
+  this.isMarkable = true;
+};
+
+D3Graph.prototype.disableMark = function () {
+  this.isMarkable = false;
 };
 
 /**

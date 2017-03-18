@@ -31,7 +31,7 @@ MapRenderer.prototype.render = function ( x, y, clock ) {
   this.map.render({x: x, y: y}, clock);
 };
 
-MapRenderer.prototype.init = function ( $append_target, map_settings, onSelectData ) {
+MapRenderer.prototype.init = function ( $append_target, map_settings, onRenderMarkOnGraph ) {
   this.stateMap.$append_target = $append_target;
   $append_target.html( this.configMap.main_html );
   this.setJqueryMap();
@@ -53,7 +53,7 @@ MapRenderer.prototype.init = function ( $append_target, map_settings, onSelectDa
       map_settings.image_original_size.height,
       { x: cor.x, y: cor.y },
       map_settings.draw_scale,
-      onSelectData,
+      onRenderMarkOnGraph,
       map_settings.draw_rotate
     );
     this.map.init();
@@ -70,6 +70,10 @@ MapRenderer.prototype.init = function ( $append_target, map_settings, onSelectDa
  */
 MapRenderer.prototype.onRenderMark = function ( index ) {
   this.map.onRenderMark( index, false );
+};
+
+MapRenderer.prototype.enableMark = function () {
+  this.map.enableMark();
 };
 
 module.exports = MapRenderer;

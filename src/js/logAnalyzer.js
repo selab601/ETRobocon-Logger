@@ -103,6 +103,7 @@ logAnalyzer.prototype.onRenderGraphFromLogFile = function ( values ) {
   }
 
   this.graphRenderer.renderAll(null, null, ["brush", "focus", "mark"]);
+  this.graphRenderer.enableMark();
 };
 
 /**
@@ -117,6 +118,8 @@ logAnalyzer.prototype.onRenderMapFromLogFile = function ( values ) {
     var obj = JSON.parse(values[i]);
     this.mapRenderer.render( obj.coordinate_x/10, obj.coordinate_y/10 );
   }
+
+  this.mapRenderer.enableMark();
 };
 
 logAnalyzer.prototype.onRenderMarkOnGraph = function ( index ) {

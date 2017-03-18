@@ -13,6 +13,7 @@ function Map ( $append_target_id, width, height, origin, drawScale, onRenderMark
   this.onRenderMarkOnGraph = onRenderMarkOnGraph;
   this.zoom = 100;
   this.theta = isNaN(parseFloat(theta)) ? 0 : parseFloat(theta);
+  this.isMarkable = false;
 
   // D3 オブジェクトキャッシュ用
   this.d3ObjectsMap = {};
@@ -247,15 +248,18 @@ Map.prototype.render = function ( coordinate ) {
       // 右クリック時の処理
       self.d3.event.preventDefault();
 
+      if ( ! self.isMarkable ) { return; }
+
       var index = self.$(this)[0].attributes.index.value;
+
+      // マークの描画
+      // マップ上で直接マークする場合にはマウスカーソルがマーク対象に重なっている
+      // はずなので、isFocused は true にする
+      self.onRenderMark( index, true );
       if ( self.onRenderMarkOnGraph != undefined ) {
         // マーク描画時のイベントハンドラの実行
         // マップ以外(全グラフ)に、マップ上のどの値がマークされたか通知する
         self.onRenderMarkOnGraph( index );
-        // マークの描画
-        // マップ上で直接マークする場合にはマウスカーソルがマーク対象に重なっている
-        // はずなので、isFocused は true にする
-        self.onRenderMark( index, true );
       }
     });
 
@@ -292,6 +296,14 @@ Map.prototype.onRenderMark = function ( index, isFocused ) {
 
   // キャッシュ
   this.d3ObjectsMap.preSelectedValue = c;
+};
+
+Map.prototype.enableMark = function () {
+  this.isMarkable = true;
+};
+
+Map.prototype.disableMark = function () {
+  this.isMarkable = false;
 };
 
 /**

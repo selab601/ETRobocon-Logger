@@ -145,4 +145,10 @@ D3GraphRenderer.prototype.onRenderMark = function ( mark_index ) {
   }
 };
 
+D3GraphRenderer.prototype.enableMark = function () {
+  Object.keys(this.graphMap).forEach(function( key ) {
+    this.graphMap[key].enableMark();
+  }.bind(this));
+};
+
 module.exports = D3GraphRenderer;

@@ -228,7 +228,7 @@ logRenderer.prototype.init = function ( $append_target ) {
     start_point         : this.ipc.sendSync('getState', { doc: 'setting', key: 'start_point'}),
     draw_scale          : this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_scale'}),
     draw_rotate         : this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_rotate'})
-  });
+  }, undefined );
 
   // イベントハンドラを登録
   this.ipc.on('receiveDataFromDevice', this.onReceiveDataFromDevice.bind(this));
