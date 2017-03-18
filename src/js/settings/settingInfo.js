@@ -12,13 +12,13 @@ function SettingInfo () {
           </div>
           <div class="settings-form">
             <div class="settings-form-title">Import :</div>
-            <div class="settings-form-button">
+            <div class="settings-form-button settings-form-import-button">
               <img src="resources/import_icon.png">
             </div>
           </div>
           <div class="settings-form">
             <div class="settings-form-title">Export :</div>
-            <div class="settings-form-button">
+            <div class="settings-form-button settings-form-export-button">
               <img src="resources/export_icon.png">
             </div>
           </div>
@@ -36,6 +36,23 @@ function SettingInfo () {
 };
 
 
+/******** イベントハンドラ ********/
+
+SettingInfo.prototype.onCheck = function ( event ) {
+  console.log("checked");
+};
+
+SettingInfo.prototype.onImport = function ( event ) {
+  console.log("import");
+};
+
+SettingInfo.prototype.onExport = function ( event ) {
+  console.log("export");
+};
+
+/**********************************/
+
+
 /**
  * jQuery オブジェクトをキャッシュする
  *
@@ -46,7 +63,10 @@ function SettingInfo () {
 SettingInfo.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
-    $append_target : $append_target
+    $append_target : $append_target,
+    $import_button : $append_target.find(".settings-form-import-button"),
+    $export_button : $append_target.find(".settings-form-export-button"),
+    $checkbox      : $append_target.find("#settings-info-savable-form-checkbox")
   };
 };
 
@@ -59,6 +79,11 @@ SettingInfo.prototype.init = function ( $append_target ) {
   $append_target.append( this.configMap.main_html );
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
+
+  // イベントハンドラの登録
+  this.jqueryMap.$import_button.bind( "click", this.onImport.bind(this) );
+  this.jqueryMap.$export_button.bind( "click", this.onExport.bind(this) );
+  this.jqueryMap.$checkbox.bind( "click", this.onCheck.bind(this) );
 };
 
 /**
