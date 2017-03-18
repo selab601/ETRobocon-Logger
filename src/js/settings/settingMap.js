@@ -10,22 +10,22 @@ function SettingMap () {
       /*
         <div class="settings-map">
           <div class="settings-title">Map</div>
-          <div class="settings-map-image-form">
-            <div class="settings-map-image-form-title">Image :</div>
+          <div class="settings-form first">
+            <div class="settings-form-title">Image :</div>
             <input type="text" class="settings-map-image-form-body"/>
             <div class="settings-map-image-form-button">
               <img src="resources/search_icon.png">
             </div>
           </div>
-          <div class="settings-map-scale-form">
-            <div class="settings-map-scale-form-title">Scale :</div>
+          <div class="settings-form">
+            <div class="settings-form-title">Scale :</div>
             <input type="text" class="settings-map-scale-form-body" value="1"/>
-            <span>px / cm</span>
+            <span class="settings-form-scale-span">px / cm</span>
           </div>
-          <div class="settings-map-rotate-form">
-            <div class="settings-map-rotate-form-title">Rotate :</div>
+          <div class="settings-form settings-form-rotate">
+            <div class="settings-form-title">Rotate :</div>
             <input type="text" class="settings-map-rotate-form-body" value="0"/>
-            <span>°</span>
+            <span class="settings-form-rotate-span">deg</span>
           </div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1]
