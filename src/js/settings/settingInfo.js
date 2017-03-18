@@ -6,6 +6,22 @@ function SettingInfo () {
       /*
         <div id="settings-info">
           <div class="settings-title">Info</div>
+          <div class="settings-form">
+            <input type="checkbox" id="settings-info-savable-form-checkbox">
+            <label for="settings-info-savable-form-checkbox">設定をアプリ内で常に保持する</label>
+          </div>
+          <div class="settings-form">
+            <div class="settings-form-title">Import :</div>
+            <div class="settings-form-button">
+              <img src="resources/import_icon.png">
+            </div>
+          </div>
+          <div class="settings-form">
+            <div class="settings-form-title">Export :</div>
+            <div class="settings-form-button">
+              <img src="resources/export_icon.png">
+            </div>
+          </div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1]
   };
