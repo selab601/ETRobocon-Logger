@@ -105,15 +105,17 @@ Map.prototype.init = function () {
       if ( self.d3.event.button == 0 ) {
         switch ( self.nextDragBehavior ) {
         case "rotate":
-          self.d3ObjectsMap.svg.call(self.d3.behavior.drag()
-                                     .on("drag", self.rotateHandler));
+          self.dragHandler = self.d3.behavior.drag()
+            .on("drag", self.rotateHandler);
+          self.d3ObjectsMap.svg.call(self.dragHandler);
           self.d3ObjectsMap.svg.attr("class", "map-chart-dragbehavior-rotate");
           self.$(this).attr("class", "map-chart-dragbehavior-rotate");
           self.nextDragBehavior = "translate";
           break;
         case "translate":
-          self.d3ObjectsMap.svg.call(self.d3.behavior.drag()
-                                     .on("drag", self.translateHandler));
+          self.dragHandler = self.d3.behavior.drag()
+            .on("drag", self.translateHandler);
+          self.d3ObjectsMap.svg.call(self.dragHandler);
           self.d3ObjectsMap.svg.attr("class", "map-chart-dragbehavior-translate");
           self.$(this).attr("class", "map-chart-dragbehavior-translate");
           self.nextDragBehavior = "rotate";
