@@ -124,6 +124,17 @@ Map.prototype.init = function () {
       }
     })
     .append("img");
+  this.d3.select("."+this.append_target_id)
+    .append("div")
+    .attr("id", "map-chart-dragbehavior-reset-button")
+    .on("mousedown", function() {
+      if ( self.d3.event.button == 0 ) {
+        self.d3ObjectsMap.svg.attr("transform", function(d,i){
+          return "translate(" + [ 0, 0 ] + ")rotate(" + 0 + "," + self.origin.x + "," + self.origin.y + ")";
+        });
+      }
+    })
+    .text("RESET");
 
   // TODO: 原点 = スタート地点で良いか？
   this.preCor = {

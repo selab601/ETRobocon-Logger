@@ -94,3 +94,35 @@ g.map-chart-dragbehavior-rotate > circle {
 g.map-chart-dragbehavior-translate > circle {
   cursor: move;
 }
+
+#map-chart-dragbehavior-reset-button {
+  position: absolute;
+  z-index:10000;
+  top: calc(20px + 20px + 64px);
+  right: 20px;
+
+  border-radius: 3px;
+  background-color: rgb(241, 241, 241);
+  box-shadow:-3px 3px 2px -1px rgba(0, 0, 0, 0.5);
+
+  width:64px;
+  height:30px;
+
+  cursor: pointer;
+
+  line-height: 30px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#map-chart-dragbehavior-reset-button:hover::before {
+  background-color: rgba(0,0,0,0.3);
+  border-radius: 3px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  content: ' ';
+}
