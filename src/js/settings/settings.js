@@ -1,4 +1,5 @@
 const SettingMap = require("./settingMap.js");
+const SettingInfo = require("./settingInfo.js");
 
 function Settings () {
   // 静的プロパティ
@@ -20,6 +21,7 @@ function Settings () {
   this.ipc = require('electron').ipcRenderer;
   // 設定用機能モジュール
   this.settingMap = new SettingMap();
+  this.settingInfo = new SettingInfo();
 };
 
 /**
@@ -62,6 +64,7 @@ Settings.prototype.init = function ( $append_target ) {
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
   // 機能モジュール初期化
+  this.settingInfo.init( $append_target.find("#settings") );
   this.settingMap.init( $append_target.find("#settings") );
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
