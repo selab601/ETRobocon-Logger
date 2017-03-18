@@ -27,6 +27,14 @@
   margin-bottom: 10px;
 }
 
+.settings-title {
+  margin-top: 20px;
+}
+
+.settings-title.first {
+  margin-top: 0px;
+}
+
 .settings-form {
   position: relative;
   display: block;
@@ -53,7 +61,7 @@
   font-size: 14px;
   display: inline-block;
 
-  width: 50px;
+  width: 70px;
   height: 25px;
   line-height: 25px;
 }
@@ -80,6 +88,50 @@
   margin: auto;
 }
 
+.settings-text-form {
+  position: absolute;
+
+  width: calc(100% - 75px - 5px - 2px - 25px);
+  height: calc(25px - 2px);
+  line-height: 24px;
+
+  padding: 0 0 0 5px;
+  margin: 0;
+
+  border: 1px solid rgb(180,180,180);
+
+  pointer-events: none;
+}
+
+.settings-text-form-button {
+  position: absolute;
+
+  width: 23px;
+  height: 23px;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin-left: auto;
+  background-color: rgb(247,247,247);
+
+  border: 1px solid rgb(180,180,180);
+  border-left: none;
+
+  cursor: pointer;
+}
+
+.settings-text-form-button > img {
+  height: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+}
+
 
 /* Map に関する設定 */
 
@@ -90,7 +142,7 @@
 .settings-map-image-form-body {
   position: absolute;
 
-  width: calc(100% - 55px - 5px - 2px - 25px);
+  width: calc(100% - 75px - 5px - 2px - 25px);
   height: calc(25px - 2px);
   line-height: 24px;
 

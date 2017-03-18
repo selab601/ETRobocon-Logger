@@ -1,5 +1,6 @@
 const SettingMap = require("./settingMap.js");
 const SettingInfo = require("./settingInfo.js");
+const SettingConnect = require("./settingConnect.js");
 
 function Settings () {
   // 静的プロパティ
@@ -22,6 +23,7 @@ function Settings () {
   // 設定用機能モジュール
   this.settingMap = new SettingMap();
   this.settingInfo = new SettingInfo();
+  this.settingConnect = new SettingConnect();
 };
 
 /**
@@ -48,11 +50,7 @@ Settings.prototype.load = function () {
 Settings.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
-    $append_target       : $append_target,
-    $image_search_button : $append_target.find(".settings-map-image-form-button"),
-    $image_input_form    : $append_target.find(".settings-map-image-form-body"),
-    $image_scale_form    : $append_target.find(".settings-map-scale-form-body"),
-    $map_rotate_form     : $append_target.find(".settings-map-rotate-form-body")
+    $append_target : $append_target
   };
 };
 
@@ -65,6 +63,7 @@ Settings.prototype.init = function ( $append_target ) {
   $append_target.append( this.configMap.main_html );
   // 機能モジュール初期化
   this.settingInfo.init( $append_target.find("#settings") );
+  this.settingConnect.init( $append_target.find("#settings") );
   this.settingMap.init( $append_target.find("#settings") );
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();

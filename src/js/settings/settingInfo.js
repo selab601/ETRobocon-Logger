@@ -5,7 +5,7 @@ function SettingInfo () {
     main_html : (function () {
       /*
         <div id="settings-info">
-          <div class="settings-title">Info</div>
+          <div class="settings-title first">Info</div>
           <div class="settings-form first">
             <input type="checkbox" id="settings-info-savable-form-checkbox">
             <label for="settings-info-savable-form-checkbox">設定をアプリ内で常に保持する</label>
