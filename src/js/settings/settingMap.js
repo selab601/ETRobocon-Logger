@@ -201,7 +201,7 @@ SettingMap.prototype.init = function ( $append_target ) {
 SettingMap.prototype.remove = function () {
   // DOM 要素の削除
   if ( Object.keys(this.jqueryMap).length != 0 ) {
-    this.stateMap.$append_target.find("#settings-wrapper").remove();
+    this.stateMap.$append_target.find(".settings-map").remove();
     this.jqueryMap = {};
   }
 
