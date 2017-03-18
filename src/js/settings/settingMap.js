@@ -9,7 +9,7 @@ function SettingMap () {
     main_html : (function () {
       /*
         <div class="settings-map">
-          <div class="settings-map-title">Map</div>
+          <div class="settings-title">Map</div>
           <div class="settings-map-image-form">
             <div class="settings-map-image-form-title">Image :</div>
             <input type="text" class="settings-map-image-form-body"/>

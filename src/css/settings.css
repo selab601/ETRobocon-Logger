@@ -17,13 +17,7 @@
   padding: 20px;
 }
 
-/* Map に関する設定 */
-
-.settings-map {
-  width: 100%;
-}
-
-.settings-map-title {
+.settings-title {
   width: 100%;
   font-weight: bold;
   text-align: left;
@@ -31,6 +25,12 @@
   line-height: 25px;
   border-bottom: 1px solid black;
   margin-bottom: 10px;
+}
+
+/* Map に関する設定 */
+
+.settings-map {
+  width: 100%;
 }
 
 .settings-map-image-form {
