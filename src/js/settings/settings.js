@@ -66,7 +66,7 @@ Settings.prototype.init = function ( $append_target, onNotify ) {
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
   // 機能モジュール初期化
-  this.settingInfo.init( $append_target.find("#settings"), onNotify );
+  this.settingInfo.init( $append_target.find("#settings"), onNotify, this.load.bind(this) );
   this.settingConnect.init( $append_target.find("#settings"), onNotify );
   this.settingMap.init( $append_target.find("#settings"), onNotify );
   // jQuery オブジェクトをキャッシュ

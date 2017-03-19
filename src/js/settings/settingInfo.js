@@ -71,6 +71,10 @@ SettingInfo.prototype.onFailedToImportSetting = function ( event, message ) {
   this.onNotify( message.title, message.body );
 };
 
+SettingInfo.prototype.onImported = function ( event, message ) {
+  this.onLoadSetting();
+};
+
 /**********************************/
 
 
@@ -103,7 +107,7 @@ SettingInfo.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-SettingInfo.prototype.init = function ( $append_target, onNotify ) {
+SettingInfo.prototype.init = function ( $append_target, onNotify, onLoadSetting ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
@@ -111,6 +115,7 @@ SettingInfo.prototype.init = function ( $append_target, onNotify ) {
   this.setJqueryMap();
 
   this.onNotify = onNotify;
+  this.onLoadSetting = onLoadSetting;
 
   // イベントハンドラの登録
   this.jqueryMap.$import_button.bind( "click", this.onImport.bind(this) );
@@ -118,6 +123,7 @@ SettingInfo.prototype.init = function ( $append_target, onNotify ) {
   this.jqueryMap.$checkbox.bind( "change", this.onCheck.bind(this) );
   // main プロセスからの通信に反応するイベントハンドラ
   this.ipc.on('failedToImportSetting', this.onFailedToImportSetting.bind(this));
+  this.ipc.on('importedSetting', this.onImported.bind(this));
 };
 
 /**
@@ -134,6 +140,7 @@ SettingInfo.prototype.remove = function () {
 
   // イベントハンドラの削除
   this.ipc.removeAllListeners('failedToImportSetting');
+  this.ipc.removeAllListeners('importedSetting');
 
   // 動的プロパティの初期化
   this.stateMap = {
