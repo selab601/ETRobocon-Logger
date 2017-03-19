@@ -129,7 +129,7 @@ SettingMap.prototype.load = function ( image_path, image_scale, image_original_s
     this.jqueryMap.$image_input_form.val( image_path );
   }
 
-  if ( start_point != '' ) {
+  if ( Object.keys( start_point ) != 0 ) {
     // start_point は，画像のサイズが 100% の時の画像上の座標を示している
     // よって，まずはスケール 100% に対しスタート地点を描画し，その後
     // 指定されたスケール(image_scale)にあわせた位置に描画を更新する
@@ -137,16 +137,12 @@ SettingMap.prototype.load = function ( image_path, image_scale, image_original_s
     this.imageViewer.updateStartPoint( image_scale, 100 );
   }
 
-  if ( draw_scale != '' ) {
-    this.stateMap.draw_scale = draw_scale;
-    this.jqueryMap.$image_scale_form.val(draw_scale);
-  }
+  this.stateMap.draw_scale = draw_scale;
+  this.jqueryMap.$image_scale_form.val(draw_scale);
 
-  if ( draw_rotate != '' ) {
-    this.stateMap.rotate_value = draw_rotate;
-    this.jqueryMap.$map_rotate_form.val(draw_rotate);
-    this.imageViewer.rotateStartPoint(draw_rotate);
-  }
+  this.stateMap.rotate_value = draw_rotate;
+  this.jqueryMap.$map_rotate_form.val(draw_rotate);
+  this.imageViewer.rotateStartPoint(draw_rotate);
 };
 
 /**
