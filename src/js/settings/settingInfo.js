@@ -1,3 +1,6 @@
+// ファイル選択のためのモジュール
+const remote = require('electron').remote;
+const Dialog = remote.dialog;
 
 function SettingInfo () {
   // 静的プロパティ
@@ -43,11 +46,25 @@ SettingInfo.prototype.onCheck = function ( event ) {
 };
 
 SettingInfo.prototype.onImport = function ( event ) {
-  console.log("import");
+  Dialog.showOpenDialog(null, {
+    properties: ['openFile'],
+    title: 'インポートする設定ファイルの選択',
+    defaultPath: '.'
+  }, function(files){
+    this.ipc.send( 'loadSetting', files[0] );
+  }.bind(this));
 };
 
 SettingInfo.prototype.onExport = function ( event ) {
-  console.log("export");
+  Dialog.showSaveDialog(null, {
+    title: 'エクスポートする設定ファイルの名前',
+    defaultPath: '.',
+    filters: [
+      {name: 'Setting file', extensions: ['json']}
+    ]
+  }, function( path ){
+    this.ipc.send( 'exportSetting', path );
+  }.bind(this));
 };
 
 /**********************************/
