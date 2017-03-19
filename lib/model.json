@@ -1,0 +1,31 @@
+{
+  "description": "モデルのバリデーション",
+  "type": "object" ,
+  "required": ["app", "setting"],
+  "additionalProperties": false,
+  "properties": {
+    "app": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "logFileName": { "type": "string" },
+        "logFileFolder": { "type": "string" },
+        "deviceMap": { "type": "array" },
+        "save_setting": { "type": "boolean" }
+      }
+    },
+    "setting": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default_log_directory_path": { "type": "string" },
+        "image_path": { "type": "string" },
+        "image_scale": { "type": "int" },
+        "image_original_size": { "type": "object" },
+        "start_point": { "type": "object" },
+        "draw_scale": { "type": "int" },
+        "draw_rotate": { "type": "int" }
+      }
+    }
+  }
+}

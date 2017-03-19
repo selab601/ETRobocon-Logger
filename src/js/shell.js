@@ -89,7 +89,7 @@ shell.prototype.onTransitionTo = function ( event ) {
     this.moduleMap.fileInputForm.init( this.jqueryMap.$body.find("#device-connector-body-footer") );
     break;
   case "settings-page":
-    this.moduleMap.settings.init( this.jqueryMap.$body );
+    this.moduleMap.settings.init( this.jqueryMap.$body, this.onNotify );
     break;
   case "logging-page":
     this.moduleMap.logRenderer.init( this.jqueryMap.$body );

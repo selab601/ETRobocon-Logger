@@ -61,16 +61,18 @@ Settings.prototype.setJqueryMap = function () {
 /**
  * 機能モジュールの初期化
  */
-Settings.prototype.init = function ( $append_target ) {
+Settings.prototype.init = function ( $append_target, onNotify ) {
   // この機能モジュールの DOM 要素をターゲットに追加
   this.stateMap.$append_target = $append_target;
   $append_target.append( this.configMap.main_html );
   // 機能モジュール初期化
-  this.settingInfo.init( $append_target.find("#settings") );
-  this.settingConnect.init( $append_target.find("#settings") );
-  this.settingMap.init( $append_target.find("#settings") );
+  this.settingInfo.init( $append_target.find("#settings"), onNotify );
+  this.settingConnect.init( $append_target.find("#settings"), onNotify );
+  this.settingMap.init( $append_target.find("#settings"), onNotify );
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
+
+  this.onNotify = onNotify;
 
   // 設定情報から設定画面を以前の設定が行われた状態に初期化する
   this.load();
