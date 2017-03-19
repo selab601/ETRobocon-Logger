@@ -57,28 +57,6 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
 };
 
 /**
- * main プロセスからログファイル名を受信した際に呼び出されるイベントハンドラ
- *
- * アプリケーション起動後やデバイスとの接続解除後，main プロセスは現在の日時
- * から適当なログファイル名を自動生成し，renderer プロセスに送信する．
- * このイベントハンドラでは，この時に受信したファイル名でフォームを初期化する．
- */
-fileInputForm.prototype.onInitLogFilePath = function ( ev, message ) {
-  this.stateMap.logFileFolder = message.folder;
-  this.stateMap.logFileName   = message.name;
-
-  // DOM 要素が描画前であれば，描画しない
-  // この場合，DOM 要素描画時にログファイル名が描画される．
-  if ( this.jqueryMap.$input_form === undefined ) { return; }
-  this.jqueryMap.$input_form.val(message.name);
-  this.jqueryMap.$directory_form.val(message.folder);
-
-  // モデルに保持する
-  this.ipc.send('updateState', { doc: 'app', key: 'logFileName', value: this.stateMap.logFileName });
-  this.ipc.send('updateState', { doc: 'app', key: 'logFileFolder', value: this.stateMap.logFileFolder });
-};
-
-/**
  * ディレクトリの検索ボタンが押下されたら呼び出されるイベントハンドラ
  *
  * フォルダ選択画面を開きフォルダを選択させる．
