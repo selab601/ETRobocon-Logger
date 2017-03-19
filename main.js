@@ -5,7 +5,7 @@
 const {app, BrowserWindow} = require('electron'),
       path = require('path'),
       url = require('url'),
-      is_fake = true,
+      is_fake = false,
       deviceConnector = is_fake ? require("./lib/fakeConnector.js") : require("./lib/deviceConnector.js"),
       FileManager = require('./lib/fileManager.js'),
       Model = require('./lib/model.js');
@@ -52,16 +52,13 @@ function createWindow() {
   model = new Model( mainWindow );
   fileManager = new FileManager( mainWindow, app.getAppPath(), model );
   fileManager.updateLogFileName();
-  dc = new deviceConnector( mainWindow, fileManager );
+  dc = new deviceConnector( mainWindow, fileManager, model );
+  dc.setListPairedDevices();
 
   // ウインドウが閉じられた場合の処理
   mainWindow.on('closed', function() {
     mainWindow = null;
   });
-
-  // TODO: 以前接続したことのあるBTデバイスをどこかに保存しておく
-
-  dc.sendListPairedDevices();
 };
 
 /***** 各種関数定義終了 *****/

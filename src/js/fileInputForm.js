@@ -129,7 +129,6 @@ fileInputForm.prototype.init = function ( $append_target ) {
   // イベントハンドラを登録
   this.jqueryMap.$input_form.bind( 'change', this.onUpdateLogFileName.bind(this) );
   this.jqueryMap.$search_button.bind( 'click', this.onSearchDirectory.bind(this) );
-  this.ipc.on('initLogFilePath', this.onInitLogFilePath.bind(this));
 };
 
 /**
@@ -144,9 +143,6 @@ fileInputForm.prototype.remove = function () {
     this.jqueryMap.$append_target.find("#file-input-form").remove();
     this.jqueryMap = {};
   }
-
-  // イベントハンドラの削除
-  this.ipc.removeAllListeners('initLogFilePath');
 
   // 動的プロパティ初期化
   this.stateMap = {
