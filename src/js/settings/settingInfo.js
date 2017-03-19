@@ -39,7 +39,7 @@ function SettingInfo () {
 /******** イベントハンドラ ********/
 
 SettingInfo.prototype.onCheck = function ( event ) {
-  console.log("checked");
+  this.ipc.send('updateState', { doc: 'app', key: 'save_setting', value: event.currentTarget.checked });
 };
 
 SettingInfo.prototype.onImport = function ( event ) {
@@ -51,6 +51,15 @@ SettingInfo.prototype.onExport = function ( event ) {
 };
 
 /**********************************/
+
+
+SettingInfo.prototype.load = function ( save_setting ) {
+  if ( save_setting == '' ) {
+    save_setting = false;
+  }
+
+  this.jqueryMap.$checkbox.prop('checked', save_setting);
+};
 
 
 /**
@@ -83,7 +92,7 @@ SettingInfo.prototype.init = function ( $append_target ) {
   // イベントハンドラの登録
   this.jqueryMap.$import_button.bind( "click", this.onImport.bind(this) );
   this.jqueryMap.$export_button.bind( "click", this.onExport.bind(this) );
-  this.jqueryMap.$checkbox.bind( "click", this.onCheck.bind(this) );
+  this.jqueryMap.$checkbox.bind( "change", this.onCheck.bind(this) );
 };
 
 /**

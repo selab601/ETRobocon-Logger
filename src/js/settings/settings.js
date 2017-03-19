@@ -36,8 +36,12 @@ Settings.prototype.load = function () {
   var start_point         = this.ipc.sendSync('getState', { doc: 'setting', key: 'start_point' });
   var draw_scale          = this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_scale' });
   var draw_rotate         = this.ipc.sendSync('getState', { doc: 'setting', key: 'draw_rotate' });
+  var defualt_log_directory_path = this.ipc.sendSync('getState', { doc: 'setting', key: 'default_log_directory_path' });
+  var save_setting        = this.ipc.sendSync('getState', { doc: 'app', key: 'save_setting' });
 
   this.settingMap.load( image_path, image_scale, image_original_size, start_point, draw_scale, draw_rotate );
+  this.settingInfo.load( save_setting ) ;
+  this.settingConnect.load( defualt_log_directory_path );
 };
 
 /**

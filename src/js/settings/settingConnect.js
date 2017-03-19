@@ -1,3 +1,7 @@
+// ファイル選択のためのモジュール
+const remote = require('electron').remote;
+const Dialog = remote.dialog;
+
 function SettingConnect () {
   // 静的プロパティ
   this.configMap = {
@@ -7,7 +11,7 @@ function SettingConnect () {
           <div class="settings-title">Connect</div>
           <div class="settings-form">
             <div class="settings-form-title">Log path :</div>
-            <input type="text" class="settings-text-form"/>
+            <input type="text" class="settings-text-form settings-connect-default-path-input"/>
             <div class="settings-text-form-button settings-connect-default-path-button">
               <img src="resources/search_icon.png">
             </div>
@@ -29,10 +33,26 @@ function SettingConnect () {
 /******** イベントハンドラ ********/
 
 SettingConnect.prototype.onFindDefaultPath = function ( event ) {
-  console.log("default path");
+  Dialog.showOpenDialog(null, {
+    properties: ['openDirectory'],
+    title: 'ログファイル出力先の選択',
+    defaultPath: '.'
+  }, function(directories){
+    // DOM に描画
+    this.jqueryMap.$default_path_input.val( directories[0] );
+    // main プロセス側に送信
+    this.ipc.send('updateState', { doc: 'setting', key: 'default_log_directory_path', value: directories[0] });
+  }.bind(this));
 };
 
 /**********************************/
+
+
+SettingConnect.prototype.load = function ( default_log_directory_path ) {
+  if ( default_log_directory_path != '' ) {
+    this.jqueryMap.$default_path_input.val( default_log_directory_path );
+  }
+};
 
 
 /**
@@ -45,8 +65,9 @@ SettingConnect.prototype.onFindDefaultPath = function ( event ) {
 SettingConnect.prototype.setJqueryMap = function () {
   var $append_target = this.stateMap.$append_target;
   this.jqueryMap = {
-    $append_target    : $append_target,
-    $default_path_btn : $append_target.find("settings-connect-default-path-button")
+    $append_target      : $append_target,
+    $default_path_input : $append_target.find(".settings-connect-default-path-input"),
+    $default_path_btn   : $append_target.find(".settings-connect-default-path-button")
   };
 };
 
