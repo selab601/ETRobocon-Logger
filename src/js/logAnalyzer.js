@@ -17,21 +17,26 @@ function logAnalyzer() {
       /*
         <div id="log-analyzer">
           <div id="log-analyzer-box">
+            <div class="log-analyzer-box-header">
+              Log File Path
+            </div>
             <input type="text" id="log-analyzer-form"/>
             <div id="log-analyzer-select-button">SELECT</div>
           </div>
-          <nav class="tabs">
-            <div id="log-analyzer-tab-graph" class="tab selected">
-              <div class="tab-header"></div>
-              <div class="tab-body">Graph</div>
-            </div>
-            <div id="log-analyzer-tab-map" class="tab">
-              <div class="tab-header"></div>
-              <div class="tab-body">Map</div>
-            </div>
-          </nav>
-          <div id="log-analyzer-graph" class="tab-content selected"></div>
-          <div id="log-analyzer-map" class="tab-content"></div>
+          <div id="log-analyzer-body">
+            <nav class="tabs">
+              <div id="log-analyzer-tab-graph" class="tab selected">
+                <div class="tab-header"></div>
+                <div class="tab-body">Graph</div>
+              </div>
+              <div id="log-analyzer-tab-map" class="tab">
+                <div class="tab-header"></div>
+                <div class="tab-body">Map</div>
+              </div>
+            </nav>
+            <div id="log-analyzer-graph" class="tab-content selected"></div>
+            <div id="log-analyzer-map" class="tab-content"></div>
+          </div>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_map : require('./config/logged_values.js').values
@@ -82,6 +87,10 @@ logAnalyzer.prototype.onSelectFile = function () {
     // TODO: ユーザへのメッセージの描画
     var values = this.getLogFileData();
     if ( values === null ) { return; }
+
+    // グラフ描画画面表示
+    this.jqueryMap.$box.hide();
+    this.jqueryMap.$body.show();
 
     // グラフの描画
     this.onRenderGraphFromLogFile( values );
@@ -216,6 +225,8 @@ logAnalyzer.prototype.setJqueryMap = function () {
     $tab           : $append_target.find(".tab"),
     $form          : $append_target.parent().find("#log-analyzer-form"),
     $select_button : $append_target.parent().find("#log-analyzer-select-button"),
+    $box           : $append_target.find("#log-analyzer-box"),
+    $body          : $append_target.find("#log-analyzer-body"),
     $tab_graph     : $append_target.find("#log-analyzer-tab-graph"),
     $tab_map       : $append_target.find("#log-analyzer-tab-map"),
     $content_graph : $append_target.find("#log-analyzer-graph"),
