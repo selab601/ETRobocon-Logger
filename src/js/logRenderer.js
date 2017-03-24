@@ -35,32 +35,16 @@ function logRenderer() {
               <div class="tab-body">Map</div>
             </div>
           </nav>
-          <div id="log-renderer-content-graph" class="tab-content selected">
-            <div id="log-renderer-list-box">
-              <div class="log-renderer-list-header">
-                Render Graph
-              </div>
-              <div class="log-renderer-list"></div>
-            </div>
-            <div id="log-renderer-content-graph-box"></div>
-          </div>
+          <div id="log-renderer-content-graph" class="tab-content selected"></div>
           <div id="log-renderer-content-table" class="tab-content"></div>
           <div id="log-renderer-content-map" class="tab-content"></div>
-        </div>
-      */}).toString().replace(/(\n)/g, '').split('*')[1],
-    graph_value_base_html : (function () {
-      /*
-        <div class="log-renderer-list-val">
-          <input type="checkbox" name="checkbox" />
-          <label></label>
         </div>
       */}).toString().replace(/(\n)/g, '').split('*')[1],
     graph_value_map : require('./config/logged_values.js').values
   };
   // 動的なプロパティ
   this.stateMap = {
-    $append_target : undefined,
-    render_value_keymap: []
+    $append_target : undefined
   };
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
@@ -75,7 +59,7 @@ function logRenderer() {
     keymap.push(data.id);
   }.bind(this));
   // TODO: 描画範囲(現状は100)を動的に指定できるようにする
-  this.graphRenderer = new D3GraphRenderer( keymap, this.stateMap.render_value_keymap, 100, "log-renderer-content-graph-box");
+  this.graphRenderer = new D3GraphRenderer( keymap, "log-renderer-content-graph");
   this.tableRenderer = new TableRenderer( keymap, this.stateMap.render_value_keymap );
   this.mapRenderer   = new MapRenderer();
 };
@@ -110,24 +94,6 @@ logRenderer.prototype.onReceiveDataFromDevice = function ( ev, message ) {
 };
 
 /**
- * 描画対象の値の種類一覧において種類の選択/非選択が切り替わった際に呼び出されるイベントハンドラ
- *
- * 選択状況をプロパティに保持する．
- * また，ログファイルからのデータ読み込み用コールバックが登録されている場合には，
- * ログファイルからデータを読み込みグラフを描画する．
- */
-logRenderer.prototype.onUpdateRenderValue = function ( event ) {
-  // 選択された値の種類をプロパティに保存する
-  var index = this.stateMap.render_value_keymap.indexOf( event.data );
-  if ( index >= 0 ) {
-    this.stateMap.render_value_keymap.splice(index,1);
-    this.graphRenderer.remove( event.data );
-  } else {
-    this.stateMap.render_value_keymap.push( event.data );
-  }
-};
-
-/**
  * タブ選択時に呼び出されるコールバック関数
  *
  * 選択されたタブに応じて描画を切り替える．
@@ -157,29 +123,6 @@ logRenderer.prototype.onSelectTab = function ( event ) {
 };
 
 /*********************/
-
-
-/**
- * レンダリングするログ内の値のリストをビューに描画する
- *
- * ログには多数の種類の値が保持されており，その種類は本モジュールの configMap
- * 内に保持されている．
- * 負荷対策のため，グラフの描画時にはそれらの中からどの種類の値についてグラフ
- * を描画するか選択し，選択されたグラフのみを描画する．
- * この選択を行うために，ログファイル内の値の種類の一覧を描画する必要がある．
- */
-logRenderer.prototype.initGraphValuesList = function () {
-  this.configMap.graph_value_map.forEach( function ( value ) {
-    var base_html = this.$( this.configMap.graph_value_base_html );
-    base_html.find( 'input' )
-      .attr( 'id', value.id )
-      .bind( 'click', value.id, this.onUpdateRenderValue.bind(this) );
-    base_html.find( 'label' )
-      .attr( 'for', value.id )
-      .text( value.label );
-    this.jqueryMap.$list.append( base_html );
-  }.bind(this));
-};
 
 /**
  * jQuery オブジェクトをキャッシュする
@@ -213,14 +156,12 @@ logRenderer.prototype.init = function ( $append_target ) {
   // jQuery オブジェクトをキャッシュ
   this.setJqueryMap();
 
-  // 描画する値の種類一覧をビューに描画する
-  this.initGraphValuesList();
-
   // タブ選択の初期化
   this.jqueryMap.$selected_tab     = this.jqueryMap.$tab_graph;
   this.jqueryMap.$selected_content = this.jqueryMap.$content_graph;
 
   // レンダリングモジュールの初期化
+  this.graphRenderer.init( this.jqueryMap.$content_graph, 100 );
   this.tableRenderer.initModule( this.jqueryMap.$content_table );
   this.mapRenderer.init( this.jqueryMap.$content_map, {
     image_path          : this.ipc.sendSync('getState', { doc: 'setting', key: 'image_path'}),
@@ -253,8 +194,7 @@ logRenderer.prototype.remove = function () {
 
   // 動的プロパティの初期化
   this.stateMap = {
-    $append_target      : undefined,
-    render_value_keymap : []
+    $append_target      : undefined
   };
 
   // レンダリングモジュールの初期化

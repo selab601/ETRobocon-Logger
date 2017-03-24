@@ -6,31 +6,119 @@
 
 var D3Graph = require("./D3graph.js");
 
-function D3GraphRenderer ( all_keymap, render_value_keymap, maxXValueLength, append_target_id ) {
-  this.all_keymap          = all_keymap;
-  this.render_value_keymap = render_value_keymap;
+function D3GraphRenderer ( all_keymap ) {
+  this.configMap = {
+    main_html : (function () {
+      /*
+        <div id="graphrenderer-list-box">
+          <div class="graphrenderer-list-header">
+            Render Graph
+          </div>
+            <div class="graphrenderer-list"></div>
+          </div>
+          <div id="graphrenderer-content-graph-box"></div>
+        </div>
+      */
+    }).toString().replace(/(\n)/g, '').split('*')[1],
+    graph_value_base_html : (function () {
+      /*
+        <div class="graphrenderer-list-val">
+          <input type="checkbox" name="checkbox" />
+          <label></label>
+        </div>
+      */}).toString().replace(/(\n)/g, '').split('*')[1]
+  };
+  this.stateMap = {
+    $append_target      : undefined,
+    all_keymap          : all_keymap,
+    render_value_keymap : []
+  };
+  // jQuery
+  this.$ = require('../lib/jquery-3.1.0.min.js');
   this.graphMap            = {};
-  this.all_keymap.forEach( function ( key ) {
-    this.graphMap[ key ]   = new D3Graph( key, maxXValueLength, append_target_id, this.onRenderMark.bind(this) );
+};
+
+
+/** レンダリング **/
+
+
+/**
+ * 機能モジュールの初期化
+ */
+D3GraphRenderer.prototype.init = function ( $append_target, maxXValueLength, onUpdateRenderValue, onRenderMarkOnMap ) {
+  // DOM 要素削除
+  this.removeAll();
+
+  // この機能モジュールの DOM 要素をターゲットに追加
+  this.stateMap.$append_target = $append_target;
+  $append_target.html( this.configMap.main_html );
+  this.stateMap.all_keymap.forEach( function ( key ) {
+    this.graphMap[ key ]   = new D3Graph( key, maxXValueLength, "graphrenderer-content-graph-box", this.onRenderMark.bind(this) );
+    this.graphMap[ key ].setOnRenderMarkOnMap( onRenderMarkOnMap );
   }.bind(this));
+
+  // jQuery オブジェクトをキャッシュ
+  this.setJqueryMap();
+
+  /**
+   * レンダリングするログ内の値のリストをビューに描画する
+   *
+   * ログには多数の種類の値が保持されており，その種類は本モジュールの configMap
+   * 内に保持されている．
+   * 負荷対策のため，グラフの描画時にはそれらの中からどの種類の値についてグラフ
+   * を描画するか選択し，選択されたグラフのみを描画する．
+   * この選択を行うために，ログファイル内の値の種類の一覧を描画する必要がある．
+   */
+  this.stateMap.all_keymap.forEach( function ( value ) {
+    var base_html = this.$( this.configMap.graph_value_base_html );
+    base_html.find( 'input' )
+      .attr( 'id', value )
+      .bind( 'click', value.id, this.onUpdateRenderValue.bind(this) );
+    base_html.find( 'label' )
+      .attr( 'for', value )
+      .text( value );
+    this.jqueryMap.$list.append( base_html );
+  }.bind(this));
+
+  this.onUpdateRenderValue = onUpdateRenderValue;
 };
 
 /**
- * 全グラフの初期化
+ * jQuery オブジェクトをキャッシュする
  *
- * 全グラフのデータのリセットと，スタイルのリセット
- *
- * @param onRenderMarkOnMap マップにマークを反映させるためのイベントハンドラ
+ * この機能モジュール内で使用する jQuery オブジェクトをキャッシュしておく
+ * これを行うことで，目的の DOM を取得するためにいちいち id や class で検索する
+ * 手間が省ける上に，パフォーマンスが向上する．
  */
-D3GraphRenderer.prototype.initialize = function ( onRenderMarkOnMap ) {
-  Object.keys( this.graphMap ).forEach( function ( key ) {
-    this.graphMap[key].clearData();
-    this.graphMap[key].resetStyle();
-    this.graphMap[key].setOnRenderMarkOnMap( onRenderMarkOnMap );
-  }.bind(this));
-  this.removeAll();
+D3GraphRenderer.prototype.setJqueryMap = function () {
+  var $append_target = this.stateMap.$append_target;
+  this.jqueryMap = {
+    $append_target : $append_target,
+    $list          : $append_target.find(".graphrenderer-list")
+  };
 };
 
+/**
+ * 描画対象の値の種類一覧において種類の選択/非選択が切り替わった際に呼び出されるイベントハンドラ
+ *
+ * 選択状況をプロパティに保持する．
+ * また，ログファイルからのデータ読み込み用コールバックが登録されている場合には，
+ * ログファイルからデータを読み込みグラフを描画する．
+ */
+D3GraphRenderer.prototype.onUpdateRenderValue = function ( event ) {
+  // 選択された値の種類をプロパティに保存する
+  var index = this.stateMap.render_value_keymap.indexOf( event.target.id );
+  if ( index >= 0 ) {
+    this.stateMap.render_value_keymap.splice(index,1);
+    this.remove( event.target.id );
+  } else {
+    this.stateMap.render_value_keymap.push( event.target.id );
+  }
+
+  if ( this.onUpdateRenderValue != undefined ) {
+    this.onUpdateRenderValue();
+  }
+};
 
 /***** グラフの操作 *****/
 
@@ -52,7 +140,7 @@ D3GraphRenderer.prototype.update = function (key, xValue, yValue) {
  * @param options 描画オプション
  */
 D3GraphRenderer.prototype.renderAll = function (xScope, yScope, options) {
-  this.render_value_keymap.forEach( function ( key ) {
+  this.stateMap.render_value_keymap.forEach( function ( key ) {
     renderGraph( this.graphMap[key], xScope, yScope, options );
   }.bind(this));
 };
@@ -140,8 +228,8 @@ D3GraphRenderer.prototype.onRenderMark = function ( mark_index ) {
   }.bind(this));
 
   // 描画すべきグラフについては，マークを描画する
-  for (var i=0; i<this.render_value_keymap.length; i++) {
-    this.graphMap[this.render_value_keymap[i]].onRenderMark();
+  for (var i=0; i<this.stateMap.render_value_keymap.length; i++) {
+    this.graphMap[this.stateMap.render_value_keymap[i]].onRenderMark();
   }
 };
 

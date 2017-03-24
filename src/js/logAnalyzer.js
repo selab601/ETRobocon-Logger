@@ -45,7 +45,8 @@ function logAnalyzer() {
   this.stateMap = {
     $append_target  : undefined,
     logFilePath     : undefined,
-    logFileSettings : undefined
+    logFileSettings : undefined,
+    graphValues     : undefined
   };
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
@@ -55,7 +56,7 @@ function logAnalyzer() {
   this.configMap.graph_value_map.forEach( function ( data ) {
     keymap.push(data.id);
   }.bind(this));
-  this.graphRenderer = new D3GraphRenderer( keymap, keymap, null, "log-analyzer-graph" );
+  this.graphRenderer = new D3GraphRenderer( keymap );
   this.mapRenderer   = new MapRenderer();
 };
 
@@ -93,7 +94,15 @@ logAnalyzer.prototype.onSelectFile = function () {
     this.jqueryMap.$body.show();
 
     // グラフの描画
-    this.onRenderGraphFromLogFile( values );
+    this.stateMap.graphValues = values;
+    this.graphRenderer.init( this.jqueryMap.$content_graph, null, this.onRenderGraphFromLogFile.bind(this), this.onRenderMarkOnMap.bind(this) );
+    for (var i=0; i<Object.keys(this.stateMap.graphValues).length; i++) {
+      var obj = JSON.parse(this.stateMap.graphValues[i]);
+      Object.keys(obj).forEach(function(key) {
+        this.graphRenderer.update(key, obj["clock"], obj[key]);
+      }.bind(this));
+    }
+    this.graphRenderer.enableMark();
     this.onRenderMapFromLogFile( values );
   });
 };
@@ -101,18 +110,8 @@ logAnalyzer.prototype.onSelectFile = function () {
 /**
  * グラフ描画時に呼び出されるイベントハンドラ
  */
-logAnalyzer.prototype.onRenderGraphFromLogFile = function ( values ) {
-  this.graphRenderer.initialize( this.onRenderMarkOnMap.bind(this) );
-
-  for (var i=0; i<Object.keys(values).length; i++) {
-    var obj = JSON.parse(values[i]);
-    Object.keys(obj).forEach(function(key) {
-      this.graphRenderer.update(key, obj["clock"], obj[key]);
-    }.bind(this));
-  }
-
+logAnalyzer.prototype.onRenderGraphFromLogFile = function () {
   this.graphRenderer.renderAll(null, null, ["brush", "focus", "mark"]);
-  this.graphRenderer.enableMark();
 };
 
 /**

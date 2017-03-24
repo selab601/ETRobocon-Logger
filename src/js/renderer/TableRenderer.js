@@ -2,7 +2,7 @@
  * 各種ロギング値を表示したテーブルを描画する
  */
 
-function TableRenderer ( keymap, render_keymap ) {
+function TableRenderer ( keymap ) {
   // 静的プロパティ
   this.configMap = {
     main_html : (function () {
@@ -21,8 +21,7 @@ function TableRenderer ( keymap, render_keymap ) {
   // 動的プロパティ
   this.stateMap = {
     $append_target      : undefined,
-    all_keymap          : keymap,
-    render_value_keymap : render_keymap
+    all_keymap          : keymap
   };
   // jQuery オブジェクトキャッシュ用
   this.jqueryMap = {};
