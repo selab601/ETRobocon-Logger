@@ -171,10 +171,12 @@ Map.prototype.render = function ( coordinate ) {
     y: parseFloat(coordinate.y) * -1
   };
 
-  // スケールに合わせる
+  // [機体内での座標]での単位: cm
+  // [画像を描画するときの座標]での単位: px
+  // スケールに合わせる([cm] -> [px])
   if ( ! isNaN(this.drawScale) ) {
-    adjustedCor.x /= this.drawScale;
-    adjustedCor.y /= this.drawScale;
+    adjustedCor.x *= this.drawScale;
+    adjustedCor.y *= this.drawScale;
   }
 
   // 原点に合わせる
