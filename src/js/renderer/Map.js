@@ -166,9 +166,11 @@ Map.prototype.init = function () {
  */
 Map.prototype.render = function ( coordinate ) {
   var adjustedCor = {
-    x: parseFloat(coordinate.x),
-    // Y 軸の向きを 下 -> 上 にするために，-1 をかける
-    y: parseFloat(coordinate.y) * -1
+    // [機体内での座標] -> x軸: ↑, y軸: ←
+    // [画像を描画するときの座標]-> x軸: →, y軸: ↓
+    // [機体内での座標]を[描画するときの座標]に変換して代入する
+    x: parseFloat(coordinate.y) * -1,
+    y: parseFloat(coordinate.x) * -1
   };
 
   // [機体内での座標]での単位: cm
