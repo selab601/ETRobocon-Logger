@@ -6,6 +6,12 @@
 EV3 と Bluetooth 接続すると，機体の状態をリアルタイムで確認できます．
 また，ログをファイルに保存し，後に参照することができます．
 
+## 動作条件
+
+ABI のバージョンが node / electron 間で異なるとエラーが生じる( issue #6 )。
+
+- node: `v6.x`
+
 ## TODO
 
 > [Home · selab601/ETRobocon-Logger Wiki](https://github.com/selab601/ETRobocon-Logger/wiki)
