@@ -1,5 +1,6 @@
 // ファイル選択のためのモジュール
 const remote = require('electron').remote;
+const app = remote.require('electron').app;
 const Dialog = remote.dialog;
 const ImageViewer = require("../imageViewer.js");
 
@@ -55,7 +56,7 @@ function SettingMap () {
 SettingMap.prototype.onSelectImage = function ( event ) {
   Dialog.showOpenDialog(null, {
     properties: ['openFile'],
-    defaultPath: '.',
+    defaultPath: app.getAppPath(),
     filters: [
       {name: 'Image file', extensions: ['png', 'jpg', 'jpeg']}
     ]

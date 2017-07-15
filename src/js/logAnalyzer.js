@@ -4,6 +4,7 @@
 
 // ファイル選択のためのモジュール
 const remote = require('electron').remote;
+const app = remote.require('electron').app;
 const Dialog = remote.dialog;
 // グラフ描画用のモジュール
 const D3GraphRenderer = require('./renderer/D3GraphRenderer.js');
@@ -73,7 +74,7 @@ logAnalyzer.prototype.onSelectFile = function () {
   Dialog.showOpenDialog(null, {
     properties: ['openFile'],
     title: 'ログファイルの選択',
-    defaultPath: '.',
+    defaultPath: app.getAppPath() + '/log',
     filters: [
       {name: 'JSONファイル', extensions: ['json']}
     ]

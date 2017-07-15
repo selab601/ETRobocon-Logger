@@ -4,6 +4,7 @@
 
 // ファイル選択のためのモジュール
 const remote = require('electron').remote;
+const app = remote.require('electron').app;
 const Dialog = remote.dialog;
 
 function fileInputForm() {
@@ -66,7 +67,7 @@ fileInputForm.prototype.onSearchDirectory = function ( event ) {
   Dialog.showOpenDialog(null, {
     properties: ['openDirectory'],
     title: 'ログファイル出力先の選択',
-    defaultPath: '.'
+    defaultPath: app.getAppPath() + "/log"
   }, function(directories){
     // プロパティに保持
     this.stateMap.logFileFolder = directories[0];
