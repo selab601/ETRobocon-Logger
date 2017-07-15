@@ -24,7 +24,8 @@
         "image_original_size": { "type": "object" },
         "start_point": { "type": "object" },
         "draw_scale": { "type": "int" },
-        "draw_rotate": { "type": "int" }
+        "draw_rotate": { "type": "int" },
+        "device_name": { "type": "string" }
       }
     }
   }
