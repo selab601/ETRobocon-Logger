@@ -99,7 +99,7 @@ deviceConnector.prototype.onFoundDevice = function ( ev, message ) {
     this.$('<li>')
       .addClass("device-connector-device-name")
       .text(device.name)
-      .bind( 'click', device.address, this.onSelectDevice.bind(this) ));
+      .bind( 'click', device, this.onSelectDevice.bind(this) ));
 };
 
 /**
@@ -113,7 +113,8 @@ deviceConnector.prototype.onSelectDevice = function ( event ) {
     this.jqueryMap.$selected_device.removeClass("selected");
   }
   // プロパティに追加
-  this.stateMap.selected_device_address = event.data;
+  this.stateMap.selected_device_address = event.data.address;
+  this.stateMap.selected_device = event.data;
   // DOM 要素に描画
   this.jqueryMap.$selected_device = this.$(event.target);
   this.jqueryMap.$selected_device.addClass("selected");
@@ -128,7 +129,7 @@ deviceConnector.prototype.onSelectDevice = function ( event ) {
  */
 deviceConnector.prototype.onConnectDevice = function ( event ) {
   if ( this.stateMap.selected_device_address === undefined ) { return; }
-  this.ipc.send('connectDevice', this.stateMap.selected_device_address);
+  this.ipc.send('connectDevice', this.stateMap.selected_device); // TODO
   this.jqueryMap.$update_btn.addClass('disabled');
   this.jqueryMap.$connect_btn.addClass('disabled');
 };
@@ -167,7 +168,7 @@ deviceConnector.prototype.loadDevices = function () {
       this.$('<li>')
         .addClass( "device-connector-device-name" )
         .text( device.name )
-        .bind( 'click', device.address, this.onSelectDevice.bind(this) ));
+        .bind( 'click', device, this.onSelectDevice.bind(this) ));
   }.bind(this));
 }
 
@@ -240,7 +241,8 @@ deviceConnector.prototype.remove = function () {
   this.stateMap = {
     $append_target          : undefined,
     deviceMap               : [],
-    selected_device_address : undefined
+    selected_device_address : undefined,
+    selected_device         : undefined
   };
   this.callback = undefined;
   this.onNotify = undefined;
