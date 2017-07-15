@@ -30,6 +30,14 @@ node / electron 間のABIバージョンを合わせるためリビルドする
 ./run.sh
 ```
 
+## ログファイルについて
+### 保存先
+
+デフォルトでは`[.appファイル]/Contents/Resources/app/log`にファイルが保存されます．
+
+### ファイル名
+起動画面の`Name:`欄の名前に，`_[デバイス名].json`をつけた名前で保存されます．
+
 ## TODO
 
 > [Home · selab601/ETRobocon-Logger Wiki](https://github.com/selab601/ETRobocon-Logger/wiki)
