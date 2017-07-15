@@ -64,10 +64,15 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
  * 選択したフォルダでテキスト領域を更新する．
  */
 fileInputForm.prototype.onSearchDirectory = function ( event ) {
+  var logFilePath = this.ipc.sendSync('getState', { 'doc': 'app', 'key': 'logFileFolder' });
+  if ('' == logFilePath) {
+    // 設定されていなかったらデフォルトの保存先
+    logFilePath = app.getAppPath() + '/log';
+  }
   Dialog.showOpenDialog(null, {
     properties: ['openDirectory'],
     title: 'ログファイル出力先の選択',
-    defaultPath: app.getAppPath() + "/log"
+    defaultPath: logFilePath
   }, function(directories){
     // プロパティに保持
     this.stateMap.logFileFolder = directories[0];
