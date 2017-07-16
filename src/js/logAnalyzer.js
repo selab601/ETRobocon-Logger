@@ -209,6 +209,12 @@ logAnalyzer.prototype.getLogFileData = function () {
     }
     this.stateMap.logFileSettings = JSON.parse(lines[i]);
   }
+  // 相対パス表現を絶対パス表現に変換する
+  var image_path = this.stateMap.logFileSettings.image_path;
+  var log_path = this.stateMap.logFileSettings.default_log_directory_path;
+  this.stateMap.logFileSettings.image_path = image_path.replace(/^\./, app.getAppPath());
+  this.stateMap.logFileSettings.default_log_directory_path = log_path.replace(/^\./, app.getAppPath());
+
   for (; i<lines.length; i++) {
     values.push(lines[i]);
   }
