@@ -45,9 +45,9 @@
   width: 100%;
   height: 25px;
   line-height: 25px;
-
-  display: flex;           display: -webkit-flex;
-  align-items: center;     -webkit-align-items: center;
+  display: flex;
+  display: -webkit-flex;
+  align-items: center;
 }
 
 .settings-form {
@@ -92,7 +92,7 @@
 }
 
 .settings-text-form {
-  position: absolute;
+  position: relative;
 
   width: calc(100% - 75px - 5px - 2px - 25px);
   height: calc(25px - 2px);
@@ -102,8 +102,6 @@
   margin: 0;
 
   border: 1px solid rgb(180,180,180);
-
-  pointer-events: none;
 }
 
 .settings-text-form-button {
@@ -143,7 +141,7 @@
 }
 
 .settings-map-image-form-body {
-  position: absolute;
+  position: relative;
 
   width: calc(100% - 75px - 5px - 2px - 25px);
   height: calc(25px - 2px);
@@ -153,8 +151,6 @@
   margin: 0;
 
   border: 1px solid rgb(180,180,180);
-
-  pointer-events: none;
 }
 
 .settings-map-image-form-button {
@@ -187,7 +183,7 @@
 }
 
 .settings-map-scale-form-body {
-  position: absolute;
+  position: relative;
 
   width: 30px;
   height: calc(25px - 2px);
@@ -201,12 +197,12 @@
 }
 
 .settings-form-scale-span {
-  position: absolute;
-  margin-left: calc(30px + 5px + 10px);
+  position: relative;
+  margin-left: 5px;
 }
 
 .settings-map-rotate-form-body {
-  position: absolute;
+  position: relative;
 
   width: 30px;
   height: calc(25px - 2px);
@@ -220,6 +216,6 @@
 }
 
 .settings-form-rotate-span {
-  position: absolute;
-  margin-left: calc(30px + 5px + 10px);
+  position: relative;
+  margin-left: 5px;
 }
