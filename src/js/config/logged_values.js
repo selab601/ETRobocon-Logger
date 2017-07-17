@@ -16,5 +16,7 @@ exports.values = [
   { id : "angle",        label : "車体角度" },
   { id : "coordinate_x", label : "自己位置X座標" },
   { id : "coordinate_y", label : "自己位置Y座標" },
-  { id : "clock",        label : "時刻" }
+  { id : "clock",        label : "時刻" },
+  { id : "battery_ma",   label : "バッテリ電流[mA]"},
+  { id : "battery_mv",   label : "バッテリ電圧[mV]"}
 ];
