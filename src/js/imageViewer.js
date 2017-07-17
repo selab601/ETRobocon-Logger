@@ -48,7 +48,6 @@ function imageViewer () {
  * スケールアップボタン押下時に呼び出されるイベントハンドラ
  */
 imageViewer.prototype.onScaleup = function ( event ) {
-  if ( this.stateMap.image_scale >= 100 ) { return; }
   this.setScale( parseInt(this.stateMap.image_scale) + 10 );
 };
 
