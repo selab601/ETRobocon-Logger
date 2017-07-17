@@ -4,6 +4,7 @@
 
 // ファイル選択のためのモジュール
 const remote = require('electron').remote;
+const app = remote.require('electron').app;
 const Dialog = remote.dialog;
 
 function fileInputForm() {
@@ -63,10 +64,15 @@ fileInputForm.prototype.onUpdateLogFileName = function ( event ) {
  * 選択したフォルダでテキスト領域を更新する．
  */
 fileInputForm.prototype.onSearchDirectory = function ( event ) {
+  var logFilePath = this.ipc.sendSync('getState', { 'doc': 'app', 'key': 'logFileFolder' });
+  if ('' == logFilePath) {
+    // 設定されていなかったらデフォルトの保存先
+    logFilePath = app.getAppPath() + '/log';
+  }
   Dialog.showOpenDialog(null, {
     properties: ['openDirectory'],
     title: 'ログファイル出力先の選択',
-    defaultPath: '.'
+    defaultPath: logFilePath
   }, function(directories){
     // プロパティに保持
     this.stateMap.logFileFolder = directories[0];

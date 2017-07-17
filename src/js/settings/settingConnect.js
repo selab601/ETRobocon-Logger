@@ -1,5 +1,6 @@
 // ファイル選択のためのモジュール
 const remote = require('electron').remote;
+const app = remote.require('electron').app;
 const Dialog = remote.dialog;
 
 function SettingConnect () {
@@ -36,7 +37,7 @@ SettingConnect.prototype.onFindDefaultPath = function ( event ) {
   Dialog.showOpenDialog(null, {
     properties: ['openDirectory'],
     title: 'ログファイル出力先の選択',
-    defaultPath: '.'
+    defaultPath: app.getAppPath() + "/log"
   }, function(directories){
     // DOM に描画
     this.jqueryMap.$default_path_input.val( directories[0] );

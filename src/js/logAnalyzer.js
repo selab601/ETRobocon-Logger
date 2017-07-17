@@ -4,6 +4,7 @@
 
 // ファイル選択のためのモジュール
 const remote = require('electron').remote;
+const app = remote.require('electron').app;
 const Dialog = remote.dialog;
 // グラフ描画用のモジュール
 const D3GraphRenderer = require('./renderer/D3GraphRenderer.js');
@@ -58,6 +59,8 @@ function logAnalyzer() {
   }.bind(this));
   this.graphRenderer = new D3GraphRenderer( keymap );
   this.mapRenderer   = new MapRenderer();
+  // main プロセスとの通信用モジュール
+  this.ipc = require('electron').ipcRenderer;
 };
 
 
@@ -70,10 +73,17 @@ function logAnalyzer() {
  * ファイルが選択されると，それを DOM 要素に反映しつつ，プロパティに保持する．
  */
 logAnalyzer.prototype.onSelectFile = function () {
+
+  var logFilePath = this.ipc.sendSync('getState', { 'doc': 'app', 'key': 'logFileFolder' });
+  if ('' == logFilePath) {
+    // 設定されていなかったらデフォルトの保存先
+    logFilePath = app.getAppPath() + '/log';
+  }
+
   Dialog.showOpenDialog(null, {
     properties: ['openFile'],
     title: 'ログファイルの選択',
-    defaultPath: '.',
+    defaultPath: logFilePath,
     filters: [
       {name: 'JSONファイル', extensions: ['json']}
     ]
